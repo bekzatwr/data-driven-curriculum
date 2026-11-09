@@ -1,0 +1,221 @@
+{
+  "total_hours": 24,
+  "items": [
+    {
+      "topic_id": "t1",
+      "topic_name": "Дроби",
+      "topic_order": 1,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 6,
+      "importance": 2,
+      "is_locked": false,
+      "mean_post_pct": 46.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100,
+      "automatic_eligible": true,
+      "proposed_hours": 6,
+      "delta": 2,
+      "reason": "Дроби: 46.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 6 ч.; связанные темы: t6. Границы 2–6 и лимит ±2 соблюдены."
+    },
+    {
+      "topic_id": "t2",
+      "topic_name": "Уравнения",
+      "topic_order": 2,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 6,
+      "importance": 2,
+      "is_locked": false,
+      "mean_post_pct": 58.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100,
+      "automatic_eligible": true,
+      "proposed_hours": 6,
+      "delta": 2,
+      "reason": "Уравнения: 58.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 6 ч.; связанные темы: t5. Границы 2–6 и лимит ±2 соблюдены."
+    },
+    {
+      "topic_id": "t3",
+      "topic_name": "Геометрия",
+      "topic_order": 3,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 6,
+      "importance": 2,
+      "is_locked": false,
+      "mean_post_pct": 72.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100,
+      "automatic_eligible": true,
+      "proposed_hours": 4,
+      "delta": 0,
+      "reason": "Перенос не требуется или ограничен доступными часами"
+    },
+    {
+      "topic_id": "t4",
+      "topic_name": "Проценты",
+      "topic_order": 4,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 6,
+      "importance": 2,
+      "is_locked": false,
+      "mean_post_pct": 65.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100,
+      "automatic_eligible": true,
+      "proposed_hours": 4,
+      "delta": 0,
+      "reason": "Перенос не требуется или ограничен доступными часами"
+    },
+    {
+      "topic_id": "t5",
+      "topic_name": "Функции",
+      "topic_order": 5,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 6,
+      "importance": 2,
+      "is_locked": false,
+      "mean_post_pct": 84.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100,
+      "automatic_eligible": true,
+      "proposed_hours": 2,
+      "delta": -2,
+      "reason": "Функции: 84.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 2 ч.; связанные темы: t2. Границы 2–6 и лимит ±2 соблюдены."
+    },
+    {
+      "topic_id": "t6",
+      "topic_name": "Статистика",
+      "topic_order": 6,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 6,
+      "importance": 2,
+      "is_locked": false,
+      "mean_post_pct": 92.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100,
+      "automatic_eligible": true,
+      "proposed_hours": 2,
+      "delta": -2,
+      "reason": "Статистика: 92.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 2 ч.; связанные темы: t1. Границы 2–6 и лимит ±2 соблюдены."
+    }
+  ],
+  "transfers": [
+    {
+      "from_topic_id": "t6",
+      "to_topic_id": "t1",
+      "hours": 1
+    },
+    {
+      "from_topic_id": "t6",
+      "to_topic_id": "t1",
+      "hours": 1
+    },
+    {
+      "from_topic_id": "t5",
+      "to_topic_id": "t2",
+      "hours": 1
+    },
+    {
+      "from_topic_id": "t5",
+      "to_topic_id": "t2",
+      "hours": 1
+    }
+  ],
+  "warnings": [
+    "Предложение не прогнозирует рост баллов; решение принимает методист."
+  ],
+  "settings": {
+    "target_pct": 70.0,
+    "donor_pct": 80.0,
+    "min_students": 10,
+    "max_change": 2
+  },
+  "algorithm_version": "rules_v1",
+  "dataset_id": "aidana-demo",
+  "class_id": "7A",
+  "applied_filters": {
+    "class_ids": [
+      "7A"
+    ],
+    "test_versions": {}
+  },
+  "source": {
+    "id": "aidana-demo",
+    "source_type": "demo",
+    "metadata": {
+      "name": "Искусственный пример Айданы",
+      "subject": "Математика",
+      "grade": 7,
+      "period_start": "2026-09-01",
+      "period_end": "2026-10-31"
+    },
+    "counts": {
+      "students": 120,
+      "classes": 4,
+      "topics": 6,
+      "results": 1440
+    }
+  },
+  "is_demo": true,
+  "metrics": [
+    {
+      "topic_id": "t1",
+      "mean_post_pct": 46.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100
+    },
+    {
+      "topic_id": "t2",
+      "mean_post_pct": 58.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100
+    },
+    {
+      "topic_id": "t3",
+      "mean_post_pct": 72.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100
+    },
+    {
+      "topic_id": "t4",
+      "mean_post_pct": 65.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100
+    },
+    {
+      "topic_id": "t5",
+      "mean_post_pct": 84.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100
+    },
+    {
+      "topic_id": "t6",
+      "mean_post_pct": 92.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100
+    }
+  ]
+}
