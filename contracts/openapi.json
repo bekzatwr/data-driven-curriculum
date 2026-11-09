@@ -3,7 +3,7 @@
   "info": {
     "title": "Data-Driven Curriculum — backend",
     "description": "Импорт, проверка и хранение учебных данных. Модуль Бекзата.",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "paths": {
     "/api/health": {
@@ -19,6 +19,27 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/capabilities": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Capabilities",
+        "operationId": "capabilities_api_capabilities_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Capabilities"
+                }
               }
             }
           }
@@ -223,6 +244,109 @@
         }
       }
     },
+    "/api/datasets/restore": {
+      "post": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Restore Dataset",
+        "operationId": "restore_dataset_api_datasets_restore_post",
+        "parameters": [
+          {
+            "name": "dry_run",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Dry Run"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetPackage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        }
+      }
+    },
     "/api/datasets": {
       "get": {
         "tags": [
@@ -344,6 +468,170 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Dataset"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/quality": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Quality",
+        "operationId": "get_quality_api_datasets__dataset_id__quality_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetQuality"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/package": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Package",
+        "operationId": "get_package_api_datasets__dataset_id__package_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetPackage"
                 }
               }
             }
@@ -854,6 +1142,44 @@
   },
   "components": {
     "schemas": {
+      "ApiLimits": {
+        "properties": {
+          "csv_files_bytes": {
+            "type": "integer",
+            "title": "Csv Files Bytes"
+          },
+          "multipart_body_bytes": {
+            "type": "integer",
+            "title": "Multipart Body Bytes"
+          },
+          "package_body_bytes": {
+            "type": "integer",
+            "title": "Package Body Bytes"
+          },
+          "results_per_dataset": {
+            "type": "integer",
+            "title": "Results Per Dataset"
+          },
+          "topics_per_dataset": {
+            "type": "integer",
+            "title": "Topics Per Dataset"
+          },
+          "results_per_page": {
+            "type": "integer",
+            "title": "Results Per Page"
+          }
+        },
+        "type": "object",
+        "required": [
+          "csv_files_bytes",
+          "multipart_body_bytes",
+          "package_body_bytes",
+          "results_per_dataset",
+          "topics_per_dataset",
+          "results_per_page"
+        ],
+        "title": "ApiLimits"
+      },
       "Body_import_dataset_api_datasets_import_post": {
         "properties": {
           "results_file": {
@@ -882,6 +1208,48 @@
         ],
         "title": "Body_import_dataset_api_datasets_import_post"
       },
+      "Capabilities": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "local",
+              "read_only_demo"
+            ],
+            "title": "Mode"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/ApiLimits"
+          },
+          "features": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Features"
+          },
+          "links": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Links"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "mode",
+          "limits",
+          "features",
+          "links"
+        ],
+        "title": "Capabilities"
+      },
       "ClassFilter": {
         "properties": {
           "id": {
@@ -904,6 +1272,146 @@
           "student_count"
         ],
         "title": "ClassFilter"
+      },
+      "ClassQuality": {
+        "properties": {
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "results": {
+            "type": "integer",
+            "title": "Results"
+          },
+          "pre": {
+            "type": "integer",
+            "title": "Pre"
+          },
+          "post": {
+            "type": "integer",
+            "title": "Post"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          },
+          "post_without_pre": {
+            "type": "integer",
+            "title": "Post Without Pre"
+          },
+          "pre_without_post": {
+            "type": "integer",
+            "title": "Pre Without Post"
+          },
+          "missing_teacher": {
+            "type": "integer",
+            "title": "Missing Teacher"
+          },
+          "paired_post_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Post Share"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "topics_with_results": {
+            "type": "integer",
+            "title": "Topics With Results"
+          },
+          "topics_without_results": {
+            "type": "integer",
+            "title": "Topics Without Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "students",
+          "results",
+          "pre",
+          "post",
+          "pairs",
+          "post_without_pre",
+          "pre_without_post",
+          "missing_teacher",
+          "paired_post_share",
+          "class_id",
+          "school_id",
+          "topics_with_results",
+          "topics_without_results"
+        ],
+        "title": "ClassQuality"
+      },
+      "Completeness": {
+        "properties": {
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "results": {
+            "type": "integer",
+            "title": "Results"
+          },
+          "pre": {
+            "type": "integer",
+            "title": "Pre"
+          },
+          "post": {
+            "type": "integer",
+            "title": "Post"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          },
+          "post_without_pre": {
+            "type": "integer",
+            "title": "Post Without Pre"
+          },
+          "pre_without_post": {
+            "type": "integer",
+            "title": "Pre Without Post"
+          },
+          "missing_teacher": {
+            "type": "integer",
+            "title": "Missing Teacher"
+          },
+          "paired_post_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Post Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "students",
+          "results",
+          "pre",
+          "post",
+          "pairs",
+          "post_without_pre",
+          "pre_without_post",
+          "missing_teacher",
+          "paired_post_share"
+        ],
+        "title": "Completeness"
       },
       "Counts": {
         "properties": {
@@ -1023,6 +1531,109 @@
           "offset"
         ],
         "title": "DatasetList"
+      },
+      "DatasetPackage": {
+        "properties": {
+          "format": {
+            "type": "string",
+            "const": "ddc-dataset",
+            "title": "Format"
+          },
+          "version": {
+            "type": "integer",
+            "maximum": 1.0,
+            "minimum": 1.0,
+            "title": "Version"
+          },
+          "checksum": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Checksum"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PackageData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "format",
+          "version",
+          "checksum",
+          "data"
+        ],
+        "title": "DatasetPackage"
+      },
+      "DatasetQuality": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "upload",
+              "demo"
+            ],
+            "title": "Source Type"
+          },
+          "content_hash": {
+            "type": "string",
+            "title": "Content Hash"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/Completeness"
+          },
+          "topics_without_results": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Topics Without Results"
+          },
+          "by_topic": {
+            "items": {
+              "$ref": "#/components/schemas/TopicQuality"
+            },
+            "type": "array",
+            "title": "By Topic"
+          },
+          "by_class": {
+            "items": {
+              "$ref": "#/components/schemas/ClassQuality"
+            },
+            "type": "array",
+            "title": "By Class"
+          },
+          "notices": {
+            "items": {
+              "$ref": "#/components/schemas/QualityNotice"
+            },
+            "type": "array",
+            "title": "Notices"
+          },
+          "definitions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Definitions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "source_type",
+          "content_hash",
+          "summary",
+          "topics_without_results",
+          "by_topic",
+          "by_class",
+          "notices",
+          "definitions"
+        ],
+        "title": "DatasetQuality"
       },
       "ErrorDetail": {
         "properties": {
@@ -1261,6 +1872,186 @@
         ],
         "title": "Metadata"
       },
+      "PackageData": {
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "curriculum": {
+            "items": {
+              "$ref": "#/components/schemas/PackageTopic"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Curriculum"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/PackageResult"
+            },
+            "type": "array",
+            "maxItems": 10000,
+            "minItems": 1,
+            "title": "Results"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metadata",
+          "curriculum",
+          "results"
+        ],
+        "title": "PackageData"
+      },
+      "PackageResult": {
+        "properties": {
+          "student_id": {
+            "type": "string",
+            "title": "Student Id"
+          },
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "teacher_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Teacher Id"
+          },
+          "textbook_id": {
+            "type": "string",
+            "title": "Textbook Id"
+          },
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "test_version": {
+            "type": "string",
+            "title": "Test Version"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "pre",
+              "post"
+            ],
+            "title": "Stage"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "max_score": {
+            "type": "number",
+            "title": "Max Score"
+          },
+          "tested_at": {
+            "type": "string",
+            "title": "Tested At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "student_id",
+          "school_id",
+          "class_id",
+          "teacher_id",
+          "textbook_id",
+          "topic_id",
+          "test_version",
+          "stage",
+          "score",
+          "max_score",
+          "tested_at"
+        ],
+        "title": "PackageResult"
+      },
+      "PackageTopic": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name"
+          },
+          "topic_order": {
+            "type": "integer",
+            "title": "Topic Order"
+          },
+          "current_hours": {
+            "type": "integer",
+            "title": "Current Hours"
+          },
+          "min_hours": {
+            "type": "integer",
+            "title": "Min Hours"
+          },
+          "max_hours": {
+            "type": "integer",
+            "title": "Max Hours"
+          },
+          "importance": {
+            "type": "integer",
+            "title": "Importance"
+          },
+          "is_locked": {
+            "type": "boolean",
+            "title": "Is Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topic_id",
+          "topic_name",
+          "topic_order",
+          "current_hours",
+          "min_hours",
+          "max_hours",
+          "importance",
+          "is_locked"
+        ],
+        "title": "PackageTopic"
+      },
+      "QualityNotice": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "count",
+          "message"
+        ],
+        "title": "QualityNotice"
+      },
       "RecordsPage": {
         "properties": {
           "dataset_id": {
@@ -1459,6 +2250,81 @@
           "is_locked"
         ],
         "title": "Topic"
+      },
+      "TopicQuality": {
+        "properties": {
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "results": {
+            "type": "integer",
+            "title": "Results"
+          },
+          "pre": {
+            "type": "integer",
+            "title": "Pre"
+          },
+          "post": {
+            "type": "integer",
+            "title": "Post"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          },
+          "post_without_pre": {
+            "type": "integer",
+            "title": "Post Without Pre"
+          },
+          "pre_without_post": {
+            "type": "integer",
+            "title": "Pre Without Post"
+          },
+          "missing_teacher": {
+            "type": "integer",
+            "title": "Missing Teacher"
+          },
+          "paired_post_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Post Share"
+          },
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name"
+          },
+          "classes_with_results": {
+            "type": "integer",
+            "title": "Classes With Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "students",
+          "results",
+          "pre",
+          "post",
+          "pairs",
+          "post_without_pre",
+          "pre_without_post",
+          "missing_teacher",
+          "paired_post_share",
+          "topic_id",
+          "topic_name",
+          "classes_with_results"
+        ],
+        "title": "TopicQuality"
       }
     }
   }

@@ -17,6 +17,8 @@ jobs:
           cache: pip
       - run: python -m pip install -r requirements-dev.txt
       - run: python -m pytest -q
+      - run: python scripts/export_contracts.py
+      - run: git diff --exit-code -- contracts
       - run: python scripts/benchmark_import.py --max-seconds 10
   container:
     runs-on: ubuntu-latest
@@ -28,6 +30,8 @@ jobs:
       - run: docker compose config --quiet
       - run: docker compose up --build --detach --wait --wait-timeout 90
       - run: python scripts/smoke_container.py
+      - run: docker compose exec -T backend python -m backend.app.db.backup --output /app/data/backups/ci.sqlite3
+      - run: docker compose exec -T backend python -m backend.app.db.backup --source /app/data/backups/ci.sqlite3 --output /app/data/recovery.sqlite3
       - run: docker compose restart backend
       - run: python scripts/smoke_container.py --expect-existing
       - if: failure()

@@ -15,24 +15,30 @@ from .api.datasets import router as datasets_router
 from .config import Settings
 from .db import Store
 from .errors import ApiError
+from .schemas import Capabilities
+from .version import VERSION
 
 logger = logging.getLogger(__name__)
 
 
 class ImportBodyLimit:
-    """Bound the body before multipart parsing, also for chunked requests."""
+    """Bound import bodies before multipart/JSON parsing, including chunked requests."""
 
     def __init__(self, app, settings: Settings):
         self.app = app
         self.settings = settings
 
     async def __call__(self, scope, receive, send):
-        if scope["type"] != "http" or scope["method"] != "POST" or scope["path"].rstrip("/") != "/api/datasets/import":
+        if scope["type"] != "http" or scope["method"] != "POST":
+            return await self.app(scope, receive, send)
+        path = scope["path"].rstrip("/")
+        if path not in {"/api/datasets/import", "/api/datasets/restore"}:
             return await self.app(scope, receive, send)
         if self.settings.read_only_demo:
             return await ApiError(403, "READ_ONLY_DEMO", "Импорт отключён в публичном деморежиме.").response()(scope, receive, send)
         # Allow small multipart headers/metadata in addition to the two CSV files.
-        limit = self.settings.max_upload_bytes + 64 * 1024
+        limit = (self.settings.max_package_bytes if path.endswith("/restore")
+                 else self.settings.max_upload_bytes + 64 * 1024)
         length = dict(scope["headers"]).get(b"content-length")
         if length is not None:
             try:
@@ -75,7 +81,7 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
         yield
 
     application = FastAPI(
-        title="Data-Driven Curriculum — backend", version="0.1.0", lifespan=lifespan,
+        title="Data-Driven Curriculum — backend", version=VERSION, lifespan=lifespan,
         description="Импорт, проверка и хранение учебных данных. Модуль Бекзата.",
     )
     application.state.settings = settings
@@ -118,7 +124,24 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
     def health():
         if not store.ping():
             raise ApiError(503, "DATABASE_UNAVAILABLE", "База данных недоступна.")
-        return {"status": "ok", "version": "0.1.0", "database": "ok", "read_only_demo": settings.read_only_demo}
+        return {"status": "ok", "version": VERSION, "database": "ok", "read_only_demo": settings.read_only_demo}
+
+    @application.get("/api/capabilities", response_model=Capabilities, tags=["System"])
+    def capabilities():
+        return {
+            "version": VERSION, "mode": "read_only_demo" if settings.read_only_demo else "local",
+            "limits": {"csv_files_bytes": settings.max_upload_bytes,
+                       "multipart_body_bytes": settings.max_upload_bytes + 64 * 1024,
+                       "package_body_bytes": settings.max_package_bytes,
+                       "results_per_dataset": settings.max_results, "topics_per_dataset": settings.max_topics,
+                       "results_per_page": 1000},
+            "features": {"csv_import": not settings.read_only_demo, "import_preview": not settings.read_only_demo,
+                         "demo_dataset": True, "data_quality": True, "package_export": True,
+                         "package_restore": not settings.read_only_demo},
+            "links": {"docs": "/docs", "openapi": "/openapi.json", "datasets": "/api/datasets",
+                      "results_template": "/api/templates/results.csv",
+                      "curriculum_template": "/api/templates/curriculum.csv"},
+        }
 
     application.include_router(datasets_router)
     for router in routers:

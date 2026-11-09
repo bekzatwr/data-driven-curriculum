@@ -8,7 +8,12 @@ from starlette.concurrency import run_in_threadpool
 from ..db import Store
 from ..demo import demo_files
 from ..errors import ApiError
-from ..schemas import Dataset, DatasetList, ErrorResponse, Filters, ImportResponse, RecordsPage, Topic
+from ..packages import export_package, validate_package
+from ..quality import dataset_quality
+from ..schemas import (
+    Dataset, DatasetList, DatasetPackage, DatasetQuality, ErrorResponse, Filters,
+    ImportResponse, RecordsPage, Topic,
+)
 from ..validation import RESULT_FIELDS, TOPIC_FIELDS, validate_upload
 
 router = APIRouter(prefix="/api", tags=["Datasets"], responses={
@@ -77,6 +82,18 @@ def create_demo(request: Request, store: StoreDep):
     return import_response(upload, False, dataset, created)
 
 
+@router.post("/datasets/restore", response_model=ImportResponse, responses={201: {"model": ImportResponse}})
+def restore_dataset(request: Request, store: StoreDep, package: DatasetPackage, dry_run: bool = True):
+    settings = request.app.state.settings
+    if settings.read_only_demo:
+        raise ApiError(403, "READ_ONLY_DEMO", "Восстановление доступно только в локальном или закрытом режиме.")
+    upload = validate_package(package, settings)
+    if dry_run:
+        return import_response(upload, True)
+    dataset, created = store.save_upload(upload)
+    return import_response(upload, False, dataset, created)
+
+
 @router.get("/datasets", response_model=DatasetList)
 def list_datasets(store: StoreDep, limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0)):
     return store.list_datasets(limit, offset)
@@ -85,6 +102,19 @@ def list_datasets(store: StoreDep, limit: int = Query(50, ge=1, le=100), offset:
 @router.get("/datasets/{dataset_id}", response_model=Dataset)
 def get_dataset(dataset_id: str, store: StoreDep):
     return store.get_dataset(dataset_id)
+
+
+@router.get("/datasets/{dataset_id}/quality", response_model=DatasetQuality)
+def get_quality(dataset_id: str, store: StoreDep):
+    return dataset_quality(store, dataset_id)
+
+
+@router.get("/datasets/{dataset_id}/package", response_model=DatasetPackage)
+def get_package(dataset_id: str, store: StoreDep):
+    package = export_package(store, dataset_id)
+    return JSONResponse(content=package.model_dump(mode="json"), headers={
+        "Content-Disposition": f'attachment; filename="dataset-{dataset_id}.ddc.json"',
+    })
 
 
 @router.get("/datasets/{dataset_id}/filters", response_model=Filters)

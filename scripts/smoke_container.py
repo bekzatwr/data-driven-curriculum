@@ -32,6 +32,9 @@ def main():
         time.sleep(1)
     assert health["read_only_demo"] is True, health
     assert request("/api/datasets/import", "POST")[0] == 403
+    assert request("/api/datasets/restore", "POST")[0] == 403
+    status, caps = request("/api/capabilities")
+    assert status == 200 and caps["features"]["package_restore"] is False
     state_file = Path("data/container-check.json")
     if args.expect_existing:
         previous = json.loads(state_file.read_text(encoding="utf-8"))
@@ -45,8 +48,12 @@ def main():
     assert status == 200 and repeated["dataset_id"] == demo["dataset_id"]
     status, filters = request(f'/api/datasets/{demo["dataset_id"]}/filters')
     assert status == 200 and len(filters["classes"]) == 4
+    status, quality = request(f'/api/datasets/{demo["dataset_id"]}/quality')
+    assert status == 200 and quality["summary"]["pairs"] == 720
+    status, package = request(f'/api/datasets/{demo["dataset_id"]}/package')
+    assert status == 200 and len(package["data"]["results"]) == 1440
     result = {"passed": True, "read_only_demo": True, "dataset_id": demo["dataset_id"],
-              "results": 1440, "persistence_checked": args.expect_existing}
+              "results": 1440, "quality_and_package_checked": True, "persistence_checked": args.expect_existing}
     state_file.parent.mkdir(exist_ok=True)
     state_file.write_text(json.dumps(result), encoding="utf-8")
     print(json.dumps(result))

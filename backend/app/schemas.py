@@ -140,3 +140,86 @@ class Filters(BaseModel):
     textbooks: list[TextbookFilter]
     topics: list[Topic]
     test_versions: list[TestVersion]
+
+
+class Completeness(BaseModel):
+    students: int
+    results: int
+    pre: int
+    post: int
+    pairs: int
+    post_without_pre: int
+    pre_without_post: int
+    missing_teacher: int
+    paired_post_share: float | None
+
+
+class TopicQuality(Completeness):
+    topic_id: str
+    topic_name: str
+    classes_with_results: int
+
+
+class ClassQuality(Completeness):
+    class_id: str
+    school_id: str
+    topics_with_results: int
+    topics_without_results: int
+
+
+class QualityNotice(BaseModel):
+    code: str
+    count: int
+    message: str
+
+
+class DatasetQuality(BaseModel):
+    dataset_id: str
+    source_type: Literal["upload", "demo"]
+    content_hash: str
+    summary: Completeness
+    topics_without_results: list[str]
+    by_topic: list[TopicQuality]
+    by_class: list[ClassQuality]
+    notices: list[QualityNotice]
+    definitions: dict[str, str]
+
+
+class PackageTopic(Topic):
+    model_config = ConfigDict(strict=True, extra="forbid")
+
+
+class PackageResult(Result):
+    model_config = ConfigDict(strict=True, extra="forbid", allow_inf_nan=False)
+
+
+class PackageData(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    metadata: Metadata
+    curriculum: list[PackageTopic] = Field(min_length=1, max_length=100)
+    results: list[PackageResult] = Field(min_length=1, max_length=10_000)
+
+
+class DatasetPackage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    format: Literal["ddc-dataset"]
+    version: int = Field(strict=True, ge=1, le=1)
+    checksum: str = Field(pattern=r"^[0-9a-f]{64}$")
+    data: PackageData
+
+
+class ApiLimits(BaseModel):
+    csv_files_bytes: int
+    multipart_body_bytes: int
+    package_body_bytes: int
+    results_per_dataset: int
+    topics_per_dataset: int
+    results_per_page: int
+
+
+class Capabilities(BaseModel):
+    version: str
+    mode: Literal["local", "read_only_demo"]
+    limits: ApiLimits
+    features: dict[str, bool]
+    links: dict[str, str]

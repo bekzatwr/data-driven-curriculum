@@ -13,6 +13,7 @@ from backend.app.config import Settings
 from backend.app.demo import csv_bytes, demo_files
 from backend.app.main import create_app
 from backend.app.review_inputs import PlanReviewInput
+from backend.app.schemas import DatasetPackage
 from backend.app.validation import RESULT_FIELDS
 
 
@@ -27,6 +28,7 @@ def main():
         app = create_app(Settings(database_path=Path(temp) / "contracts.sqlite3"))
         write("openapi.json", app.openapi())
         write("plan-review-input.schema.json", PlanReviewInput.model_json_schema())
+        write("dataset-package.schema.json", DatasetPackage.model_json_schema())
         with TestClient(app) as client:
             response = client.post("/api/datasets/demo")
             assert response.status_code == 201
@@ -41,8 +43,17 @@ def main():
             example("demo-import.response.json", body)
             example("filters.response.json", client.get(f"/api/datasets/{dataset_id}/filters").json())
             example("results-page.response.json", client.get(f"/api/datasets/{dataset_id}/results?limit=3").json())
+            example("quality.response.json", client.get(f"/api/datasets/{dataset_id}/quality").json())
+            write("capabilities.response.json", client.get("/api/capabilities").json())
             results, curriculum, metadata = demo_files()
             rows = list(csv.DictReader(io.StringIO(results.decode("utf-8"))))
+            small = client.post("/api/datasets/import?dry_run=false", data={"metadata": metadata}, files={
+                "results_file": ("results.csv", csv_bytes(RESULT_FIELDS, rows[:2])),
+                "curriculum_file": ("curriculum.csv", curriculum),
+            })
+            assert small.status_code == 201
+            small_id = small.json()["dataset_id"]
+            write("dataset-package.example.json", client.get(f"/api/datasets/{small_id}/package").json())
             rows[0]["score"] = "101"
             invalid = client.post("/api/datasets/import?dry_run=true", data={"metadata": metadata}, files={
                 "results_file": ("results.csv", csv_bytes(RESULT_FIELDS, rows)),

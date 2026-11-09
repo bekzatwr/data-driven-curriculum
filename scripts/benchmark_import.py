@@ -39,6 +39,19 @@ def main():
                               "passed": elapsed < args.max_seconds}))
             if elapsed >= args.max_seconds:
                 raise SystemExit(1)
+            dataset_id = response.json()["dataset_id"]
+            started = time.perf_counter()
+            package_response = client.get(f"/api/datasets/{dataset_id}/package")
+            assert package_response.status_code == 200
+            package = package_response.json()
+            assert len(package["data"]["results"]) == 10_000
+            quality = client.get(f"/api/datasets/{dataset_id}/quality").json()
+            assert quality["summary"]["results"] == 10_000 and quality["summary"]["pairs"] == 5000
+            restored = client.post("/api/datasets/restore?dry_run=false", json=package)
+            assert restored.status_code == 200 and restored.json()["dataset_id"] == dataset_id
+            print(json.dumps({"package_rows": 10_000, "package_bytes": len(package_response.content),
+                              "export_quality_restore_seconds": round(time.perf_counter() - started, 3),
+                              "round_trip_passed": True}))
 
 
 if __name__ == "__main__":

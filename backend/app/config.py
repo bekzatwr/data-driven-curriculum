@@ -11,6 +11,7 @@ class Settings:
     read_only_demo: bool = False
     cors_origins: tuple[str, ...] = ("http://localhost:5173", "http://127.0.0.1:5173")
     max_upload_bytes: int = 10 * 1024 * 1024
+    max_package_bytes: int = 32 * 1024 * 1024
     max_results: int = 10_000
     max_topics: int = 100
     web_dist: Path | None = None

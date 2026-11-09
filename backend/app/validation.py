@@ -40,8 +40,8 @@ class ValidatedUpload:
 
 
 def validate_upload(results_bytes: bytes, topics_bytes: bytes, metadata_json: str,
-                    settings: Settings, source_type="upload") -> ValidatedUpload:
-    if len(results_bytes) + len(topics_bytes) > settings.max_upload_bytes:
+                    settings: Settings, source_type="upload", *, enforce_csv_size=True) -> ValidatedUpload:
+    if enforce_csv_size and len(results_bytes) + len(topics_bytes) > settings.max_upload_bytes:
         raise ApiError(413, "UPLOAD_TOO_LARGE", "Суммарный размер CSV превышает 10 МБ.")
     errors = []
 

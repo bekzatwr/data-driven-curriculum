@@ -1,0 +1,233 @@
+{
+  "$defs": {
+    "Metadata": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "subject": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        },
+        "grade": {
+          "maximum": 12,
+          "minimum": 1,
+          "title": "Grade",
+          "type": "integer"
+        },
+        "period_start": {
+          "format": "date",
+          "title": "Period Start",
+          "type": "string"
+        },
+        "period_end": {
+          "format": "date",
+          "title": "Period End",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "subject",
+        "grade",
+        "period_start",
+        "period_end"
+      ],
+      "title": "Metadata",
+      "type": "object"
+    },
+    "PackageData": {
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/Metadata"
+        },
+        "curriculum": {
+          "items": {
+            "$ref": "#/$defs/PackageTopic"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Curriculum",
+          "type": "array"
+        },
+        "results": {
+          "items": {
+            "$ref": "#/$defs/PackageResult"
+          },
+          "maxItems": 10000,
+          "minItems": 1,
+          "title": "Results",
+          "type": "array"
+        }
+      },
+      "required": [
+        "metadata",
+        "curriculum",
+        "results"
+      ],
+      "title": "PackageData",
+      "type": "object"
+    },
+    "PackageResult": {
+      "additionalProperties": false,
+      "properties": {
+        "student_id": {
+          "title": "Student Id",
+          "type": "string"
+        },
+        "school_id": {
+          "title": "School Id",
+          "type": "string"
+        },
+        "class_id": {
+          "title": "Class Id",
+          "type": "string"
+        },
+        "teacher_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Teacher Id"
+        },
+        "textbook_id": {
+          "title": "Textbook Id",
+          "type": "string"
+        },
+        "topic_id": {
+          "title": "Topic Id",
+          "type": "string"
+        },
+        "test_version": {
+          "title": "Test Version",
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "pre",
+            "post"
+          ],
+          "title": "Stage",
+          "type": "string"
+        },
+        "score": {
+          "title": "Score",
+          "type": "number"
+        },
+        "max_score": {
+          "title": "Max Score",
+          "type": "number"
+        },
+        "tested_at": {
+          "title": "Tested At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "student_id",
+        "school_id",
+        "class_id",
+        "teacher_id",
+        "textbook_id",
+        "topic_id",
+        "test_version",
+        "stage",
+        "score",
+        "max_score",
+        "tested_at"
+      ],
+      "title": "PackageResult",
+      "type": "object"
+    },
+    "PackageTopic": {
+      "additionalProperties": false,
+      "properties": {
+        "topic_id": {
+          "title": "Topic Id",
+          "type": "string"
+        },
+        "topic_name": {
+          "title": "Topic Name",
+          "type": "string"
+        },
+        "topic_order": {
+          "title": "Topic Order",
+          "type": "integer"
+        },
+        "current_hours": {
+          "title": "Current Hours",
+          "type": "integer"
+        },
+        "min_hours": {
+          "title": "Min Hours",
+          "type": "integer"
+        },
+        "max_hours": {
+          "title": "Max Hours",
+          "type": "integer"
+        },
+        "importance": {
+          "title": "Importance",
+          "type": "integer"
+        },
+        "is_locked": {
+          "title": "Is Locked",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "topic_id",
+        "topic_name",
+        "topic_order",
+        "current_hours",
+        "min_hours",
+        "max_hours",
+        "importance",
+        "is_locked"
+      ],
+      "title": "PackageTopic",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "ddc-dataset",
+      "title": "Format",
+      "type": "string"
+    },
+    "version": {
+      "maximum": 1,
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "checksum": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Checksum",
+      "type": "string"
+    },
+    "data": {
+      "$ref": "#/$defs/PackageData"
+    }
+  },
+  "required": [
+    "format",
+    "version",
+    "checksum",
+    "data"
+  ],
+  "title": "DatasetPackage",
+  "type": "object"
+}
