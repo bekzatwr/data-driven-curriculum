@@ -1,0 +1,47 @@
+{
+  "dataset_id": "__DATASET_ID__",
+  "items": [
+    {
+      "student_id": "S001",
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7A",
+      "teacher_id": "T1",
+      "textbook_id": "Учебник A",
+      "topic_id": "equations",
+      "test_version": "v1",
+      "stage": "post",
+      "score": 61.0,
+      "max_score": 100.0,
+      "tested_at": "2026-10-01"
+    },
+    {
+      "student_id": "S001",
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7A",
+      "teacher_id": "T1",
+      "textbook_id": "Учебник A",
+      "topic_id": "equations",
+      "test_version": "v1",
+      "stage": "pre",
+      "score": 44.0,
+      "max_score": 100.0,
+      "tested_at": "2026-09-01"
+    },
+    {
+      "student_id": "S001",
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7A",
+      "teacher_id": "T1",
+      "textbook_id": "Учебник A",
+      "topic_id": "fractions",
+      "test_version": "v1",
+      "stage": "post",
+      "score": 41.0,
+      "max_score": 100.0,
+      "tested_at": "2026-10-01"
+    }
+  ],
+  "total": 1440,
+  "limit": 3,
+  "offset": 0
+}

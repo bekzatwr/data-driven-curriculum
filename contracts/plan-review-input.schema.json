@@ -1,0 +1,55 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "followup_dataset_id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Followup Dataset Id",
+      "type": "string"
+    },
+    "started_on": {
+      "format": "date",
+      "title": "Started On",
+      "type": "string"
+    },
+    "completed_on": {
+      "format": "date",
+      "title": "Completed On",
+      "type": "string"
+    },
+    "actual_hours_by_topic": {
+      "additionalProperties": {
+        "maximum": 999999999,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "maxProperties": 100,
+      "minProperties": 1,
+      "propertyNames": {
+        "maxLength": 120,
+        "minLength": 1
+      },
+      "title": "Actual Hours By Topic",
+      "type": "object"
+    },
+    "identity_mapping_confirmed": {
+      "title": "Identity Mapping Confirmed",
+      "type": "boolean"
+    },
+    "comment": {
+      "default": "",
+      "maxLength": 2000,
+      "title": "Comment",
+      "type": "string"
+    }
+  },
+  "required": [
+    "followup_dataset_id",
+    "started_on",
+    "completed_on",
+    "actual_hours_by_topic",
+    "identity_mapping_confirmed"
+  ],
+  "title": "PlanReviewInput",
+  "type": "object"
+}
