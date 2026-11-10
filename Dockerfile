@@ -17,6 +17,7 @@ COPY backend ./backend
 COPY planner ./planner
 COPY deploy/run_server.py ./deploy/run_server.py
 COPY analytics ./analytics
+COPY collab ./collab
 RUN mkdir -p /app/data && chown -R appuser:appuser /app
 USER appuser
 EXPOSE 8000

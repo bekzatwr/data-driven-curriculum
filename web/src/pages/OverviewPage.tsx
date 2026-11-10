@@ -41,6 +41,8 @@ import { fmtDate, fmtNum, fmtOne, fmtPct, fmtPp, fmtShare, isNum, plural } from 
 import { STATUS_ORDER, TOPIC_STATUS } from '../lib/status';
 import { useAsync } from '../lib/useAsync';
 import { useDataset } from '../state/dataset';
+import { AiExplain } from '../components/AiExplain';
+import { CommentsPanel } from '../components/Comments';
 
 type SortKey = 'order' | 'mean' | 'below' | 'status';
 
@@ -177,6 +179,7 @@ function OverviewBody({
   onSelectTopic: (id: string) => void;
   classesTotal: number;
 }) {
+  const { datasetId } = useDataset();
   const m = data.metrics;
   const s = data.settings;
   const empty = m.n_students === 0 || data.topics.every((t) => t.n_post === 0);
@@ -338,6 +341,34 @@ function OverviewBody({
           <TopicsTable topics={data.topics} settings={s} onSelect={onSelectTopic} />
         )}
       </section>
+
+      <AiExplain
+        datasetId={datasetId}
+        kind="overview"
+        title="ИИ: где трудности и что делать"
+        context={() => ({
+          is_demo: data.is_demo,
+          filters: filterSummary,
+          settings: s,
+          metrics: {
+            n_students: m.n_students,
+            mean_post_pct: m.mean_post_pct,
+            pair_coverage: m.pair_coverage,
+            n_problem_topics: m.n_problem_topics,
+            topic_count: m.topic_count,
+          },
+          topics: data.topics.map((t) => ({
+            topic: t.topic_name,
+            status: t.status_label,
+            problem_topic: t.problem_topic,
+            mean_post_pct: t.mean_post_pct,
+            below_threshold_share: t.below_threshold_share,
+            n_post: t.n_post,
+            mean_gain_pp: t.mean_gain_pp,
+          })),
+        })}
+        saveTo={{ type: 'dataset', id: 'overview' }}
+      />
     </div>
   );
 }
@@ -599,6 +630,21 @@ function TopicDrawer({ topicId, onClose }: { topicId: string | null; onClose: ()
                 </table>
               </div>
             </div>
+
+            <AiExplain
+              compact
+              datasetId={datasetId}
+              kind="topic"
+              title="ИИ: разбор темы"
+              context={() => ({ is_demo: d.is_demo, settings: d.settings, metrics: d.metrics, by_class: d.by_class.map((c) => ({ class_id: c.class_id, ...c.metrics })) })}
+              saveTo={{ type: 'topic', id: d.metrics.topic_id }}
+            />
+            <CommentsPanel
+              datasetId={datasetId}
+              target={{ type: 'topic', id: d.metrics.topic_id }}
+              title="Обсуждение темы"
+              placeholder="Что мешает ученикам в этой теме? Какие задания и методы помогают?"
+            />
 
             {d.slices.length > 1 && (
               <div>

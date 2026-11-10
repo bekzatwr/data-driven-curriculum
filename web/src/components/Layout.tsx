@@ -1,22 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { BarChart3, ChevronRight, ClipboardList, FileText, GitCompareArrows, Menu, Moon, Search, Sun, Upload } from 'lucide-react';
+import { BarChart3, ChevronRight, ClipboardList, FileText, GitCompareArrows, GraduationCap, Menu, Moon, Search, Sun, Upload } from 'lucide-react';
 import { useApp } from '../state/app';
 import { CommandPalette, isMac } from './CommandPalette';
+import { Brand } from './Logo';
 
 type Theme = 'light' | 'dark';
-
-function Logo() {
-  return (
-    <span className="logo" aria-hidden>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="13" width="4" height="8" rx="1.3" fill="#fff" opacity=".6" />
-        <rect x="10" y="8" width="4" height="13" rx="1.3" fill="#fff" opacity=".85" />
-        <rect x="17" y="3" width="4" height="18" rx="1.3" fill="#fff" />
-      </svg>
-    </span>
-  );
-}
 
 export function Layout() {
   const { current, lastPlanId, apiOnline, recheckApi } = useApp();
@@ -70,18 +59,15 @@ export function Layout() {
     },
   ];
   const activeIndex = steps.findIndex((s) => s.active);
-  const pageTitle = steps[activeIndex]?.label ?? 'Страница';
+  const teachersActive = path.endsWith('/teachers');
+  const pageTitle = teachersActive ? 'Учителя и нагрузка' : steps[activeIndex]?.label ?? 'Страница';
   const inDataset = path.startsWith('/datasets/') || path.startsWith('/plans/');
 
   return (
     <div className={`shell ${navOpen ? 'nav-open' : ''}`}>
       <aside className="sidebar" aria-label="Навигация">
-        <Link to="/" className="sb-brand">
-          <Logo />
-          <span>
-            Data-Driven Curriculum
-            <small>Аналитика для методиста</small>
-          </span>
+        <Link to="/" className="sb-brand" aria-label="Data-Driven Curriculum — на главную">
+          <Brand size={28} />
         </Link>
 
         <button type="button" className="sb-search" onClick={() => setPaletteOpen(true)}>
@@ -114,6 +100,17 @@ export function Layout() {
             );
           })}
         </nav>
+
+        <div className="sb-label">Школа</div>
+        <NavLink
+          to={base ? `${base}/teachers` : '#'}
+          className={`sb-item ${teachersActive ? 'active' : ''} ${base ? '' : 'disabled'}`}
+          aria-current={teachersActive ? 'page' : undefined}
+          tabIndex={base ? undefined : -1}
+        >
+          <GraduationCap size={16} />
+          Учителя и нагрузка
+        </NavLink>
 
         {current && (
           <div className="sb-dataset">

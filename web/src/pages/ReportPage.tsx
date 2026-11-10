@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Braces, Check, Download, FileText, Link2, Lock, Printer } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Braces, Check, Download, FileText, Link2, Lock, MessageSquare, Printer } from 'lucide-react';
 import { api } from '../api/client';
 import type { SavedPlan } from '../api/types';
-import { Badge, Banner, Button, ErrorState, LoadingBlock, WarningsList, errorText, useToast } from '../components/ui';
+import { Badge, Banner, Button, CloseButton, Drawer, ErrorState, LoadingBlock, WarningsList, errorText, useToast } from '../components/ui';
+import { AiExplain } from '../components/AiExplain';
+import { CommentsPanel } from '../components/Comments';
+import { Brand } from '../components/Logo';
 import { fmtDate, fmtDateTimeUtc5, fmtNum, fmtPct, fmtSigned, hours as hoursLabel, shortId } from '../lib/format';
 import { rememberPlan } from '../lib/storage';
 import { useAsync } from '../lib/useAsync';
@@ -62,6 +65,12 @@ function Report({ plan }: { plan: SavedPlan }) {
   const moved = items.reduce((s, i) => s + Math.max(0, i.proposed_hours - i.current_hours), 0);
   const manual = items.filter((i) => i.manually_modified);
   const name = (tid: string) => items.find((i) => i.topic_id === tid)?.topic_name || tid;
+  const isPeriod = plan.comment.startsWith('[План на весь период]');
+  const comment = isPeriod ? plan.comment.replace('[План на весь период]', '').trim() : plan.comment;
+  const [openTopic, setOpenTopic] = useState<string | null>(null);
+  const counts = useAsync((sig) => api.comments(plan.dataset_id, { type: 'plan_topic' }, sig), `pt|${plan.plan_id}|${openTopic ?? ''}`);
+  const countFor = (tid: string) => counts.data?.items.filter((c) => c.target_id === `${plan.plan_id}:${tid}`).length ?? 0;
+  const openItem = openTopic ? items.find((x) => x.topic_id === openTopic) : undefined;
 
   const downloadCsv = async () => {
     setDownloading(true);
@@ -113,9 +122,7 @@ function Report({ plan }: { plan: SavedPlan }) {
       <article className="card report-sheet fade-up-2">
         <header className="report-head">
           <div style={{ flex: 1, minWidth: 260 }}>
-            <div className="small muted strong" style={{ textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Data-Driven Curriculum · отчёт
-            </div>
+            <Brand size={26} tagline="Отчёт по плану учебных часов" />
             <h1 style={{ marginTop: 6 }}>План учебных часов · класс {plan.class_id}</h1>
             <div className="text-2" style={{ marginTop: 6 }}>
               {src.metadata.subject}, {src.metadata.grade} класс · период {fmtDate(src.metadata.period_start)}–{fmtDate(src.metadata.period_end)}
@@ -123,7 +130,11 @@ function Report({ plan }: { plan: SavedPlan }) {
           </div>
           <div className="stack-sm" style={{ alignItems: 'flex-end' }}>
             {plan.is_demo && <span className="demo-stamp">🧪 Искусственные данные</span>}
-            <Badge tone={plan.manually_modified ? 'warning' : 'good'}>{plan.manually_modified ? 'С ручными правками' : 'По рекомендации'}</Badge>
+            {isPeriod ? (
+              <Badge tone="accent">План на весь период</Badge>
+            ) : (
+              <Badge tone={plan.manually_modified ? 'warning' : 'good'}>{plan.manually_modified ? 'С ручными правками' : 'По рекомендации'}</Badge>
+            )}
           </div>
         </header>
 
@@ -168,7 +179,7 @@ function Report({ plan }: { plan: SavedPlan }) {
             <div className="v">{hoursLabel(moved)}</div>
           </div>
           <div className="stat">
-            <div className="k">Ручные правки</div>
+            <div className="k">{isPeriod ? 'Отличий от rules_v1' : 'Ручные правки'}</div>
             <div className="v">{manual.length}</div>
           </div>
         </div>
@@ -189,6 +200,7 @@ function Report({ plan }: { plan: SavedPlan }) {
                 <th className="r">Итог</th>
                 <th className="c">Изм.</th>
                 <th>Объяснение</th>
+                <th className="no-print">Обсуждение</th>
               </tr>
             </thead>
             <tbody>
@@ -228,6 +240,16 @@ function Report({ plan }: { plan: SavedPlan }) {
                     <td className="reason" style={{ maxWidth: 320 }}>
                       {i.recommendation_reason}
                     </td>
+                    <td className="no-print">
+                      <button
+                        type="button"
+                        className={`comment-chip ${countFor(i.topic_id) ? 'has' : ''}`}
+                        onClick={() => setOpenTopic(i.topic_id)}
+                        aria-label={`Обсуждение темы ${i.topic_name}`}
+                      >
+                        <MessageSquare size={13} /> {countFor(i.topic_id) || 'Обсудить'}
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
@@ -241,6 +263,7 @@ function Report({ plan }: { plan: SavedPlan }) {
                 <td className="r num">{items.reduce((s, i) => s + i.recommended_hours, 0)}</td>
                 <td className="r num strong">{items.reduce((s, i) => s + i.proposed_hours, 0)}</td>
                 <td colSpan={2} />
+                <td className="no-print" />
               </tr>
             </tfoot>
           </table>
@@ -266,10 +289,10 @@ function Report({ plan }: { plan: SavedPlan }) {
           </div>
           <div>
             <h2>Комментарий методиста</h2>
-            {plan.comment ? <p style={{ whiteSpace: 'pre-wrap' }}>{plan.comment}</p> : <p className="muted">Без комментария.</p>}
+            {comment ? <p style={{ whiteSpace: 'pre-wrap' }}>{comment}</p> : <p className="muted">Без комментария.</p>}
             {manual.length > 0 && (
               <div style={{ marginTop: 12 }}>
-                <Banner tone="warning" title="Ручные изменения">
+                <Banner tone={isPeriod ? 'info' : 'warning'} title={isPeriod ? 'План на период против правила rules_v1' : 'Ручные изменения'}>
                   {manual.map((i) => `${i.topic_name}: ${i.recommended_hours} → ${i.proposed_hours} ч`).join('; ')}
                 </Banner>
               </div>
@@ -286,6 +309,67 @@ function Report({ plan }: { plan: SavedPlan }) {
           фильтров интерфейса. Рекомендации объяснимы и не прогнозируют рост баллов; решение принимает методист. Даты указаны в UTC+5.
         </p>
       </article>
+
+      <div className="grid-2 no-print" style={{ alignItems: 'start' }}>
+        <section className="card card-pad">
+          <CommentsPanel
+            datasetId={plan.dataset_id}
+            target={{ type: 'plan', id: plan.plan_id }}
+            title="Обсуждение плана"
+            placeholder="Согласны с распределением часов? Что изменить и почему?"
+          />
+        </section>
+        <AiExplain
+          datasetId={plan.dataset_id}
+          kind="plan"
+          title="ИИ: объясни план учителям"
+          hint="Короткое объяснение сохранённого плана для рассылки учителям."
+          context={() => ({
+            is_demo: plan.is_demo,
+            class_id: plan.class_id,
+            mode: isPeriod ? 'план на весь период' : 'перераспределение с лимитом',
+            total_hours: plan.total_hours,
+            settings: plan.settings,
+            topics: items.map((i) => ({
+              topic: i.topic_name,
+              mean_post_pct: i.mean_post_pct,
+              n_post: i.n_post,
+              current_hours: i.current_hours,
+              planned_hours: i.proposed_hours,
+              recommended_hours: i.recommended_hours,
+              manually_modified: i.manually_modified,
+            })),
+            transfers: plan.recommendation_transfers.map((t) => ({ from: name(t.from_topic_id), to: name(t.to_topic_id), hours: t.hours })),
+            comment,
+          })}
+          saveTo={{ type: 'plan', id: plan.plan_id }}
+        />
+      </div>
+
+      <Drawer open={openTopic != null} onClose={() => setOpenTopic(null)} labelledBy="plan-topic-title">
+        <div className="drawer-head">
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="small muted">Тема плана · класс {plan.class_id}</div>
+            <h2 id="plan-topic-title">{openTopic ? name(openTopic) : ''}</h2>
+            {openItem && (
+              <div className="small muted" style={{ marginTop: 6 }}>
+                {openItem.current_hours} → {openItem.proposed_hours} ч · средний {fmtPct(openItem.mean_post_pct)}
+              </div>
+            )}
+          </div>
+          <CloseButton onClick={() => setOpenTopic(null)} />
+        </div>
+        <div className="drawer-body">
+          {openTopic && (
+            <CommentsPanel
+              datasetId={plan.dataset_id}
+              target={{ type: 'plan_topic', id: `${plan.plan_id}:${openTopic}` }}
+              title="Комментарии к теме"
+              placeholder="Хватит ли часов на эту тему? Что предлагаете?"
+            />
+          )}
+        </div>
+      </Drawer>
     </div>
   );
 }
