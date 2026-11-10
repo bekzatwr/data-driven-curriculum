@@ -1,0 +1,1248 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Аналитика Тони — искусственные данные",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/datasets/{dataset_id}/overview": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Overview",
+        "operationId": "overview_api_datasets__dataset_id__overview_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "class_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Ids"
+            }
+          },
+          {
+            "name": "textbook_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Textbook Ids"
+            }
+          },
+          {
+            "name": "test_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Test Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overview"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/topics/{topic_id}": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Topic Detail",
+        "operationId": "topic_detail_api_datasets__dataset_id__topics__topic_id__get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "topic_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Topic Id"
+            }
+          },
+          {
+            "name": "class_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Ids"
+            }
+          },
+          {
+            "name": "textbook_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Textbook Ids"
+            }
+          },
+          {
+            "name": "test_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Test Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/comparison": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Comparison",
+        "operationId": "comparison_api_datasets__dataset_id__comparison_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "topic_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Topic Id"
+            }
+          },
+          {
+            "name": "textbook_a",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Textbook A"
+            }
+          },
+          {
+            "name": "textbook_b",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Textbook B"
+            }
+          },
+          {
+            "name": "class_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Ids"
+            }
+          },
+          {
+            "name": "test_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Test Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comparison"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/demo": {
+      "post": {
+        "summary": "Demo",
+        "operationId": "demo_api_datasets_demo_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/filters": {
+      "get": {
+        "summary": "Filters",
+        "operationId": "filters_api_datasets__dataset_id__filters_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyticsSettings": {
+        "properties": {
+          "threshold_pct": {
+            "type": "number",
+            "title": "Threshold Pct"
+          },
+          "mastered_pct": {
+            "type": "number",
+            "title": "Mastered Pct"
+          },
+          "min_students": {
+            "type": "integer",
+            "title": "Min Students"
+          },
+          "problem_share": {
+            "type": "number",
+            "title": "Problem Share"
+          },
+          "max_baseline_gap_pp": {
+            "type": "number",
+            "title": "Max Baseline Gap Pp"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "threshold_pct",
+          "mastered_pct",
+          "min_students",
+          "problem_share",
+          "max_baseline_gap_pp"
+        ],
+        "title": "AnalyticsSettings"
+      },
+      "BookGroup": {
+        "properties": {
+          "textbook_id": {
+            "type": "string",
+            "title": "Textbook Id"
+          },
+          "n_post": {
+            "type": "integer",
+            "title": "N Post"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs"
+          },
+          "n_classes": {
+            "type": "integer",
+            "title": "N Classes"
+          },
+          "n_teachers": {
+            "type": "integer",
+            "title": "N Teachers"
+          },
+          "pair_coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Coverage"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "mean_pre_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Pre Paired Pct"
+          },
+          "mean_post_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Paired Pct"
+          },
+          "mean_gain_pp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Gain Pp"
+          },
+          "available_slices": {
+            "items": {
+              "$ref": "#/components/schemas/Slice"
+            },
+            "type": "array",
+            "title": "Available Slices"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "textbook_id",
+          "n_post",
+          "n_pairs",
+          "n_classes",
+          "n_teachers",
+          "pair_coverage",
+          "mean_post_pct",
+          "mean_pre_paired_pct",
+          "mean_post_paired_pct",
+          "mean_gain_pp",
+          "available_slices"
+        ],
+        "title": "BookGroup"
+      },
+      "ClassMetrics": {
+        "properties": {
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/TopicMetrics"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "school_id",
+          "class_id",
+          "metrics"
+        ],
+        "title": "ClassMetrics"
+      },
+      "Comparison": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "source": {
+            "type": "object",
+            "title": "Source"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/Filters"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/AnalyticsSettings"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "comparison_status": {
+            "type": "string",
+            "enum": [
+              "comparable",
+              "insufficient_data",
+              "not_comparable"
+            ],
+            "title": "Comparison Status"
+          },
+          "difference_gain_pp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Difference Gain Pp"
+          },
+          "baseline_gap_pp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Gap Pp"
+          },
+          "group_a": {
+            "$ref": "#/components/schemas/BookGroup"
+          },
+          "group_b": {
+            "$ref": "#/components/schemas/BookGroup"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "conclusion": {
+            "type": "string",
+            "title": "Conclusion"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "is_demo",
+          "source",
+          "applied_filters",
+          "settings",
+          "warnings",
+          "topic_id",
+          "test_version",
+          "max_score",
+          "comparison_status",
+          "difference_gain_pp",
+          "baseline_gap_pp",
+          "group_a",
+          "group_b",
+          "reasons",
+          "conclusion"
+        ],
+        "title": "Comparison"
+      },
+      "Error": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Details"
+          },
+          "total_errors": {
+            "type": "integer",
+            "title": "Total Errors"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "details",
+          "total_errors"
+        ],
+        "title": "Error"
+      },
+      "Filters": {
+        "properties": {
+          "class_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Class Ids"
+          },
+          "textbook_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Textbook Ids"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "class_ids",
+          "textbook_ids",
+          "test_version"
+        ],
+        "title": "Filters"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Overview": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "source": {
+            "type": "object",
+            "title": "Source"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/Filters"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/AnalyticsSettings"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/OverviewMetrics"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicMetrics"
+            },
+            "type": "array",
+            "title": "Topics"
+          },
+          "heatmap": {
+            "items": {
+              "$ref": "#/components/schemas/ClassMetrics"
+            },
+            "type": "array",
+            "title": "Heatmap"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "is_demo",
+          "source",
+          "applied_filters",
+          "settings",
+          "warnings",
+          "metrics",
+          "topics",
+          "heatmap"
+        ],
+        "title": "Overview"
+      },
+      "OverviewMetrics": {
+        "properties": {
+          "n_students": {
+            "type": "integer",
+            "title": "N Students"
+          },
+          "n_post_students": {
+            "type": "integer",
+            "title": "N Post Students"
+          },
+          "n_post_results": {
+            "type": "integer",
+            "title": "N Post Results"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs"
+          },
+          "n_paired_students": {
+            "type": "integer",
+            "title": "N Paired Students"
+          },
+          "pair_coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Coverage"
+          },
+          "paired_student_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Student Share"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "n_complete_students": {
+            "type": "integer",
+            "title": "N Complete Students"
+          },
+          "topic_count": {
+            "type": "integer",
+            "title": "Topic Count"
+          },
+          "n_problem_topics": {
+            "type": "integer",
+            "title": "N Problem Topics"
+          },
+          "mixed_topic_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Mixed Topic Ids"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "n_students",
+          "n_post_students",
+          "n_post_results",
+          "n_pairs",
+          "n_paired_students",
+          "pair_coverage",
+          "paired_student_share",
+          "mean_post_pct",
+          "n_complete_students",
+          "topic_count",
+          "n_problem_topics",
+          "mixed_topic_ids",
+          "warnings"
+        ],
+        "title": "OverviewMetrics"
+      },
+      "Slice": {
+        "properties": {
+          "test_version": {
+            "type": "string",
+            "title": "Test Version"
+          },
+          "max_score": {
+            "type": "number",
+            "title": "Max Score"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "test_version",
+          "max_score"
+        ],
+        "title": "Slice"
+      },
+      "TopicDetail": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "source": {
+            "type": "object",
+            "title": "Source"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/Filters"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/AnalyticsSettings"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/TopicMetrics"
+          },
+          "by_class": {
+            "items": {
+              "$ref": "#/components/schemas/ClassMetrics"
+            },
+            "type": "array",
+            "title": "By Class"
+          },
+          "slices": {
+            "items": {
+              "$ref": "#/components/schemas/TopicMetrics"
+            },
+            "type": "array",
+            "title": "Slices"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "is_demo",
+          "source",
+          "applied_filters",
+          "settings",
+          "warnings",
+          "metrics",
+          "by_class",
+          "slices"
+        ],
+        "title": "TopicDetail"
+      },
+      "TopicMetrics": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Name"
+          },
+          "topic_order": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Order"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "below_threshold_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Below Threshold Share"
+          },
+          "n_post": {
+            "type": "integer",
+            "title": "N Post"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs"
+          },
+          "mean_pre_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Pre Paired Pct"
+          },
+          "mean_post_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Paired Pct"
+          },
+          "mean_gain_pp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Gain Pp"
+          },
+          "pair_coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Coverage"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requires_attention",
+              "needs_practice",
+              "mastered",
+              "insufficient_data",
+              "no_data",
+              "mixed_versions"
+            ],
+            "title": "Status"
+          },
+          "status_label": {
+            "type": "string",
+            "title": "Status Label"
+          },
+          "problem_topic": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Problem Topic"
+          },
+          "single_version": {
+            "type": "boolean",
+            "title": "Single Version"
+          },
+          "available_slices": {
+            "items": {
+              "$ref": "#/components/schemas/Slice"
+            },
+            "type": "array",
+            "title": "Available Slices"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "topic_id",
+          "test_version",
+          "max_score",
+          "mean_post_pct",
+          "below_threshold_share",
+          "n_post",
+          "n_pairs",
+          "mean_pre_paired_pct",
+          "mean_post_paired_pct",
+          "mean_gain_pp",
+          "pair_coverage",
+          "status",
+          "status_label",
+          "problem_topic",
+          "single_version",
+          "available_slices",
+          "warnings"
+        ],
+        "title": "TopicMetrics"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

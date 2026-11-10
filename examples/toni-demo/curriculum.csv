@@ -1,0 +1,7 @@
+topic_id,topic_name,topic_order,current_hours,min_hours,max_hours,importance,is_locked
+fractions,Дроби,1,6,3,8,3,false
+equations,Уравнения,2,5,3,8,3,false
+proportions,Пропорции,3,4,2,6,2,false
+geometry,Геометрия,4,3,2,5,2,true
+statistics,Статистика,5,4,2,5,1,false
+revision,Повторение,6,2,1,4,1,false
