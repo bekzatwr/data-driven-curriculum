@@ -1,5 +1,6 @@
 import type {
   AiKind,
+  AiSelectors,
   AuthorRole,
   Capabilities,
   CommentItem,
@@ -22,6 +23,7 @@ import type {
   SaveRequest,
   TopicDetail,
 } from './types';
+import { compactSelectors, parseRetryAfter } from './helpers';
 
 // Пусто = тот же origin (production-контейнер) или dev proxy Vite.
 const BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
@@ -31,20 +33,34 @@ export class ApiError extends Error {
   readonly code: string;
   readonly details: ErrorDetail[];
   readonly totalErrors: number;
+  /** Секунды из заголовка Retry-After (HTTP 429). */
+  readonly retryAfter: number | null;
 
-  constructor(status: number, body: Partial<ErrorBody>) {
-    super(cleanMessage(body.message) || describeStatus(status));
+  constructor(status: number, body: Partial<ErrorBody>, retryAfter: number | null = null) {
+    super(
+      status === 429
+        ? `Слишком много запросов. Повторите${retryAfter ? ` через ${retryAfter} с` : ' чуть позже'}.`
+        : cleanMessage(body.message) || describeStatus(status),
+    );
     this.name = 'ApiError';
     this.status = status;
-    this.code = body.code || `HTTP_${status}`;
+    this.code = body.code || (status === 408 ? 'TIMEOUT' : `HTTP_${status}`);
     this.details = Array.isArray(body.details) ? body.details : [];
     this.totalErrors = body.total_errors ?? this.details.length;
+    this.retryAfter = retryAfter;
   }
 
   get isNetwork() {
     return this.status === 0;
   }
 }
+
+/** Предел ожидания ответа: без него запрос к зависшему серверу «грузится» бесконечно. */
+export const DEFAULT_TIMEOUT_MS = 20_000;
+/** ИИ: сервер сам ограничивает всю цепочку 20 с, даём запас на сеть. */
+export const AI_TIMEOUT_MS = 30_000;
+/** Импорт CSV до 10 МБ на медленной сети. */
+export const UPLOAD_TIMEOUT_MS = 90_000;
 
 /** Убирает служебный текст pydantic («1 validation error… [type=…]»), оставляя понятную причину. */
 export function cleanMessage(message?: string): string {
@@ -62,6 +78,12 @@ function describeStatus(status: number): string {
       return 'Действие недоступно в публичном деморежиме.';
     case 404:
       return 'Данные не найдены. Возможно, набор или план удалён.';
+    case 408:
+      return 'Сервер не ответил вовремя. Проверьте соединение и повторите попытку.';
+    case 409:
+      return 'Достигнут лимит хранилища. Обратитесь к администратору.';
+    case 413:
+      return 'Слишком большой запрос.';
     case 422:
       return 'Проверьте введённые параметры.';
     case 503:
@@ -89,23 +111,44 @@ export function apiUrl(path: string, query?: Query) {
   return `${BASE}${path}${buildQuery(query)}`;
 }
 
+/** fetch с пределом времени: отмена извне (смена фильтров) пробрасывается как AbortError, истечение — как HTTP 408. */
+async function fetchWithDeadline(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+  const ctrl = new AbortController();
+  const outer = init.signal;
+  let timedOut = false;
+  const onAbort = () => ctrl.abort();
+  if (outer) {
+    if (outer.aborted) ctrl.abort();
+    else outer.addEventListener('abort', onAbort, { once: true });
+  }
+  const timer = window.setTimeout(() => {
+    timedOut = true;
+    ctrl.abort();
+  }, timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: ctrl.signal });
+  } catch (err) {
+    if (timedOut) throw new ApiError(408, {});
+    if ((err as Error)?.name === 'AbortError') throw err;
+    throw new ApiError(0, {});
+  } finally {
+    window.clearTimeout(timer);
+    outer?.removeEventListener('abort', onAbort);
+  }
+}
+
+
 async function request<T>(
   path: string,
-  init: RequestInit & { query?: Query; json?: unknown } = {},
+  init: RequestInit & { query?: Query; json?: unknown; timeoutMs?: number } = {},
 ): Promise<{ data: T; status: number; response: Response }> {
-  const { query, json, headers, ...rest } = init;
+  const { query, json, headers, timeoutMs = DEFAULT_TIMEOUT_MS, ...rest } = init;
   const finalInit: RequestInit = { ...rest, headers: { Accept: 'application/json', ...(headers || {}) } };
   if (json !== undefined) {
     finalInit.body = JSON.stringify(json);
     (finalInit.headers as Record<string, string>)['Content-Type'] = 'application/json';
   }
-  let response: Response;
-  try {
-    response = await fetch(apiUrl(path, query), finalInit);
-  } catch (err) {
-    if ((err as Error)?.name === 'AbortError') throw err;
-    throw new ApiError(0, {});
-  }
+  const response = await fetchWithDeadline(apiUrl(path, query), finalInit, timeoutMs);
   const text = await response.text();
   let body: unknown = null;
   if (text) {
@@ -119,12 +162,13 @@ async function request<T>(
     const apiBody = body && typeof body === 'object' && 'code' in (body as object) ? (body as Partial<ErrorBody>) : null;
     // 5xx без JSON-ответа нашего API — это прокси/шлюз: сервер недоступен, а не ошибка в коде.
     if (!apiBody && response.status >= 500) throw new ApiError(0, {});
-    throw new ApiError(response.status, apiBody || {});
+    throw new ApiError(response.status, apiBody || {}, parseRetryAfter(response.headers.get('Retry-After')));
   }
   return { data: body as T, status: response.status, response };
 }
 
 const enc = encodeURIComponent;
+
 
 export interface AnalyticsFilters {
   class_ids?: string[];
@@ -166,6 +210,7 @@ export const api = {
       body: form,
       signal,
       query: { dry_run: dryRun },
+      timeoutMs: UPLOAD_TIMEOUT_MS,
     }).then((r) => ({ ...r.data, httpStatus: r.status }));
   },
 
@@ -233,20 +278,23 @@ export const api = {
       (r) => r.data,
     ),
 
-  aiExplain: (id: string, body: { kind: AiKind; context: unknown; question?: string | null }) =>
-    request<Explanation>(`/api/datasets/${enc(id)}/ai/explain`, { method: 'POST', json: body }).then((r) => r.data),
+  /**
+   * Контракт PR #6: в context уходят только селекторы (ID фильтров/темы/плана), показатели
+   * сервер считает сам. Свободный вопрос сервер пока отклоняет, поэтому question всегда null.
+   */
+  aiExplain: (id: string, body: { kind: AiKind; context: AiSelectors }) =>
+    request<Explanation>(`/api/datasets/${enc(id)}/ai/explain`, {
+      method: 'POST',
+      json: { kind: body.kind, context: compactSelectors(body.context), question: null },
+      timeoutMs: AI_TIMEOUT_MS,
+    }).then((r) => r.data),
 
   planCsvUrl: (planId: string) => apiUrl(`/api/plans/${enc(planId)}/export.csv`),
   planJsonUrl: (planId: string) => apiUrl(`/api/plans/${enc(planId)}`),
   templateUrl: (name: 'results' | 'curriculum') => apiUrl(`/api/templates/${name}.csv`),
 
   async downloadPlanCsv(planId: string, preferredName?: string) {
-    let response: Response;
-    try {
-      response = await fetch(api.planCsvUrl(planId));
-    } catch {
-      throw new ApiError(0, {});
-    }
+    const response = await fetchWithDeadline(api.planCsvUrl(planId), {}, DEFAULT_TIMEOUT_MS);
     if (!response.ok) {
       let body: Partial<ErrorBody> = {};
       try {

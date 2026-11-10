@@ -18,12 +18,14 @@ import {
 import { useApp } from '../state/app';
 import { CommandPalette, isMac } from './CommandPalette';
 import { useSpotlight } from '../lib/useSpotlight';
+import { teachersModuleReady, useFeatures } from '../lib/features';
 import { Brand } from './Logo';
 
 type Theme = 'light' | 'dark';
 
 export function Layout() {
   const { current, lastPlanId, apiOnline, recheckApi, capabilities } = useApp();
+  const features = useFeatures();
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(() => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'));
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -100,6 +102,7 @@ export function Layout() {
   ];
   const activeIndex = steps.findIndex((s) => s.active);
   const teachersActive = path.endsWith('/teachers');
+  const teachersVisible = teachersModuleReady(features);
   const pageTitle = teachersActive ? 'Учителя и нагрузка' : steps[activeIndex]?.label ?? 'Страница';
   const inDataset = path.startsWith('/datasets/') || path.startsWith('/plans/');
 
@@ -141,16 +144,20 @@ export function Layout() {
           })}
         </nav>
 
-        <div className="sb-label">Школа</div>
-        <NavLink
-          to={base ? `${base}/teachers` : '#'}
-          className={`sb-item ${teachersActive ? 'active' : ''} ${base ? '' : 'disabled'}`}
-          aria-current={teachersActive ? 'page' : undefined}
-          tabIndex={base ? undefined : -1}
-        >
-          <GraduationCap size={16} />
-          Учителя и нагрузка
-        </NavLink>
+        {teachersVisible && (
+          <>
+            <div className="sb-label">Школа</div>
+            <NavLink
+              to={base ? `${base}/teachers` : '#'}
+              className={`sb-item ${teachersActive ? 'active' : ''} ${base ? '' : 'disabled'}`}
+              aria-current={teachersActive ? 'page' : undefined}
+              tabIndex={base ? undefined : -1}
+            >
+              <GraduationCap size={16} />
+              Учителя и нагрузка
+            </NavLink>
+          </>
+        )}
 
         {current && (
           <div className="sb-dataset">

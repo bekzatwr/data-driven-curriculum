@@ -37,10 +37,19 @@ import { fmtNum, fmtPct, fmtSigned, hours as hoursLabel, plural } from '../lib/f
 import { rememberPlan } from '../lib/storage';
 import { buildPeriodPlan } from '../lib/periodPlan';
 import { AiExplain } from '../components/AiExplain';
+import { readOnlyReason, useFeatures } from '../lib/features';
 import { useApp } from '../state/app';
 import { useDataset } from '../state/dataset';
 
 type PlanMode = 'shift' | 'period';
+
+/**
+ * «План на весь период» — клиентский прототип (распределение в браузере + сохранение через
+ * rules_v1 с max_change = сумме часов). Серверного режима settings.mode = "period" пока нет
+ * (capabilities.period_planner_api = false), поэтому режим скрыт: иначе сохранялся бы план,
+ * который сервер не считает периодным. Включать только вместе с серверным контрактом Айданы.
+ */
+const PERIOD_PROTOTYPE_ENABLED = false;
 
 const DEFAULT_SETTINGS: PlanSettings = { target_pct: 70, donor_pct: 80, min_students: 10, max_change: 2 };
 
@@ -164,6 +173,9 @@ function PlanEditor({ classId }: { classId: string }) {
   const [saveError, setSaveError] = useState<unknown>(null);
   const [saved, setSaved] = useState<SavedPlan | null>(null);
   const reqId = useRef(0);
+  const features = useFeatures();
+  const saveAllowed = !features.off('plan_save');
+  const periodAllowed = PERIOD_PROTOTYPE_ENABLED && features.on('period_planner_api');
   const [mode, setMode] = useState<PlanMode>('shift');
   const totalCurrent = useMemo(() => filters.topics.reduce((sum, t) => sum + t.current_hours, 0), [filters.topics]);
   // План на период: снимаем лимит ±N (сервер разрешает max_change до 10000), распределение строит buildPeriodPlan.
@@ -254,7 +266,7 @@ function PlanEditor({ classId }: { classId: string }) {
   const runCalculate = () => canCalculate && calculate(request, { constraints, settings, testVersions }, mode === 'period');
 
   const switchMode = (m: PlanMode) => {
-    if (m === mode || !canCalculate) return;
+    if (m === mode || !canCalculate || (m === 'period' && !periodAllowed)) return;
     setMode(m);
     setSaved(null);
     calculate(buildRequest(m), { constraints, settings, testVersions }, m === 'period');
@@ -304,7 +316,7 @@ function PlanEditor({ classId }: { classId: string }) {
   const moved = items.reduce((s, it) => s + Math.max(0, (hours[it.topic_id] ?? 0) - it.current_hours), 0);
   const errorCount = Object.keys(rowErrors).length + (sumDiff !== 0 ? 1 : 0);
   const valid = !!preview && errorCount === 0;
-  const canSave = valid && !stale && !loading && !saving;
+  const canSave = saveAllowed && valid && !stale && !loading && !saving;
 
   const savePlan = async () => {
     if (!canSave || !preview) return;
@@ -363,7 +375,7 @@ function PlanEditor({ classId }: { classId: string }) {
   return (
     <div className="stack">
       {/* ---------- Режим ---------- */}
-      <div className="mode-switch fade-up">
+      {periodAllowed && <div className="mode-switch fade-up">
         <div className="segmented" role="tablist" aria-label="Режим планирования">
           <button role="tab" aria-selected={mode === 'shift'} className={mode === 'shift' ? 'on' : ''} onClick={() => switchMode('shift')}>
             Перераспределение ±{settings.max_change} ч
@@ -377,7 +389,12 @@ function PlanEditor({ classId }: { classId: string }) {
             ? `Все ${preview.total_hours} ч распределяются по темам с нуля: минимум каждой теме, остаток — по приоритету трудных и важных тем.`
             : 'Небольшие переносы часов между темами по правилу rules_v1 с лимитом изменения на тему.'}
         </span>
-      </div>
+      </div>}
+      {!saveAllowed && (
+        <Banner tone="info" title="Сохранение отключено сервером">
+          {readOnlyReason(features.readOnly)} Расчёт, ручные правки и проверка ограничений работают.
+        </Banner>
+      )}
       {period && period.overflow > 0 && (
         <Banner tone="critical" title="Минимумы больше общего лимита">
           Сумма минимумов и заблокированных часов превышает {preview.total_hours} ч на {period.overflow} ч. Уменьшите минимумы или снимите блокировку.
@@ -761,36 +778,21 @@ function PlanEditor({ classId }: { classId: string }) {
         </div>
       </section>
 
-      <AiExplain
-        datasetId={datasetId}
-        kind="plan"
-        title="ИИ: объясни план учителю"
-        hint="Простыми словами: откуда и куда идут часы, почему, какие риски."
-        context={() => ({
-          is_demo: preview.is_demo,
-          class_id: preview.class_id,
-          mode: mode === 'period' ? 'план на весь период' : 'перераспределение с лимитом',
-          total_hours: preview.total_hours,
-          settings: preview.settings,
-          topics: items.map((it) => ({
-            topic: it.topic_name,
-            mean_post_pct: it.mean_post_pct,
-            n_post: it.n_post,
-            current_hours: it.current_hours,
-            planned_hours: hours[it.topic_id],
-            min_hours: it.min_hours,
-            max_hours: it.max_hours,
-            importance: it.importance,
-            locked: it.is_locked,
-          })),
-          transfers: mode === 'period' ? [] : preview.transfers.map((t) => ({ from: topicName(t.from_topic_id), to: topicName(t.to_topic_id), hours: t.hours })),
-        })}
-      />
 
       {saveError != null && (
         <Banner tone="critical" title="Сервер отклонил план">
           {errorText(saveError).message}
         </Banner>
+      )}
+
+      {saved && (
+        <AiExplain
+          datasetId={datasetId}
+          kind="plan"
+          title="ИИ: объясни план учителю"
+          hint="Простыми словами: откуда и куда идут часы, почему, какие риски. Сервер берёт данные из сохранённого снимка."
+          selectors={() => ({ plan_id: saved.plan_id })}
+        />
       )}
 
       {saved && (
@@ -818,7 +820,9 @@ function PlanEditor({ classId }: { classId: string }) {
         </Button>
         <span className="spacer" />
         <span className="small action-hint" style={{ color: canSave ? 'var(--good-text)' : 'var(--muted)', fontWeight: 600 }}>
-          {stale
+          {!saveAllowed
+            ? 'Сохранение отключено сервером'
+            : stale
             ? 'Сначала пересчитайте'
             : !sumOk
               ? `Сумма ${sum} из ${total} ч`
@@ -826,7 +830,14 @@ function PlanEditor({ classId }: { classId: string }) {
                 ? 'Исправьте нарушения'
                 : 'Можно сохранять'}
         </span>
-        <Button variant={saved ? 'default' : 'primary'} icon={<Save size={16} />} onClick={savePlan} disabled={!canSave} loading={saving}>
+        <Button
+          variant={saved ? 'default' : 'primary'}
+          icon={<Save size={16} />}
+          onClick={savePlan}
+          disabled={!canSave}
+          loading={saving}
+          title={saveAllowed ? undefined : readOnlyReason(features.readOnly)}
+        >
           Сохранить план
         </Button>
         <Button

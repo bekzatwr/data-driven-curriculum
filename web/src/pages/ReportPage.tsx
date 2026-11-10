@@ -348,26 +348,8 @@ function Report({ plan }: { plan: SavedPlan }) {
           datasetId={plan.dataset_id}
           kind="plan"
           title="ИИ: объясни план учителям"
-          hint="Короткое объяснение сохранённого плана для рассылки учителям."
-          context={() => ({
-            is_demo: plan.is_demo,
-            class_id: plan.class_id,
-            mode: isPeriod ? 'план на весь период' : 'перераспределение с лимитом',
-            total_hours: plan.total_hours,
-            settings: plan.settings,
-            topics: items.map((i) => ({
-              topic: i.topic_name,
-              mean_post_pct: i.mean_post_pct,
-              n_post: i.n_post,
-              current_hours: i.current_hours,
-              planned_hours: i.proposed_hours,
-              recommended_hours: recommendedOf(i),
-              manually_modified: isManual(i),
-            })),
-            transfers: period ? [] : plan.recommendation_transfers.map((t) => ({ from: name(t.from_topic_id), to: name(t.to_topic_id), hours: t.hours })),
-            comment,
-          })}
-          saveTo={{ type: 'plan', id: plan.plan_id }}
+          hint="Короткое объяснение сохранённого плана для рассылки учителям. Сервер берёт данные из снимка плана."
+          selectors={() => ({ plan_id: plan.plan_id })}
         />
       </div>
 

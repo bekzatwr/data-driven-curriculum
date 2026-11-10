@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { MessageSquare, Send, Sparkles } from 'lucide-react';
-import { api } from '../api/client';
-import type { AuthorRole, CommentItem, CommentTarget } from '../api/types';
-import { fmtDateTimeUtc5, plural } from '../lib/format';
+import { useEffect, useState } from 'react';
+import { Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
+import { api, ApiError } from '../api/client';
+import type { CommentItem, CommentTarget, HumanRole } from '../api/types';
+import { fmtDateTimeUtc5 } from '../lib/format';
+import { readOnlyReason, useFeatures } from '../lib/features';
 import { readJson, writeJson } from '../lib/storage';
 import { useAsync } from '../lib/useAsync';
-import { AiExplain } from './AiExplain';
 import { Markdown } from './Markdown';
 import { Button, ErrorState, LoadingBlock, errorText, useToast } from './ui';
 
-const ROLES: Record<Exclude<AuthorRole, 'ai'>, string> = {
+const ROLES: Record<HumanRole, string> = {
   teacher: 'Учитель',
   methodist: 'Методист',
   admin: 'Администрация',
@@ -18,7 +18,7 @@ const ROLES: Record<Exclude<AuthorRole, 'ai'>, string> = {
 interface Author {
   name: string;
   school: string;
-  role: Exclude<AuthorRole, 'ai'>;
+  role: HumanRole;
 }
 
 function initials(name: string) {
@@ -30,27 +30,67 @@ function initials(name: string) {
     .join('');
 }
 
-/** Обсуждение по блоку: тема, учебник, план, тема плана. Хранится на сервере (модуль collab). */
+/**
+ * Обсуждение по блоку: тема, учебник, план, тема плана. Хранится на сервере (модуль collab).
+ * Чтение — если сервер не отключил comments; запись — только при features.comments_write.
+ * Сервер проверяет, что цель существует в наборе, и ограничивает частоту (429 + Retry-After).
+ */
 export function CommentsPanel({
   datasetId,
   target,
   title = 'Обсуждение',
   placeholder = 'Ваш комментарий: что работает, что нет, что предложить…',
-  aiSummary = true,
   onCount,
 }: {
   datasetId: string;
   target: { type: CommentTarget; id: string };
   title?: string;
   placeholder?: string;
-  aiSummary?: boolean;
+  onCount?: (n: number) => void;
+}) {
+  const features = useFeatures();
+  if (features.off('comments')) return null;
+  return <CommentsInner datasetId={datasetId} target={target} title={title} placeholder={placeholder} onCount={onCount} />;
+}
+
+function CommentsInner({
+  datasetId,
+  target,
+  title,
+  placeholder,
+  onCount,
+}: {
+  datasetId: string;
+  target: { type: CommentTarget; id: string };
+  title: string;
+  placeholder: string;
   onCount?: (n: number) => void;
 }) {
   const toast = useToast();
-  const [author, setAuthor] = useState<Author>(() => readJson('ddc.author', { name: '', school: '', role: 'teacher' }));
+  const features = useFeatures();
+  const canWrite = !features.off('comments_write');
+  const [author, setAuthor] = useState<Author>(() => {
+    const saved = readJson<Author>('ddc.author', { name: '', school: '', role: 'teacher' });
+    return { ...saved, role: saved.role in ROLES ? saved.role : 'teacher' };
+  });
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [touched, setTouched] = useState(false);
+  // 429: блокируем отправку на Retry-After секунд и показываем обратный отсчёт.
+  const [waitUntil, setWaitUntil] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
+  const waitLeft = Math.max(0, Math.ceil((waitUntil - now) / 1000));
+  useEffect(() => {
+    if (!waitUntil) return;
+    const t = window.setInterval(() => {
+      setNow(Date.now());
+      if (Date.now() >= waitUntil) {
+        setWaitUntil(0);
+        window.clearInterval(t);
+      }
+    }, 500);
+    return () => window.clearInterval(t);
+  }, [waitUntil]);
   const state = useAsync(
     async (signal) => {
       const res = await api.comments(datasetId, target, signal);
@@ -62,7 +102,7 @@ export function CommentsPanel({
 
   const send = async () => {
     setTouched(true);
-    if (!author.name.trim() || !text.trim()) return;
+    if (!canWrite || sending || waitLeft > 0 || !author.name.trim() || !text.trim()) return;
     setSending(true);
     try {
       const created = await api.addComment(datasetId, {
@@ -80,14 +120,24 @@ export function CommentsPanel({
       state.setData(list);
       onCount?.(list.total);
     } catch (e) {
-      toast({ tone: 'critical', title: 'Комментарий не отправлен', message: errorText(e).message });
+      if (e instanceof ApiError && e.status === 429) {
+        const sec = e.retryAfter ?? 60;
+        setNow(Date.now());
+        setWaitUntil(Date.now() + sec * 1000);
+      }
+      const title =
+        e instanceof ApiError && e.code === 'COMMENT_TARGET_NOT_FOUND'
+          ? 'Объект обсуждения не найден'
+          : e instanceof ApiError && e.code === 'COMMENT_QUOTA_EXCEEDED'
+            ? 'Хранилище комментариев заполнено'
+            : 'Комментарий не отправлен';
+      toast({ tone: 'critical', title, message: errorText(e).message });
     } finally {
       setSending(false);
     }
   };
 
   const items = state.data?.items || [];
-  const humans = items.filter((c) => c.kind === 'human');
 
   return (
     <section className="comments">
@@ -101,7 +151,12 @@ export function CommentsPanel({
         )}
       </div>
 
-      <div className="comment-form">
+      {!canWrite && (
+        <div className="comment-readonly">
+          <Lock size={13} /> {readOnlyReason(features.readOnly)} Комментарии доступны для чтения.
+        </div>
+      )}
+      {canWrite && <div className="comment-form">
         <div className="comment-author">
           <input
             className={`input ${touched && !author.name.trim() ? 'invalid' : ''}`}
@@ -137,36 +192,30 @@ export function CommentsPanel({
           aria-label="Текст комментария"
         />
         <div className="row" style={{ justifyContent: 'space-between' }}>
-          <span className="tiny faint">{touched && !author.name.trim() ? 'Укажите имя — оно видно коллегам' : 'Ctrl + Enter — отправить'}</span>
-          <Button variant="primary" size="sm" icon={<Send size={14} />} loading={sending} onClick={send} disabled={!text.trim()}>
-            Отправить
+          <span className="tiny faint">
+            {waitLeft > 0
+              ? `Слишком часто: можно отправить через ${waitLeft} с`
+              : touched && !author.name.trim()
+                ? 'Укажите имя — оно видно коллегам'
+                : 'Ctrl + Enter — отправить'}
+          </span>
+          <Button variant="primary" size="sm" icon={<Send size={14} />} loading={sending} onClick={send} disabled={!text.trim() || waitLeft > 0}>
+            {waitLeft > 0 ? `Через ${waitLeft} с` : 'Отправить'}
           </Button>
         </div>
-      </div>
+      </div>}
 
       {state.loading && <LoadingBlock rows={2} />}
       {state.error != null && <ErrorState error={state.error} onRetry={state.reload} compact />}
-      {state.data && items.length === 0 && <div className="comments-empty">Пока нет комментариев — будьте первым.</div>}
+      {state.data && items.length === 0 && (
+        <div className="comments-empty">{canWrite ? 'Пока нет комментариев — будьте первым.' : 'Пока нет комментариев.'}</div>
+      )}
       <div className="comment-list">
         {items.map((c) => (
           <CommentRow key={c.id} c={c} />
         ))}
       </div>
 
-      {aiSummary && humans.length >= 2 && (
-        <AiExplain
-          compact
-          datasetId={datasetId}
-          kind="comments"
-          title="Сводка обсуждения от ИИ"
-          hint={`${humans.length} ${plural(humans.length, ['комментарий', 'комментария', 'комментариев'])}: главные темы, согласия и разногласия`}
-          context={() => ({
-            target: target,
-            comments: humans.slice(0, 60).map((c) => ({ role: ROLES[c.author_role as keyof typeof ROLES] || c.author_role, text: c.text })),
-          })}
-          saveTo={target}
-        />
-      )}
     </section>
   );
 }

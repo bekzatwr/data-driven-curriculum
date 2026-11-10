@@ -346,28 +346,11 @@ function OverviewBody({
         datasetId={datasetId}
         kind="overview"
         title="ИИ: где трудности и что делать"
-        context={() => ({
-          is_demo: data.is_demo,
-          filters: filterSummary,
-          settings: s,
-          metrics: {
-            n_students: m.n_students,
-            mean_post_pct: m.mean_post_pct,
-            pair_coverage: m.pair_coverage,
-            n_problem_topics: m.n_problem_topics,
-            topic_count: m.topic_count,
-          },
-          topics: data.topics.map((t) => ({
-            topic: t.topic_name,
-            status: t.status_label,
-            problem_topic: t.problem_topic,
-            mean_post_pct: t.mean_post_pct,
-            below_threshold_share: t.below_threshold_share,
-            n_post: t.n_post,
-            mean_gain_pp: t.mean_gain_pp,
-          })),
+        selectors={() => ({
+          class_ids: data.applied_filters.class_ids,
+          textbook_ids: data.applied_filters.textbook_ids,
+          test_version: data.applied_filters.test_version,
         })}
-        saveTo={{ type: 'dataset', id: 'overview' }}
       />
     </div>
   );
@@ -636,8 +619,12 @@ function TopicDrawer({ topicId, onClose }: { topicId: string | null; onClose: ()
               datasetId={datasetId}
               kind="topic"
               title="ИИ: разбор темы"
-              context={() => ({ is_demo: d.is_demo, settings: d.settings, metrics: d.metrics, by_class: d.by_class.map((c) => ({ class_id: c.class_id, ...c.metrics })) })}
-              saveTo={{ type: 'topic', id: d.metrics.topic_id }}
+              selectors={() => ({
+                topic_id: d.metrics.topic_id,
+                class_ids: d.applied_filters.class_ids,
+                textbook_ids: d.applied_filters.textbook_ids,
+                test_version: d.applied_filters.test_version,
+              })}
             />
             <CommentsPanel
               datasetId={datasetId}

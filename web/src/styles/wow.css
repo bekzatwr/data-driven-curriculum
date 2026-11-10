@@ -1059,3 +1059,62 @@
     -webkit-text-fill-color: #000 !important;
   }
 }
+
+/* ---------- Состояния по capabilities (PR #6) ---------- */
+.ai-off {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+}
+.ai-head .btn {
+  flex: none;
+}
+@media (max-width: 520px) {
+  .ai-head {
+    flex-wrap: wrap;
+  }
+  .ai-head .btn {
+    width: 100%;
+  }
+}
+.comment-readonly {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.comment-readonly svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* ---------- Телефон: удобные для касания размеры ---------- */
+@media (max-width: 640px) {
+  .btn {
+    height: 40px;
+  }
+  .btn-sm {
+    height: 36px;
+  }
+  .btn-icon {
+    width: 40px;
+  }
+  .btn-icon.btn-sm {
+    width: 36px;
+  }
+  .input,
+  .select {
+    min-height: 40px;
+    font-size: 16px; /* iOS не увеличивает страницу при фокусе */
+  }
+  .textarea {
+    font-size: 16px;
+  }
+}

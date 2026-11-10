@@ -48,9 +48,28 @@ export interface Capabilities {
     topics_per_dataset: number;
     [key: string]: number;
   };
-  features: Record<string, boolean>;
+  features: Partial<Record<FeatureFlag, boolean>> & Record<string, boolean>;
   links: Record<string, string>;
 }
+
+/** Флаги capabilities, от которых зависит интерфейс (источник истины — сервер). */
+export type FeatureFlag =
+  | 'csv_import'
+  | 'import_preview'
+  | 'demo_dataset'
+  | 'package_export'
+  | 'package_restore'
+  | 'plan_preview'
+  | 'plan_save'
+  | 'plan_report'
+  | 'plan_csv'
+  | 'analytics'
+  | 'textbook_comparison'
+  | 'comments'
+  | 'comments_write'
+  | 'ai_explain'
+  | 'teachers_api'
+  | 'period_planner_api';
 
 export interface ResultRow {
   student_id: string;
@@ -391,7 +410,25 @@ export interface CommentList {
   total: number;
 }
 
-export type AiKind = 'overview' | 'topic' | 'comparison' | 'plan' | 'teachers' | 'comments';
+/**
+ * Виды ИИ-пояснений, которые сервер (PR #6) реально обслуживает.
+ * teachers/comments сервер отвечает 503 AI_KIND_NOT_READY — во фронтенде не используются.
+ */
+export type AiKind = 'overview' | 'topic' | 'comparison' | 'plan';
+
+/** Только селекторы: показатели сервер считает сам, браузер не передаёт данные и тексты. */
+export interface AiSelectors {
+  class_ids?: string[];
+  textbook_ids?: string[];
+  test_version?: string | null;
+  topic_id?: string;
+  textbook_a?: string;
+  textbook_b?: string;
+  plan_id?: string;
+}
+
+/** Роль автора, которую может отправить человек (ai сервер не принимает). */
+export type HumanRole = Exclude<AuthorRole, 'ai'>;
 
 export interface Explanation {
   text: string;

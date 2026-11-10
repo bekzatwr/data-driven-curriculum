@@ -356,20 +356,13 @@ function ComparisonBody({ data, topicTitle, labelA, labelB }: { data: Comparison
         kind="comparison"
         title="ИИ: сравнение методик и учебников"
         hint="Что показывают данные, где ограничения и что проверить на уроках. Без вывода «лучший учебник»."
-        context={() => ({
-          is_demo: data.is_demo,
-          topic: topicTitle,
-          test_version: data.test_version,
-          comparison_status: data.comparison_status,
-          difference_gain_pp: data.difference_gain_pp,
-          baseline_gap_pp: data.baseline_gap_pp,
-          reasons: data.reasons,
-          conclusion: data.conclusion,
-          settings: data.settings,
-          group_a: { ...data.group_a, label: labelA },
-          group_b: { ...data.group_b, label: labelB },
+        selectors={() => ({
+          topic_id: data.topic_id,
+          textbook_a: data.group_a.textbook_id,
+          textbook_b: data.group_b.textbook_id,
+          class_ids: data.applied_filters.class_ids,
+          test_version: data.applied_filters.test_version,
         })}
-        saveTo={{ type: 'textbook', id: book === 'a' ? data.group_a.textbook_id : data.group_b.textbook_id }}
       />
 
       <section className="card card-pad">

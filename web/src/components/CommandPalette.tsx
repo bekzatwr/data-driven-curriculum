@@ -18,6 +18,7 @@ import {
 import { api } from '../api/client';
 import type { Dataset, Filters } from '../api/types';
 import { getRecentPlans } from '../lib/storage';
+import { teachersModuleReady, useFeatures } from '../lib/features';
 import { datasetToCurrent, useApp } from '../state/app';
 import { errorText, useToast } from './ui';
 
@@ -37,6 +38,8 @@ export function CommandPalette({ open, onClose, onToggleTheme }: { open: boolean
   const navigate = useNavigate();
   const toast = useToast();
   const { current, setCurrent } = useApp();
+  const features = useFeatures();
+  const teachersVisible = teachersModuleReady(features);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const [datasets, setDatasets] = useState<Dataset[]>([]);
@@ -81,8 +84,10 @@ export function CommandPalette({ open, onClose, onToggleTheme }: { open: boolean
         { id: 'nav-overview', group: 'Переходы', label: 'Обзор результатов', icon: <BarChart3 size={16} />, hint: 'шаг 2', keywords: 'аналитика темы теплокарта', run: () => go(`${base}/overview`) },
         { id: 'nav-cmp', group: 'Переходы', label: 'Сравнение учебников', icon: <GitCompareArrows size={16} />, hint: 'шаг 3', keywords: 'учебник a b', run: () => go(`${base}/comparison`) },
         { id: 'nav-plan', group: 'Переходы', label: 'План часов', icon: <ClipboardList size={16} />, hint: 'шаг 4', keywords: 'часы планировщик период', run: () => go(`${base}/plan`) },
-        { id: 'nav-teachers', group: 'Переходы', label: 'Учителя и нагрузка', icon: <GraduationCap size={16} />, keywords: 'учитель нагрузка ученики на учителя школа', run: () => go(`${base}/teachers`) },
       );
+      if (teachersVisible) {
+        list.push({ id: 'nav-teachers', group: 'Переходы', label: 'Учителя и нагрузка', icon: <GraduationCap size={16} />, keywords: 'учитель нагрузка ученики на учителя школа', run: () => go(`${base}/teachers`) });
+      }
     }
     list.push({ id: 'nav-reports', group: 'Переходы', label: 'Отчёты', icon: <FileText size={16} />, hint: 'шаг 5', keywords: 'план сохранённый', run: () => go('/reports') });
 
@@ -165,7 +170,7 @@ export function CommandPalette({ open, onClose, onToggleTheme }: { open: boolean
     });
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current, filters, datasets]);
+  }, [current, filters, datasets, teachersVisible]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

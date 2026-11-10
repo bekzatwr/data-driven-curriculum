@@ -1,14 +1,39 @@
 import { useMemo } from 'react';
 import { BookOpen, Clock3, GraduationCap, School, Users } from 'lucide-react';
 import { api } from '../api/client';
-import { AiExplain } from '../components/AiExplain';
 import { Badge, Banner, CountUp, DemoBadge, EmptyState, ErrorState, InfoPopover, LoadingBlock } from '../components/ui';
 import { fmtNum, fmtOne, fmtPct, fmtPp, isNum, plural } from '../lib/format';
+import { teachersModuleReady, useFeatures } from '../lib/features';
 import { computeTeachers } from '../lib/teachers';
 import { useAsync } from '../lib/useAsync';
 import { useDataset } from '../state/dataset';
 
 export function TeachersPage() {
+  const features = useFeatures();
+  const { dataset } = useDataset();
+  if (teachersModuleReady(features)) return <TeachersPrototype />;
+  return (
+    <div className="stack" style={{ gap: 0 }}>
+      <div className="page-head fade-up">
+        <div style={{ flex: 1, minWidth: 280 }}>
+          <div className="eyebrow">Школа · Нагрузка учителей</div>
+          <h1>Нагрузка учителей</h1>
+          <p>
+            {dataset.metadata.subject}, {dataset.metadata.grade} класс. {dataset.source_type === 'demo' && <DemoBadge />}
+          </p>
+        </div>
+      </div>
+      <div className="card">
+        <EmptyState title="Раздел ещё не подключён на сервере" icon={<GraduationCap size={26} />}>
+          Расчёт нагрузки (учеников, классов и часов на учителя, средние по школе) появится, когда сервер начнёт отдавать его
+          через API. Мы не показываем расчёт в браузере, чтобы не выдавать прототип за проверенный модуль.
+        </EmptyState>
+      </div>
+    </div>
+  );
+}
+
+function TeachersPrototype() {
   const { datasetId, dataset, filters } = useDataset();
   const state = useAsync((s) => api.allResults(datasetId, s), `teachers|${datasetId}`);
   const summary = useMemo(() => (state.data ? computeTeachers(state.data, filters.topics) : null), [state.data, filters.topics]);
@@ -41,12 +66,12 @@ export function TeachersPage() {
           <EmptyState title="В наборе нет записей об учителях" icon={<GraduationCap size={26} />} />
         </div>
       )}
-      {summary && summary.teachers.length > 0 && <TeachersBody summary={summary} datasetId={datasetId} isDemo={dataset.source_type === 'demo'} />}
+      {summary && summary.teachers.length > 0 && <TeachersBody summary={summary} />}
     </div>
   );
 }
 
-function TeachersBody({ summary, datasetId, isDemo }: { summary: ReturnType<typeof computeTeachers>; datasetId: string; isDemo: boolean }) {
+function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers> }) {
   const t = summary.total;
   const real = summary.teachers.filter((x) => x.teacher_id !== 'Не указан');
   const avgStudents = t.students_per_teacher ?? 0;
@@ -240,25 +265,6 @@ function TeachersBody({ summary, datasetId, isDemo }: { summary: ReturnType<type
         </div>
       </section>
 
-      <AiExplain
-        datasetId={datasetId}
-        kind="teachers"
-        title="ИИ: где перекос нагрузки"
-        context={() => ({
-          is_demo: isDemo,
-          hours_per_class: summary.hours_per_class,
-          total: summary.total,
-          schools: summary.schools,
-          teachers: summary.teachers.map((x) => ({
-            teacher_id: x.teacher_id,
-            classes: x.class_ids,
-            students: x.students,
-            upcoming_hours: x.upcoming_hours,
-            textbooks: x.textbooks,
-          })),
-        })}
-        saveTo={{ type: 'dataset', id: 'teachers' }}
-      />
     </div>
   );
 }
