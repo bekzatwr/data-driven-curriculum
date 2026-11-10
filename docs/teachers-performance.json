@@ -1,0 +1,95 @@
+{
+  "python": "3.13.9",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "teacher_source_sha256": "35bab773783d0e58a70b136910019e1c06b6230f9ccf381af7f468ef1a7fc9a7",
+  "limits": {
+    "max_results": 10000,
+    "max_topics": 100,
+    "max_upload_bytes": 10485760
+  },
+  "cases": [
+    {
+      "name": "20_teachers_1_school_paired",
+      "records": 10000,
+      "topics": 100,
+      "teachers": 20,
+      "schools": 1,
+      "validated_csv_bytes": 676074,
+      "compute_seconds": [
+        0.4052437000000282,
+        0.46778200000017023,
+        0.32141649999994115
+      ],
+      "compute_median_seconds": 0.4052437000000282,
+      "baseline_compute_seconds": 0.3347332999996979,
+      "exact_summary_parity": true,
+      "http_seconds": [
+        0.8198358999998163,
+        0.6539763000000676,
+        0.5204732000001968
+      ],
+      "http_median_seconds": 0.6539763000000676,
+      "response_bytes": 11444
+    },
+    {
+      "name": "10000_teachers_1_school",
+      "records": 10000,
+      "topics": 100,
+      "teachers": 10000,
+      "schools": 1,
+      "validated_csv_bytes": 739944,
+      "compute_seconds": [
+        1.3238030000002254,
+        1.5088416999997207,
+        1.0596872000000985
+      ],
+      "compute_median_seconds": 1.3238030000002254,
+      "baseline_compute_seconds": 6.180552400000124,
+      "exact_summary_parity": true,
+      "http_seconds": [
+        1.62471400000004,
+        1.5665807999998833,
+        1.874556499999926
+      ],
+      "http_median_seconds": 1.62471400000004,
+      "response_bytes": 7172294
+    },
+    {
+      "name": "10000_teachers_10000_schools",
+      "records": 10000,
+      "topics": 100,
+      "teachers": 10000,
+      "schools": 10000,
+      "validated_csv_bytes": 768834,
+      "compute_seconds": [
+        0.9438765999998395,
+        1.3496876999997767,
+        1.0034811000000445
+      ],
+      "compute_median_seconds": 1.0034811000000445,
+      "baseline_compute_seconds": 70.53884459999972,
+      "exact_summary_parity": true,
+      "http_seconds": [
+        1.7828701000003093,
+        1.664914200000112,
+        1.8774662999999236
+      ],
+      "http_median_seconds": 1.7828701000003093,
+      "response_bytes": 8639926
+    }
+  ],
+  "baseline": {
+    "commit": "d5fd35d80c8088c4b00801a2f3d0d26bd027baae",
+    "teacher_source_sha256": "367daa41b297e177fc6a7be0be34ff47f43866e34bc168e7f831b1673fbb6fba",
+    "shared_helpers": "current checkout"
+  },
+  "synthetic_data": true,
+  "requested_budget_seconds": 10,
+  "passed": true,
+  "measurement": {
+    "compute": "Pure compute_teachers call; CSV generation and backend validation are outside the timer",
+    "http": "In-process FastAPI TestClient GET, including SQLite reads, response validation and JSON serialization; no real network",
+    "excluded": "Application startup, SQLite fixture insertion, response.json parsing and temporary database cleanup",
+    "budget": "Median of current compute and optional HTTP repetitions, checked per case; historical baseline excluded"
+  }
+}

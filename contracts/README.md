@@ -1,5 +1,7 @@
 # Контракты общего сервера
 
+P1: `GET /api/datasets/{id}/teachers` и `features.teachers_api=true`. Примеры `analytics-teachers.response.json` и `integrated-analytics-teachers.response.json` включают нагрузку, средние по школам и ограничения. [Формулы и подключение UI](../docs/TONI_P1.md).
+
 `openapi.json` описывает действующие маршруты импорта, аналитики Тони, сравнения учебников и планировщика Айданы в стандартном `backend.app.main.create_app()`. Живая схема — `/openapi.json`. `/api/capabilities` сообщает `analytics=true`, `textbook_comparison=true` и доступность плана/отчёта/CSV.
 
 `analytics.openapi.json` — схема отдельного демоприложения аналитики. `analytics-*.response.json` получены из его реальных ответов: обзор, детали темы, сравнение, пустая выборка и ошибка. Поля и единицы описаны в [TONI.md](../docs/TONI.md). Предварительный `analytics-p0.proposed.openapi.json` удалён после реализации; его enum и имена `status`/`gain_difference_pp` не являются текущим контрактом сравнения. Используйте `comparison_status`/`difference_gain_pp` из действующих схем.

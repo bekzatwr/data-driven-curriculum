@@ -47,6 +47,7 @@ def main():
             for name, path, params in (
                 ('integrated-analytics-overview.response.json', '/overview', {}),
                 ('integrated-analytics-topic.response.json', '/topics/equations', {}),
+                ('integrated-analytics-teachers.response.json', '/teachers', {}),
                 ('integrated-analytics-comparison.response.json', '/comparison', {
                     'topic_id': 'equations', 'textbook_a': 'Учебник A', 'textbook_b': 'Учебник B'}),
             ):

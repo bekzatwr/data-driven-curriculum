@@ -25,7 +25,7 @@
     "comments": true,
     "comments_write": true,
     "ai_explain": false,
-    "teachers_api": false,
+    "teachers_api": true,
     "period_planner_api": true
   },
   "links": {

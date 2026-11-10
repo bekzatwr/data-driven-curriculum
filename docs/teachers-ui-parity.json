@@ -1,0 +1,298 @@
+{
+  "check": "Original frontend TypeScript computeTeachers versus Python compute_teachers on the canonical synthetic demo",
+  "created_at": "2026-11-10T15:10:06.957899+00:00",
+  "passed": true,
+  "source": {
+    "repository": "https://github.com/bekzatwr/data-driven-curriculum",
+    "frontend_commit": "03395ef5db68ac9fab379f622ddf6fbe09112327",
+    "frontend_path": "web/src/lib/teachers.ts",
+    "frontend_sha256": "e592e31a2f6764588da1382c97c86d0b3547ea2df0bd6de9c9b4053652a3acab",
+    "frontend_raw_sha256": "e592e31a2f6764588da1382c97c86d0b3547ea2df0bd6de9c9b4053652a3acab",
+    "frontend_execution": "Unchanged git-show bytes executed by Node with --experimental-strip-types; no translated substitute or cached output",
+    "backend_path": "analytics/teachers.py",
+    "backend_sha256": "6c27c716105696351f220bd87d9e75bf0f3db5199a98efc314613096e49b610d",
+    "fixture": "analytics.demo.demo_records()",
+    "fixture_sha256": "2c2e8ccacb340ebb20dc498ff92e6186ab6d71347c1c0848fbe0155721cb3343",
+    "hash_normalization": "Source hashes replace CRLF and bare CR with LF before SHA-256; executed TypeScript bytes are not normalized. frontend_raw_sha256 hashes the exact executed bytes.",
+    "input_sha256": "268096db7d5297614d6a503705b61e94f36587603d2bfd4c007324dc42c1a5e8",
+    "input_encoding": "UTF-8 canonical JSON: sorted keys, compact separators, no ASCII escaping; the same data is passed to both implementations.",
+    "synthetic_data": true
+  },
+  "runtime": {
+    "node": "v24.22.1",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "comparison": {
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 0,
+    "ordering": "Teachers sorted by school_id/teacher_id; schools by school_id; class_ids and textbooks sorted. No deduplication.",
+    "teacher_fields": [
+      "teacher_id",
+      "school_id",
+      "class_ids",
+      "students",
+      "textbooks",
+      "n_post",
+      "mean_post_pct",
+      "n_pairs",
+      "mean_gain_pp",
+      "upcoming_hours"
+    ],
+    "school_fields": [
+      "school_id",
+      "teachers",
+      "students",
+      "classes",
+      "students_per_teacher",
+      "classes_per_teacher",
+      "hours_per_teacher"
+    ],
+    "leaf_values_checked": 56,
+    "maximum_absolute_numeric_difference": 0,
+    "differences": []
+  },
+  "verified_counts": {
+    "input_results": 1440,
+    "topics": 6,
+    "teachers": 4,
+    "students": 120,
+    "classes": 4,
+    "students_per_teacher": 30.0,
+    "hours_per_teacher": 24.0,
+    "hours_per_class": 24,
+    "post_results_per_teacher": [
+      180,
+      180,
+      180,
+      180
+    ],
+    "pairs_per_teacher": [
+      180,
+      180,
+      180,
+      180
+    ]
+  },
+  "original_ui_result": {
+    "teachers": [
+      {
+        "teacher_id": "T1",
+        "school_id": "DEMO-SCHOOL",
+        "class_ids": [
+          "7A"
+        ],
+        "students": 30,
+        "textbooks": [
+          "Учебник A"
+        ],
+        "n_post": 180,
+        "mean_post_pct": 72.33333333333333,
+        "n_pairs": 180,
+        "mean_gain_pp": 12.166666666666666,
+        "upcoming_hours": 24
+      },
+      {
+        "teacher_id": "T2",
+        "school_id": "DEMO-SCHOOL",
+        "class_ids": [
+          "7B"
+        ],
+        "students": 30,
+        "textbooks": [
+          "Учебник A"
+        ],
+        "n_post": 180,
+        "mean_post_pct": 72.33333333333333,
+        "n_pairs": 180,
+        "mean_gain_pp": 12.166666666666666,
+        "upcoming_hours": 24
+      },
+      {
+        "teacher_id": "T3",
+        "school_id": "DEMO-SCHOOL",
+        "class_ids": [
+          "7C"
+        ],
+        "students": 30,
+        "textbooks": [
+          "Учебник B"
+        ],
+        "n_post": 180,
+        "mean_post_pct": 71.16666666666667,
+        "n_pairs": 180,
+        "mean_gain_pp": 10.833333333333334,
+        "upcoming_hours": 24
+      },
+      {
+        "teacher_id": "T4",
+        "school_id": "DEMO-SCHOOL",
+        "class_ids": [
+          "7D"
+        ],
+        "students": 30,
+        "textbooks": [
+          "Учебник B"
+        ],
+        "n_post": 180,
+        "mean_post_pct": 71.16666666666667,
+        "n_pairs": 180,
+        "mean_gain_pp": 10.833333333333334,
+        "upcoming_hours": 24
+      }
+    ],
+    "schools": [
+      {
+        "school_id": "DEMO-SCHOOL",
+        "teachers": 4,
+        "students": 120,
+        "classes": 4,
+        "students_per_teacher": 30,
+        "classes_per_teacher": 1,
+        "hours_per_teacher": 24
+      }
+    ],
+    "total": {
+      "school_id": "Все школы",
+      "teachers": 4,
+      "students": 120,
+      "classes": 4,
+      "students_per_teacher": 30,
+      "classes_per_teacher": 1,
+      "hours_per_teacher": 24
+    },
+    "hours_per_class": 24,
+    "missing_teacher_rows": 0
+  },
+  "backend_legacy_fields": {
+    "teachers": [
+      {
+        "teacher_id": "T1",
+        "school_id": "DEMO-SCHOOL",
+        "class_ids": [
+          "7A"
+        ],
+        "students": 30,
+        "textbooks": [
+          "Учебник A"
+        ],
+        "n_post": 180,
+        "mean_post_pct": 72.33333333333333,
+        "n_pairs": 180,
+        "mean_gain_pp": 12.166666666666666,
+        "upcoming_hours": 24
+      },
+      {
+        "teacher_id": "T2",
+        "school_id": "DEMO-SCHOOL",
+        "class_ids": [
+          "7B"
+        ],
+        "students": 30,
+        "textbooks": [
+          "Учебник A"
+        ],
+        "n_post": 180,
+        "mean_post_pct": 72.33333333333333,
+        "n_pairs": 180,
+        "mean_gain_pp": 12.166666666666666,
+        "upcoming_hours": 24
+      },
+      {
+        "teacher_id": "T3",
+        "school_id": "DEMO-SCHOOL",
+        "class_ids": [
+          "7C"
+        ],
+        "students": 30,
+        "textbooks": [
+          "Учебник B"
+        ],
+        "n_post": 180,
+        "mean_post_pct": 71.16666666666667,
+        "n_pairs": 180,
+        "mean_gain_pp": 10.833333333333334,
+        "upcoming_hours": 24
+      },
+      {
+        "teacher_id": "T4",
+        "school_id": "DEMO-SCHOOL",
+        "class_ids": [
+          "7D"
+        ],
+        "students": 30,
+        "textbooks": [
+          "Учебник B"
+        ],
+        "n_post": 180,
+        "mean_post_pct": 71.16666666666667,
+        "n_pairs": 180,
+        "mean_gain_pp": 10.833333333333334,
+        "upcoming_hours": 24
+      }
+    ],
+    "schools": [
+      {
+        "school_id": "DEMO-SCHOOL",
+        "teachers": 4,
+        "students": 120,
+        "classes": 4,
+        "students_per_teacher": 30.0,
+        "classes_per_teacher": 1.0,
+        "hours_per_teacher": 24.0
+      }
+    ],
+    "total": {
+      "school_id": "Все школы",
+      "teachers": 4,
+      "students": 120,
+      "classes": 4,
+      "students_per_teacher": 30.0,
+      "classes_per_teacher": 1.0,
+      "hours_per_teacher": 24.0
+    },
+    "hours_per_class": 24,
+    "missing_teacher_rows": 0
+  },
+  "additional_backend_fields_excluded_from_legacy_comparison": [
+    "schools[].teacher_attribution",
+    "teachers[].complete_student_share",
+    "teachers[].is_missing_teacher",
+    "teachers[].mean_post_paired_pct",
+    "teachers[].mean_pre_paired_pct",
+    "teachers[].mixed_topic_ids",
+    "teachers[].n_complete_students",
+    "teachers[].n_paired_students",
+    "teachers[].n_post_students",
+    "teachers[].pair_coverage",
+    "teachers[].paired_student_share",
+    "teachers[].post_topic_count",
+    "teachers[].topic_count",
+    "teachers[].warnings",
+    "total.teacher_attribution",
+    "warnings"
+  ],
+  "intentional_differences_outside_this_demo_parity_check": [
+    {
+      "case": "The same teacher_id in several schools",
+      "backend_behavior": "Teacher identity is scoped by school.",
+      "executed_in_this_report": false
+    },
+    {
+      "case": "Missing teacher and a real ID equal to the display label Не указан",
+      "backend_behavior": "Missing identity is distinct from a label-valued known identity.",
+      "executed_in_this_report": false
+    },
+    {
+      "case": "Mixed versions/scales or incompatible pre/post records",
+      "backend_behavior": "Shared compatibility rules suppress mixed-topic means and exclude incompatible pairs.",
+      "executed_in_this_report": false
+    },
+    {
+      "case": "Duplicate student/topic/stage records",
+      "backend_behavior": "Duplicates are rejected, not overwritten or counted twice.",
+      "executed_in_this_report": false
+    }
+  ],
+  "limitations": "Only the canonical synthetic demo is executed on both implementations. Edge cases listed separately are documented differences, not fabricated cross-runtime results. This verifies calculations, not teacher quality or causal effects."
+}

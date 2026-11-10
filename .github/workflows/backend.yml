@@ -21,6 +21,7 @@ jobs:
       - run: git diff --exit-code -- contracts
       - run: python scripts/benchmark_import.py --max-seconds 10
       - run: python scripts/benchmark_pipeline.py
+      - run: python scripts/benchmark_teachers.py --http --repeats 1 --max-seconds 10
   container:
     runs-on: ubuntu-latest
     steps:

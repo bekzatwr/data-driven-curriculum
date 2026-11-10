@@ -340,6 +340,112 @@
         }
       }
     },
+    "/api/datasets/{dataset_id}/teachers": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Teachers",
+        "operationId": "teachers_api_datasets__dataset_id__teachers_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "class_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Ids"
+            }
+          },
+          {
+            "name": "textbook_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Textbook Ids"
+            }
+          },
+          {
+            "name": "test_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Test Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Teachers"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Dataset or topic not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid analytics request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/health": {
       "get": {
         "summary": "Health",
@@ -941,6 +1047,75 @@
         ],
         "title": "OverviewMetrics"
       },
+      "SchoolWorkload": {
+        "properties": {
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "teachers": {
+            "type": "integer",
+            "title": "Teachers"
+          },
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "classes": {
+            "type": "integer",
+            "title": "Classes"
+          },
+          "teacher_attribution": {
+            "$ref": "#/components/schemas/TeacherAttribution"
+          },
+          "students_per_teacher": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Students Per Teacher"
+          },
+          "classes_per_teacher": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classes Per Teacher"
+          },
+          "hours_per_teacher": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hours Per Teacher"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "school_id",
+          "teachers",
+          "students",
+          "classes",
+          "teacher_attribution",
+          "students_per_teacher",
+          "classes_per_teacher",
+          "hours_per_teacher"
+        ],
+        "title": "SchoolWorkload"
+      },
       "Slice": {
         "properties": {
           "test_version": {
@@ -959,6 +1134,317 @@
           "max_score"
         ],
         "title": "Slice"
+      },
+      "TeacherAttribution": {
+        "properties": {
+          "fully_attributed_students": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Fully Attributed Students"
+          },
+          "partially_attributed_students": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Partially Attributed Students"
+          },
+          "unattributed_students": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Unattributed Students"
+          },
+          "fully_attributed_student_share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fully Attributed Student Share"
+          },
+          "missing_teacher_rows": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Missing Teacher Rows"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "fully_attributed_students",
+          "partially_attributed_students",
+          "unattributed_students",
+          "fully_attributed_student_share",
+          "missing_teacher_rows"
+        ],
+        "title": "TeacherAttribution"
+      },
+      "TeacherMetrics": {
+        "properties": {
+          "teacher_id": {
+            "type": "string",
+            "title": "Teacher Id"
+          },
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "is_missing_teacher": {
+            "type": "boolean",
+            "title": "Is Missing Teacher"
+          },
+          "class_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Class Ids"
+          },
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "textbooks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Textbooks"
+          },
+          "upcoming_hours": {
+            "type": "integer",
+            "title": "Upcoming Hours"
+          },
+          "n_post": {
+            "type": "integer",
+            "title": "N Post"
+          },
+          "n_post_students": {
+            "type": "integer",
+            "title": "N Post Students"
+          },
+          "topic_count": {
+            "type": "integer",
+            "title": "Topic Count"
+          },
+          "post_topic_count": {
+            "type": "integer",
+            "title": "Post Topic Count"
+          },
+          "n_complete_students": {
+            "type": "integer",
+            "title": "N Complete Students"
+          },
+          "complete_student_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Complete Student Share"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "mean_pre_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Pre Paired Pct"
+          },
+          "mean_post_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Paired Pct"
+          },
+          "mean_gain_pp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Gain Pp"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs"
+          },
+          "n_paired_students": {
+            "type": "integer",
+            "title": "N Paired Students"
+          },
+          "paired_student_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Student Share"
+          },
+          "pair_coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Coverage"
+          },
+          "mixed_topic_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Mixed Topic Ids"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "teacher_id",
+          "school_id",
+          "is_missing_teacher",
+          "class_ids",
+          "students",
+          "textbooks",
+          "upcoming_hours",
+          "n_post",
+          "n_post_students",
+          "topic_count",
+          "post_topic_count",
+          "n_complete_students",
+          "complete_student_share",
+          "mean_post_pct",
+          "mean_pre_paired_pct",
+          "mean_post_paired_pct",
+          "mean_gain_pp",
+          "n_pairs",
+          "n_paired_students",
+          "paired_student_share",
+          "pair_coverage",
+          "mixed_topic_ids",
+          "warnings"
+        ],
+        "title": "TeacherMetrics"
+      },
+      "Teachers": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "source": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Source"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/Filters"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/AnalyticsSettings"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "teachers": {
+            "items": {
+              "$ref": "#/components/schemas/TeacherMetrics"
+            },
+            "type": "array",
+            "title": "Teachers"
+          },
+          "schools": {
+            "items": {
+              "$ref": "#/components/schemas/SchoolWorkload"
+            },
+            "type": "array",
+            "title": "Schools"
+          },
+          "total": {
+            "$ref": "#/components/schemas/SchoolWorkload"
+          },
+          "hours_per_class": {
+            "type": "integer",
+            "title": "Hours Per Class"
+          },
+          "missing_teacher_rows": {
+            "type": "integer",
+            "title": "Missing Teacher Rows"
+          },
+          "definitions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Definitions"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "is_demo",
+          "source",
+          "applied_filters",
+          "settings",
+          "warnings",
+          "teachers",
+          "schools",
+          "total",
+          "hours_per_class",
+          "missing_teacher_rows",
+          "definitions"
+        ],
+        "title": "Teachers"
       },
       "TopicDetail": {
         "properties": {
