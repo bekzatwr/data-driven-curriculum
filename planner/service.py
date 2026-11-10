@@ -1,5 +1,7 @@
 from analytics.topics import compute_topics
-from .models import Constraint
+from pydantic import ValidationError
+from .models import Constraint, PeriodConstraint
+from .period import allocate_period
 from .rules import allocate_hours, validate_hours, PlanError
 
 
@@ -18,7 +20,12 @@ def preview(store, dataset_id, request):
     for topic in topics:
         tid = topic['topic_id']
         override = request.constraints.get(tid)
-        constraints.append(Constraint.model_validate({**topic, **(override.model_dump(exclude_none=True) if override else {})}).model_dump())
+        constraint_model = PeriodConstraint if request.settings.mode == 'period' else Constraint
+        try:
+            constraints.append(constraint_model.model_validate({**topic, **(override.model_dump(exclude_none=True) if override else {})}).model_dump())
+        except ValidationError as exc:
+            messages = [e['msg'].removeprefix('Value error, ') for e in exc.errors(include_url=False)]
+            raise PlanError('; '.join(messages)) from exc
         rows = [r for r in records if r['topic_id'] == tid]
         if tid in request.test_versions:
             rows = [r for r in rows if r['test_version'] == request.test_versions[tid]]
@@ -30,7 +37,8 @@ def preview(store, dataset_id, request):
         metric = compute_topics(rows, {'topic_ids': [tid]})[0]
         metrics.append({key: metric[key] for key in (
             'topic_id', 'mean_post_pct', 'n_post', 'single_version', 'test_version', 'max_score')})
-    result = allocate_hours(metrics, constraints, request.settings.model_dump())
+    allocator = allocate_period if request.settings.mode == 'period' else allocate_hours
+    result = allocator(metrics, constraints, request.settings.model_dump())
     return {**result, 'dataset_id': dataset_id, 'class_id': request.class_id,
             'applied_filters': {'class_ids': [request.class_id], 'test_versions': request.test_versions},
             'source': dataset, 'is_demo': dataset['source_type'] == 'demo', 'metrics': metrics}

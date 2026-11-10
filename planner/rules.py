@@ -13,7 +13,7 @@ def validate_hours(items, hours, settings):
         if type(value) is not int or not item["min_hours"] <= value <= item["max_hours"]:
             raise PlanError(f'{item["topic_id"]}: нужны целые часы в заданных границах')
         delta = value - item["current_hours"]
-        if abs(delta) > settings.max_change or (item["is_locked"] and delta):
+        if (settings.mode != 'period' and abs(delta) > settings.max_change) or (item["is_locked"] and delta):
             raise PlanError(f'{item["topic_id"]}: нарушена блокировка или лимит изменения')
     if sum(hours.values()) != sum(i["current_hours"] for i in items):
         raise PlanError("Общая сумма часов должна сохраняться")

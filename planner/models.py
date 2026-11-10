@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 Hours = Annotated[int, Field(strict=True, ge=0, le=10000)]
@@ -10,6 +10,7 @@ class Model(BaseModel):
 
 
 class Settings(Model):
+    mode: Literal["rules_v1", "period"] = "rules_v1"
     target_pct: float = Field(70, ge=0, le=100)
     donor_pct: float = Field(80, ge=0, le=100)
     min_students: int = Field(10, strict=True, ge=10)
@@ -22,7 +23,7 @@ class Settings(Model):
         return self
 
 
-class Constraint(Model):
+class ConstraintFields(Model):
     topic_id: Identifier
     topic_name: str
     topic_order: int = Field(strict=True, ge=0)
@@ -32,10 +33,22 @@ class Constraint(Model):
     importance: int = Field(strict=True, ge=1, le=3)
     is_locked: bool = Field(strict=True)
 
+
+class Constraint(ConstraintFields):
     @model_validator(mode="after")
     def bounds(self):
         if not self.min_hours <= self.current_hours <= self.max_hours:
             raise ValueError(f"{self.topic_id}: текущие часы вне границ")
+        return self
+
+
+class PeriodConstraint(ConstraintFields):
+    @model_validator(mode="after")
+    def bounds(self):
+        if self.min_hours > self.max_hours:
+            raise ValueError(f"{self.topic_id}: минимум превышает максимум")
+        if self.is_locked and not self.min_hours <= self.current_hours <= self.max_hours:
+            raise ValueError(f"{self.topic_id}: заблокированные часы вне границ")
         return self
 
 
