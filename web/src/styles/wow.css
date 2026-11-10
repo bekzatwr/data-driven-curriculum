@@ -953,6 +953,16 @@
 .vs-grid > .book-card:last-child {
   animation: fromRight 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
+@media (max-width: 860px) {
+  .vs-grid > .book-card:first-child,
+  .vs-grid > .book-card:last-child {
+    animation-name: riseIn;
+  }
+}
+/* Анимации со сдвигом вбок не должны давать горизонтальную прокрутку */
+.main-col {
+  overflow-x: clip;
+}
 @keyframes fromLeft {
   from {
     opacity: 0;
@@ -1002,6 +1012,329 @@
   opacity: 0.08;
 }
 
+/* ============================================================
+   Смелый режим: неоновая тёмная тема, тёмное меню, баннеры, кольца KPI
+   ============================================================ */
+
+/* Тёмная неоновая палитра (по умолчанию) */
+:root[data-theme='dark'] {
+  --bg: #0a0a14;
+  --bg-elev: #0e0e1c;
+  --surface: #12121f;
+  --surface-2: #181828;
+  --surface-3: #222236;
+  --surface-hover: rgba(255, 255, 255, 0.045);
+  --surface-glass: rgba(10, 10, 20, 0.72);
+  --border: rgba(255, 255, 255, 0.075);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --text: #f4f4f8;
+  --text-2: #d3d4e2;
+  --muted: #9395ae;
+  --faint: #66687f;
+  --accent: #8b7cff;
+  --accent-hover: #9d90ff;
+  --accent-soft: rgba(139, 124, 255, 0.16);
+  --accent-text: #b9afff;
+  --accent-2: #22d3ee;
+  --focus: rgba(139, 124, 255, 0.55);
+  --glow: rgba(139, 124, 255, 0.2);
+  --heading-grad: linear-gradient(180deg, #ffffff 0%, #c9c5ff 100%);
+  --div-mid: 40, 40, 62;
+  --aurora-1: rgba(124, 108, 255, 0.42);
+  --aurora-2: rgba(34, 211, 238, 0.24);
+  --aurora-3: rgba(217, 70, 239, 0.26);
+  --spot-border: rgba(170, 160, 255, 0.85);
+  --btn-grad: linear-gradient(180deg, #9585ff 0%, #6c5cf0 100%);
+  --btn-grad-hover: linear-gradient(180deg, #a294ff 0%, #7868ff 100%);
+}
+:root[data-theme='dark'] .aurora.subtle {
+  --aurora-opacity: 0.9;
+  height: 620px;
+}
+:root[data-theme='dark'] .card {
+  --card-bg: color-mix(in srgb, var(--surface) 86%, transparent);
+}
+:root[data-theme='dark'] .kpi-strip {
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 20px 50px -30px rgba(80, 60, 220, 0.5);
+}
+:root[data-theme='dark'] .topbar {
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+}
+
+/* Тёмные токены для «тёмных островов» (меню и баннеры) в обеих темах */
+.sidebar,
+.page-head {
+  color-scheme: dark;
+  --bg: #0b0a1c;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-2: rgba(255, 255, 255, 0.085);
+  --surface-3: rgba(255, 255, 255, 0.13);
+  --surface-hover: rgba(255, 255, 255, 0.075);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --text: #f6f5ff;
+  --text-2: #d7d5f2;
+  --muted: #a6a3cc;
+  --faint: #7c79a6;
+  --accent-soft: rgba(150, 136, 255, 0.24);
+  --accent-text: #cdc5ff;
+  --heading-grad: linear-gradient(180deg, #ffffff 0%, #d2ccff 100%);
+  --good-text: #6fe0a8;
+  --good-bg: rgba(76, 200, 140, 0.18);
+  --warning-text: #ffd97a;
+  --warning-bg: rgba(255, 200, 80, 0.16);
+  --critical-text: #ff9a9a;
+  --critical-bg: rgba(255, 100, 100, 0.16);
+  --info-text: #9fd4ff;
+  --info-bg: rgba(100, 180, 255, 0.14);
+  --neutral-text: #c4c2e0;
+  --neutral-bg: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+/* Меню: глубокий индиго-градиент со свечением */
+.sidebar {
+  background: radial-gradient(260px 200px at 0% 0%, rgba(139, 124, 255, 0.32), transparent 70%),
+    radial-gradient(240px 260px at 100% 100%, rgba(34, 211, 238, 0.14), transparent 70%),
+    linear-gradient(180deg, #1a1744 0%, #120f30 55%, #0c0a22 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+.sidebar .sb-item.active {
+  background: linear-gradient(90deg, rgba(150, 136, 255, 0.3) 0%, rgba(150, 136, 255, 0.06) 100%);
+  box-shadow: inset 0 0 0 1px rgba(170, 160, 255, 0.18);
+}
+.sidebar .sb-item.active svg {
+  color: #d5ceff;
+}
+.sidebar .sb-dataset {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+/* Шапка страницы — цветной баннер */
+.page-head {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 26px 28px 24px;
+  margin-bottom: 18px;
+  border-radius: 20px;
+  background: radial-gradient(620px 280px at 0% 0%, rgba(124, 108, 255, 0.6), transparent 62%),
+    radial-gradient(520px 260px at 100% 0%, rgba(34, 211, 238, 0.32), transparent 60%),
+    radial-gradient(520px 280px at 72% 130%, rgba(217, 70, 239, 0.34), transparent 60%),
+    linear-gradient(135deg, #1a1646 0%, #100d2c 100%);
+  box-shadow: 0 30px 60px -32px rgba(60, 40, 180, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.page-head::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 120% at 85% 0%, #000 10%, transparent 70%);
+  mask-image: radial-gradient(ellipse 60% 120% at 85% 0%, #000 10%, transparent 70%);
+}
+.page-head::after {
+  content: '';
+  position: absolute;
+  right: -60px;
+  top: -80px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  z-index: -1;
+  background: conic-gradient(from var(--beam-angle), rgba(34, 211, 238, 0.5), rgba(139, 124, 255, 0.1), rgba(217, 70, 239, 0.45), rgba(34, 211, 238, 0.5));
+  filter: blur(40px);
+  opacity: 0.7;
+  animation: beam 14s linear infinite;
+}
+.page-head h1 {
+  font-size: clamp(26px, 3vw, 34px);
+  letter-spacing: -0.04em;
+}
+.page-head .eyebrow {
+  color: #cdc5ff;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.page-head .eyebrow::before {
+  background: #22d3ee;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.22), 0 0 12px #22d3ee;
+}
+.page-head .btn:not(.btn-primary) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.page-head .btn:not(.btn-primary):hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+@media (max-width: 640px) {
+  .page-head {
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+}
+
+/* «Главный вывод» */
+.insight {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(110deg, rgba(139, 124, 255, 0.7), rgba(34, 211, 238, 0.45), rgba(217, 70, 239, 0.55)) border-box;
+  box-shadow: 0 18px 44px -26px rgba(100, 80, 240, 0.6);
+}
+.insight.bad {
+  background: linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(110deg, rgba(255, 110, 110, 0.75), rgba(139, 124, 255, 0.55), rgba(217, 70, 239, 0.5)) border-box;
+}
+.insight-icon {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--btn-grad);
+  box-shadow: 0 8px 22px -6px rgba(120, 100, 255, 0.7);
+}
+.insight-body {
+  flex: 1;
+  min-width: 220px;
+}
+.insight-kicker {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+.insight-title {
+  margin-top: 2px;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+.insight-text {
+  margin-top: 4px;
+  color: var(--text-2);
+  font-size: 13.5px;
+}
+.insight-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.insight-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 8px 0 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--critical) 40%, transparent);
+  background: var(--critical-bg);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s;
+}
+.insight-chip b {
+  color: var(--critical-text);
+  font-variant-numeric: tabular-nums;
+}
+.insight-chip svg {
+  color: var(--muted);
+}
+.insight-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px -10px rgba(214, 69, 69, 0.6);
+}
+
+/* KPI: крупные числа и кольца */
+.kpi-value {
+  font-size: 34px;
+}
+:root[data-theme='dark'] .kpi:not(.tone-critical):not(.tone-good) .kpi-value {
+  background: var(--heading-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.kpi.has-ring .kpi-icon {
+  display: none;
+}
+.kpi.has-ring .kpi-value,
+.kpi.has-ring .kpi-sub {
+  padding-right: 66px;
+}
+.kpi.has-ring > .ring {
+  position: absolute;
+  right: 16px;
+  top: 18px;
+  z-index: 1;
+}
+.ring {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+.ring svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.ring-track {
+  stroke: var(--surface-3);
+}
+.ring-bar {
+  animation: ringDraw 1.2s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+@keyframes ringDraw {
+  from {
+    stroke-dashoffset: var(--c);
+  }
+}
+.ring-marker {
+  stroke: var(--text);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+.ring-center {
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+.kpi.tone-critical .ring-center {
+  color: var(--critical);
+}
+
+/* Теплокарта: глянец на ячейках */
+.hm-cell {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+:root[data-theme='dark'] .hm-cell {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
 /* ---------- Без движения и в печати ---------- */
 @media (prefers-reduced-motion: reduce) {
   .aurora .blob,
@@ -1015,7 +1348,9 @@
   .ai-status-dot::after,
   .vs-badge::before,
   .dropzone.drag,
-  .dropzone.drag .dz-icon {
+  .dropzone.drag .dz-icon,
+  .page-head::after,
+  .ring-bar {
     animation: none !important;
   }
   .tile:hover:not(:disabled),
@@ -1025,6 +1360,48 @@
   }
 }
 @media print {
+  /* Печать всегда светлая, даже если на экране тёмная тема (она теперь по умолчанию) */
+  :root[data-theme='dark'] {
+    color-scheme: light;
+    --bg: #fff;
+    --bg-elev: #fff;
+    --surface: #fff;
+    --surface-2: #f6f6f6;
+    --surface-3: #eee;
+    --surface-hover: transparent;
+    --border: #d4d4d4;
+    --border-strong: #bbb;
+    --text: #000;
+    --text-2: #222;
+    --muted: #555;
+    --faint: #777;
+    --accent: #5e5ce6;
+    --accent-soft: rgba(94, 92, 230, 0.1);
+    --accent-text: #4846d0;
+    --heading-grad: linear-gradient(#000, #000);
+    --good: #1f9d63;
+    --good-text: #137a4b;
+    --good-bg: rgba(31, 157, 99, 0.1);
+    --warning: #e5a800;
+    --warning-text: #8a6200;
+    --warning-bg: rgba(229, 168, 0, 0.12);
+    --serious: #e5782a;
+    --serious-text: #a54e12;
+    --serious-bg: rgba(229, 120, 42, 0.11);
+    --critical: #d64545;
+    --critical-text: #b42f2f;
+    --critical-bg: rgba(214, 69, 69, 0.09);
+    --neutral: #8b8f97;
+    --neutral-text: #50545b;
+    --neutral-bg: rgba(0, 0, 0, 0.045);
+    --info-text: #1c5cab;
+    --info-bg: rgba(31, 122, 224, 0.08);
+    --div-neg: 208, 59, 59;
+    --div-mid: 240, 239, 236;
+    --div-pos: 42, 120, 214;
+    --hm-ink-mid: #1b1c1f;
+    --hm-ink-strong: #ffffff;
+  }
   .aurora,
   .topbar-progress,
   .hero-preview,
@@ -1047,5 +1424,26 @@
     background: none !important;
     color: #000 !important;
     -webkit-text-fill-color: #000 !important;
+  }
+  .page-head {
+    background: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: #000;
+    --text: #000;
+    --text-2: #222;
+    --muted: #555;
+    --faint: #777;
+    --heading-grad: linear-gradient(#000, #000);
+  }
+  .page-head::before,
+  .page-head::after,
+  .ring {
+    display: none !important;
+  }
+  .insight {
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
   }
 }

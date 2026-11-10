@@ -25,16 +25,16 @@ type Theme = 'light' | 'dark';
 export function Layout() {
   const { current, lastPlanId, apiOnline, recheckApi, capabilities } = useApp();
   const location = useLocation();
-  const [theme, setTheme] = useState<Theme>(() => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'));
+  const [theme, setTheme] = useState<Theme>(() => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'));
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   useSpotlight();
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#08090a' : '#fbfbfc');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0a0a14' : '#fbfbfc');
     try {
-      localStorage.setItem('ddc.theme2', theme);
+      localStorage.setItem('ddc.theme3', theme);
     } catch {
       /* ignore */
     }
