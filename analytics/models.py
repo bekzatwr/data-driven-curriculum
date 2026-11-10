@@ -131,6 +131,8 @@ class TeacherMetrics(Model):
     mean_post_pct: float | None
     mean_gain_pp: float | None
     n_pairs: int
+    n_paired_students: int
+    paired_student_share: float | None
     pair_coverage: float | None
     mixed_topic_ids: list[str]
     warnings: list[str]

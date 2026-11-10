@@ -33,7 +33,9 @@ def compute_teachers(records, topics, filters=None, settings=None):
     students_per_teacher is a population ratio, not an average of teacher rows.
 
     ``n_post`` and ``n_pairs`` count student-topic observations; ``students``
-    counts unique pupils over both stages. Pairs require the same teacher group
+    counts unique pupils over both stages. ``n_paired_students`` counts pupils
+    with at least one compatible pair; its share uses ``n_post_students`` as
+    the denominator. Pairs require the same teacher group
     at both stages in addition to the shared assessment compatibility rules.
     Hours per class always use the complete curriculum, even after filtering.
     """
@@ -62,6 +64,7 @@ def compute_teachers(records, topics, filters=None, settings=None):
         mixed = [metric["topic_id"] for metric in metrics if len(metric["available_slices"]) > 1]
         class_ids = sorted({row["class_id"] for row in rows})
         post_students = len({row["student_id"] for row in posts})
+        paired_students = len({post["student_id"] for _, post in pairs})
         warnings = []
         if teacher_id is None:
             warnings.append("Учитель не указан: это группа записей без установленного учителя, а не отдельный педагог.")
@@ -71,6 +74,11 @@ def compute_teachers(records, topics, filters=None, settings=None):
             warnings.append("Не у всех итоговых записей есть совместимая пара у того же учителя и школы; прирост учитывает только такие пары.")
         if 0 < post_students < settings["min_students"]:
             warnings.append("Мало данных: показатели описывают небольшую группу и не используются для оценки учителя.")
+        if 0 < paired_students < settings["min_students"]:
+            warnings.append(
+                f"Мало учеников в парной выборке: {paired_students}, порог — {settings['min_students']}. "
+                "Прирост остаётся описательным; несколько пар по темам одного ученика не увеличивают число учеников."
+            )
         teachers.append({
             "teacher_id": teacher_id if teacher_id is not None else MISSING_TEACHER_LABEL,
             "school_id": school,
@@ -82,6 +90,8 @@ def compute_teachers(records, topics, filters=None, settings=None):
             "n_post_students": post_students,
             "mean_post_pct": mean(percentage(row) for row in posts) if posts and not mixed else None,
             "n_pairs": len(pairs),
+            "n_paired_students": paired_students,
+            "paired_student_share": paired_students / post_students if post_students else None,
             "mean_gain_pp": mean(percentage(post) - percentage(pre) for pre, post in pairs) if pairs and not mixed else None,
             "pair_coverage": len(pairs) / len(posts) if posts else None,
             "upcoming_hours": len(class_ids) * hours_per_class,

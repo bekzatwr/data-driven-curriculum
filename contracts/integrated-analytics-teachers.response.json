@@ -58,6 +58,8 @@
       "mean_post_pct": 72.33333333333333,
       "mean_gain_pp": 12.166666666666666,
       "n_pairs": 180,
+      "n_paired_students": 30,
+      "paired_student_share": 1.0,
       "pair_coverage": 1.0,
       "mixed_topic_ids": [],
       "warnings": []
@@ -79,6 +81,8 @@
       "mean_post_pct": 72.33333333333333,
       "mean_gain_pp": 12.166666666666666,
       "n_pairs": 180,
+      "n_paired_students": 30,
+      "paired_student_share": 1.0,
       "pair_coverage": 1.0,
       "mixed_topic_ids": [],
       "warnings": []
@@ -100,6 +104,8 @@
       "mean_post_pct": 71.16666666666667,
       "mean_gain_pp": 10.833333333333334,
       "n_pairs": 180,
+      "n_paired_students": 30,
+      "paired_student_share": 1.0,
       "pair_coverage": 1.0,
       "mixed_topic_ids": [],
       "warnings": []
@@ -121,6 +127,8 @@
       "mean_post_pct": 71.16666666666667,
       "mean_gain_pp": 10.833333333333334,
       "n_pairs": 180,
+      "n_paired_students": 30,
+      "paired_student_share": 1.0,
       "pair_coverage": 1.0,
       "mixed_topic_ids": [],
       "warnings": []
@@ -158,6 +166,8 @@
     "mean_post_pct": "Среднее процентов по итоговым записям ученик–тема, как в прототипе страницы учителей; отличается от взвешивания учеников в overview.",
     "n_post": "Число итоговых записей ученик–тема; число уникальных учеников с итогом — n_post_students.",
     "n_pairs": "Совместимые пары ученик–тема в одной группе school_id/teacher_id с одинаковым классом, учебником, версией и шкалой. Пары без teacher_id описывают учеников и не подтверждают одного преподавателя.",
+    "n_paired_students": "Уникальные ученики хотя бы с одной совместимой парой; число тем одного ученика не увеличивает это значение.",
+    "paired_student_share": "n_paired_students / n_post_students, доля от 0 до 1; без итоговых результатов — null. Малое число учеников с парой отмечается предупреждением.",
     "mean_gain_pp": "Среднее индивидуальных приростов по совместимым парам, в п.п.; не причинный эффект работы учителя.",
     "missing_teacher_rows": "Количество записей без teacher_id; сгруппированы отдельно по школам и исключены из числа известных учителей."
   }

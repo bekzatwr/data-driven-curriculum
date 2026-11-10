@@ -1,11 +1,12 @@
 """The workload endpoint uses complete stored data and the existing access rules."""
+import json
 import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from analytics.demo import demo_files
+from analytics.demo import METADATA, RESULT_FIELDS, TOPIC_FIELDS, _csv, demo_files, demo_records
 from backend.app.config import Settings
 from backend.app.main import create_app
 
@@ -31,6 +32,8 @@ class TeachersApiTests(unittest.TestCase):
         self.assertEqual(body['total']['hours_per_teacher'], 24)
         self.assertEqual(sum(t['n_post'] for t in body['teachers']), 720)
         self.assertEqual(sum(t['n_pairs'] for t in body['teachers']), 720)
+        self.assertEqual([t['n_paired_students'] for t in body['teachers']], [30] * 4)
+        self.assertTrue(all(t['paired_student_share'] == 1 for t in body['teachers']))
         self.assertTrue(body['is_demo'])
         self.assertTrue(body['warnings'])
         self.assertIn('mean_post_pct', body['definitions'])
@@ -38,6 +41,35 @@ class TeachersApiTests(unittest.TestCase):
         schema = self.client.get('/openapi.json').json()
         operation = schema['paths']['/api/datasets/{dataset_id}/teachers']['get']
         self.assertEqual(operation['responses']['200']['content']['application/json']['schema']['$ref'], '#/components/schemas/Teachers')
+        fields = schema['components']['schemas']['TeacherMetrics']
+        self.assertIn('n_paired_students', fields['required'])
+        self.assertIn('paired_student_share', fields['required'])
+
+    def test_valid_csv_reports_one_paired_pupil_across_six_topics(self):
+        topics, records = demo_records()
+        # All 120 pupils keep their post tests; only S001 has pre for six topics.
+        records = [record for record in records if record['stage'] == 'post' or record['student_id'] == 'S001']
+        response = self.client.post('/api/datasets/import?dry_run=false',
+            data={'metadata': json.dumps(METADATA)}, files={
+                'results_file': ('results.csv', _csv(RESULT_FIELDS, records)),
+                'curriculum_file': ('curriculum.csv', _csv(TOPIC_FIELDS, topics)),
+            })
+        self.assertEqual(response.status_code, 201, response.text)
+        path = f"/api/datasets/{response.json()['dataset_id']}/teachers"
+        response = self.client.get(path, params={'class_ids': '7A'})
+        self.assertEqual(response.status_code, 200, response.text)
+        teacher = response.json()['teachers'][0]
+        self.assertEqual(teacher['n_post'], 180)
+        self.assertEqual(teacher['n_post_students'], 30)
+        self.assertEqual(teacher['n_pairs'], 6)
+        self.assertEqual(teacher['n_paired_students'], 1)
+        self.assertAlmostEqual(teacher['paired_student_share'], 1 / 30)
+        self.assertAlmostEqual(teacher['mean_gain_pp'], 73 / 6)
+        self.assertTrue(any('Мало учеников в парной выборке' in warning for warning in teacher['warnings']))
+        other = self.client.get(path, params={'class_ids': '7B'}).json()['teachers'][0]
+        self.assertEqual(other['n_paired_students'], 0)
+        self.assertEqual(other['paired_student_share'], 0)
+        self.assertIsNone(other['mean_gain_pp'])
 
     def test_class_book_and_version_filters_are_shared_by_totals(self):
         response = self.client.get(self.path, params=[('class_ids', '7A'), ('class_ids', '7B'), ('test_version', 'v1')])

@@ -32,6 +32,8 @@ class TeacherMetricsTests(unittest.TestCase):
             self.assertEqual(teacher["n_post"], 180)
             self.assertEqual(teacher["n_pairs"], 180)
             self.assertEqual(teacher["n_post_students"], 30)
+            self.assertEqual(teacher["n_paired_students"], 30)
+            self.assertEqual(teacher["paired_student_share"], 1)
             self.assertEqual(teacher["pair_coverage"], 1)
             self.assertFalse(teacher["is_missing_teacher"])
         self.assertAlmostEqual(result["teachers"][0]["mean_post_pct"], 434 / 6)
@@ -97,10 +99,52 @@ class TeacherMetricsTests(unittest.TestCase):
         self.assertEqual(first["n_post"], 0)
         self.assertIsNone(first["mean_post_pct"])
         self.assertIsNone(first["pair_coverage"])
+        self.assertEqual(first["n_paired_students"], 0)
+        self.assertIsNone(first["paired_student_share"])
         self.assertEqual(second["mean_post_pct"], 70)
         self.assertEqual(second["pair_coverage"], 0)
         self.assertEqual(second["n_pairs"], 0)
+        self.assertEqual(second["n_paired_students"], 0)
+        self.assertEqual(second["paired_student_share"], 0)
         self.assertIsNone(second["mean_gain_pp"])
+
+    def test_many_topic_pairs_of_one_pupil_do_not_inflate_paired_students(self):
+        topics = [{"topic_id": f"t{i}", "current_hours": 4} for i in range(6)]
+        records = [row(f"s{student}", 60, topic=topic["topic_id"])
+                   for student in range(30) for topic in topics]
+        records += [row("s0", 20, topic=topic["topic_id"], stage="pre") for topic in topics]
+        teacher = compute_teachers(records, topics)["teachers"][0]
+        self.assertEqual(teacher["n_post"], 180)
+        self.assertEqual(teacher["n_post_students"], 30)
+        self.assertEqual(teacher["n_pairs"], 6)
+        self.assertEqual(teacher["n_paired_students"], 1)
+        self.assertAlmostEqual(teacher["paired_student_share"], 1 / 30)
+        self.assertEqual(teacher["mean_post_pct"], 60)
+        self.assertEqual(teacher["mean_gain_pp"], 40)
+        self.assertTrue(any("Мало учеников в парной выборке" in warning for warning in teacher["warnings"]))
+
+    def test_pair_share_uses_unique_pupils_not_topic_observations(self):
+        records = [row("a", 20, topic="t1", stage="pre"), row("a", 60, topic="t1"),
+                   row("a", 30, topic="t2", stage="pre"), row("a", 70, topic="t2"),
+                   row("b", 80, topic="t1")]
+        teacher = compute_teachers(records, TOPICS)["teachers"][0]
+        self.assertEqual(teacher["n_pairs"], 2)
+        self.assertEqual(teacher["n_paired_students"], 1)
+        self.assertAlmostEqual(teacher["pair_coverage"], 2 / 3)
+        self.assertEqual(teacher["paired_student_share"], 1 / 2)
+
+    def test_paired_pupil_warning_threshold_and_zero_pairs(self):
+        for pupils, minimum, expected_warning in ((0, 10, False), (9, 10, True),
+                                                  (10, 10, False), (11, 10, False),
+                                                  (11, 12, True)):
+            with self.subTest(pupils=pupils, minimum=minimum):
+                records = [row(f"s{i}", 60) for i in range(30)]
+                records += [row(f"s{i}", 20, stage="pre") for i in range(pupils)]
+                teacher = compute_teachers(records, TOPICS, settings={"min_students": minimum})["teachers"][0]
+                self.assertEqual(teacher["n_paired_students"], pupils)
+                self.assertAlmostEqual(teacher["paired_student_share"], pupils / 30)
+                warned = any("Мало учеников в парной выборке" in warning for warning in teacher["warnings"])
+                self.assertEqual(warned, expected_warning)
 
     def test_changed_or_missing_teacher_does_not_receive_cross_teacher_gain(self):
         for post_teacher in ("T2", None, ""):
@@ -109,6 +153,7 @@ class TeacherMetricsTests(unittest.TestCase):
                 result = compute_teachers(records, TOPICS)
                 self.assertEqual(result["total"]["students"], 1)
                 self.assertTrue(all(t["n_pairs"] == 0 and t["mean_gain_pp"] is None for t in result["teachers"]))
+                self.assertTrue(all(t["n_paired_students"] == 0 for t in result["teachers"]))
 
     def test_compatible_pairs_and_negative_gain_use_shared_percentages(self):
         records = [row("a", 8, maximum=10, stage="pre"), row("a", 4, maximum=10),
@@ -117,6 +162,8 @@ class TeacherMetricsTests(unittest.TestCase):
         self.assertEqual(teacher["mean_post_pct"], 45)
         self.assertEqual(teacher["mean_gain_pp"], -5)
         self.assertEqual(teacher["n_pairs"], 2)
+        self.assertEqual(teacher["n_paired_students"], 2)
+        self.assertEqual(teacher["paired_student_share"], 1)
 
     def test_pair_compatibility_rejects_textbook_class_school_and_scale_changes(self):
         for changes in ({"textbook": "B"}, {"classroom": "7B"}, {"school": "S2"},
@@ -136,6 +183,8 @@ class TeacherMetricsTests(unittest.TestCase):
         filtered = compute_teachers(records, TOPICS, {"test_version": "v2"})["teachers"][0]
         self.assertEqual(filtered["mean_post_pct"], 80)
         self.assertEqual(filtered["mean_gain_pp"], 60)
+        self.assertEqual(filtered["n_paired_students"], 1)
+        self.assertEqual(filtered["paired_student_share"], 1)
         self.assertEqual(filtered["mixed_topic_ids"], [])
 
     def test_mean_post_weights_observations_as_existing_teacher_ui(self):

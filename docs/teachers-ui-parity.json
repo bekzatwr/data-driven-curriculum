@@ -1,6 +1,6 @@
 {
   "check": "Original frontend TypeScript computeTeachers versus Python compute_teachers on the canonical synthetic demo",
-  "created_at": "2026-11-10T13:58:28.287198+00:00",
+  "created_at": "2026-11-10T14:22:08.745355+00:00",
   "passed": true,
   "source": {
     "repository": "https://github.com/bekzatwr/data-driven-curriculum",
@@ -9,14 +9,14 @@
     "frontend_sha256": "e592e31a2f6764588da1382c97c86d0b3547ea2df0bd6de9c9b4053652a3acab",
     "frontend_execution": "Unchanged git-show bytes executed by Node with --experimental-strip-types; no translated substitute",
     "backend_path": "analytics/teachers.py",
-    "backend_sha256": "91ed468a945db4dcc6217e3d7f2d695b11c69fa1872d0a4930b34bc8e9aa3031",
+    "backend_sha256": "367daa41b297e177fc6a7be0be34ff47f43866e34bc168e7f831b1673fbb6fba",
     "fixture": "analytics.demo.demo_records()",
     "input_sha256": "9a4d8ed80eda31181dc9722d7baedf39ea140df167863eb97bad53a35796dee2",
     "synthetic_data": true
   },
   "runtime": {
     "node": "v24.22.1",
-    "python": "3.12.14",
+    "python": "3.13.9",
     "platform": "Windows-11-10.0.26200-SP0"
   },
   "comparison": {
@@ -45,7 +45,7 @@
       "hours_per_teacher"
     ],
     "leaf_values_checked": 56,
-    "maximum_absolute_numeric_difference": 0.0,
+    "maximum_absolute_numeric_difference": 0,
     "differences": []
   },
   "verified_counts": {
@@ -256,7 +256,9 @@
     "teachers[].n_post_students",
     "teachers[].pair_coverage",
     "teachers[].mixed_topic_ids",
-    "teachers[].warnings"
+    "teachers[].warnings",
+    "teachers[].n_paired_students",
+    "teachers[].paired_student_share"
   ],
   "intentional_differences_outside_this_demo_parity_check": [
     {

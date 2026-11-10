@@ -1201,6 +1201,21 @@
             "type": "integer",
             "title": "N Pairs"
           },
+          "n_paired_students": {
+            "type": "integer",
+            "title": "N Paired Students"
+          },
+          "paired_student_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Student Share"
+          },
           "pair_coverage": {
             "anyOf": [
               {
@@ -1242,6 +1257,8 @@
           "mean_post_pct",
           "mean_gain_pp",
           "n_pairs",
+          "n_paired_students",
+          "paired_student_share",
           "pair_coverage",
           "mixed_topic_ids",
           "warnings"
