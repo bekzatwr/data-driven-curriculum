@@ -1,4 +1,5 @@
 import os
+import ipaddress
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -15,6 +16,8 @@ class Settings:
     max_results: int = 10_000
     max_topics: int = 100
     web_dist: Path | None = None
+    comments_enabled: bool = True
+    trusted_proxy_cidrs: tuple[str, ...] = ()
 
     @classmethod
     def from_env(cls):
@@ -23,6 +26,13 @@ class Settings:
             raise ValueError("READ_ONLY_DEMO must be true, false, 1 or 0")
         path = Path(os.getenv("DATABASE_PATH", str(ROOT / "data" / "curriculum.sqlite3")))
         web = os.getenv("WEB_DIST_DIR")
+        comments = os.getenv("P1_COMMENTS_ENABLED", "true").lower()
+        if comments not in {"true", "false", "1", "0"}:
+            raise ValueError("P1_COMMENTS_ENABLED must be true, false, 1 or 0")
+        proxies = tuple(x.strip() for x in os.getenv("TRUSTED_PROXY_CIDRS", "").split(",") if x.strip())
+        for cidr in proxies:
+            if ipaddress.ip_network(cidr).prefixlen == 0:
+                raise ValueError("Trust only verified reverse proxy CIDRs, never all addresses")
         return cls(
             database_path=path if path.is_absolute() else ROOT / path,
             read_only_demo=flag in {"true", "1"},
@@ -30,4 +40,5 @@ class Settings:
                 "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
             ).split(",") if x.strip()),
             web_dist=(Path(web) if Path(web).is_absolute() else ROOT / web) if web else None,
+            comments_enabled=comments in {"true", "1"}, trusted_proxy_cidrs=proxies,
         )

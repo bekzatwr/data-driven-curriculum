@@ -16,6 +16,8 @@ from planner.contracts import SavedPlan
 from planner.models import SaveRequest
 from planner.service import save_plan
 from planner.storage import SnapshotStore
+from collab.storage import CommentStore
+from collab.security import RateStore
 
 COMMENT = "Bundled synthetic public demonstration (operator prepared)"
 
@@ -24,6 +26,8 @@ def prepare_report(settings):
     store = Store(settings.database_path, demo_only=True)
     store.initialize()
     snapshots = SnapshotStore(settings.database_path)
+    CommentStore(settings.database_path)
+    RateStore(settings.database_path)
     upload = validate_upload(*demo_files(), settings, source_type="demo")
     dataset, _ = store.save_upload(upload)
     with store.connect() as db:

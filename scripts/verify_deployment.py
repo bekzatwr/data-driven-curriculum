@@ -1,9 +1,9 @@
-"""Local-only Docker rehearsal with synthetic data and an explicitly fake UI build probe.
+"""Local-only Docker rehearsal with synthetic data and Damir's actual React build.
 
 Run with the project's Python environment. Never publishes a port outside loopback,
 never reads existing databases, and removes only containers/volumes created by this run.
-The probe checks packaging/SPA delivery, NOT Damir's frontend. Real HTTP checks
-exercise the integrated analytics, comparison and planner against synthetic CSVs.
+HTTP checks exercise analytics, planner, comments and backup/restore. Browser
+interaction/viewport checks are recorded separately and are not inferred here.
 """
 import csv
 import hashlib
@@ -30,7 +30,7 @@ def main():
     artifacts.mkdir(parents=True)
     transcript = artifacts / "docker.log"
     containers, volumes = [], []
-    backend_image, web_image = run_id + ":backend", run_id + ":web-probe"
+    backend_image, web_image = run_id + ":backend", run_id + ":fullstack"
     checks = []
 
     def command(*args, ok=True, timeout=600):
@@ -99,28 +99,8 @@ def main():
         command("docker", "info", "--format", "{{.ServerVersion}}", timeout=30)
         command("docker", "compose", "-f", "deploy/compose.yaml", "config", "--quiet")
         command("docker", "build", "--build-arg", "APP_TARGET=backend", "-t", backend_image, ".")
-        # A disposable build context avoids writing anything into Damir's source directory.
-        context = artifacts / "context"
-        context.mkdir()
-        for directory in ("backend", "planner", "analytics", "deploy"):
-            shutil.copytree(ROOT / directory, context / directory,
-                            ignore=shutil.ignore_patterns("__pycache__", "tests", ".env", "test-logs"))
-        for filename in ("Dockerfile", ".dockerignore", "requirements.txt"):
-            shutil.copy2(ROOT / filename, context / filename)
-        frontend = context / "_probe_frontend"
-        frontend.mkdir()
-        package = {"name": "ddc-packaging-probe", "version": "0.0.0", "private": True,
-                   "scripts": {"build": "node build.cjs"}}
-        (frontend / "package.json").write_text(json.dumps(package), encoding="utf-8")
-        (frontend / "package-lock.json").write_text(json.dumps({"name": package["name"], "version": "0.0.0",
-            "lockfileVersion": 3, "requires": True, "packages": {"": {"name": package["name"], "version": "0.0.0"}}}), encoding="utf-8")
-        (frontend / "build.cjs").write_text(
-            "const fs=require('node:fs');fs.mkdirSync('dist/assets',{recursive:true});"
-            "fs.writeFileSync('dist/index.html','<!doctype html><title>PACKAGING PROBE ONLY</title>');"
-            "fs.writeFileSync('dist/assets/probe.js','/* synthetic packaging probe */');", encoding="utf-8")
-        command("docker", "build", "--build-arg", "APP_TARGET=fullstack", "--build-arg",
-                "FRONTEND_DIR=_probe_frontend", "-t", web_image, context)
-        checks.append("backend and fullstack Docker builds (synthetic UI packaging probe)")
+        command("docker", "build", "--build-arg", "APP_TARGET=fullstack", "-t", web_image, ROOT)
+        checks.append("backend and actual Damir React fullstack Docker builds")
         refused = command("docker", "run", "--rm", "-e", "REQUIRE_PERSISTENT_STORAGE=true", backend_image, ok=False)
         assert refused.returncode != 0 and "refusing ephemeral storage" in refused.stderr
         checks.append("startup refuses missing persistent mount")
@@ -141,8 +121,10 @@ def main():
         assert command("docker", "exec", name, "id", "-u").stdout.strip() != "0"
         for path in ("/", "/reports/example"):
             status, html, _ = http(base, path, raw=True)
-            assert status == 200 and b"PACKAGING PROBE ONLY" in html
-        assert http(base, "/assets/probe.js", raw=True)[0] == 200
+            assert status == 200 and b"<script" in html and b"/assets/" in html
+        import re
+        asset = re.search(rb'src="(/assets/[^"]+\.js)"', html)
+        assert asset and http(base, asset[1].decode(), raw=True)[0] == 200
         assert http(base, "/assets/missing.js")[0] == 404
         assert http(base, "/api/unknown")[0] == 404
         assert http(base, "/openapi.json")[0] == 200
@@ -153,8 +135,8 @@ def main():
         assert "Access-Control-Allow-Origin" not in http(base, "/api/datasets/import", "OPTIONS", headers=headers, raw=True)[2]
         checks.append("non-root runtime, dynamic PORT, SPA/assets/API routing, CORS allow/deny")
         release = command(sys.executable, "scripts/check_release.py", "--mode", "local", "--base-url", base, ok=False)
-        assert release.returncode == 2 and "real frontend build" in release.stdout
-        checks.append("read-only release check rejects the synthetic frontend probe")
+        assert release.returncode == 0, release.stdout + release.stderr
+        checks.append("read-only release check accepts actual React + P0 API")
         results, curriculum, metadata = demo_files()
         boundary = "ddc-" + uuid4().hex
         body = bytearray()
@@ -202,6 +184,15 @@ def main():
         assert status == 200 and exported.startswith(b"\xef\xbb\xbf")
         csv_rows = csv.DictReader(io.StringIO(exported.decode("utf-8-sig")))
         assert {row["topic_id"]: int(row["proposed_hours"]) for row in csv_rows} == hours
+        comment_path = dataset_path + "/comments"
+        status, comment, _ = http(base, comment_path, "POST", {
+            "target_type": "plan_topic", "target_id": plan["plan_id"] + ":fractions",
+            "author_name": "Synthetic Docker reviewer", "author_role": "teacher", "text": "Synthetic persistence check"})
+        assert status == 201 and comment["kind"] == "human"
+        analytics[comment_path] = {"items": [comment], "total": 1}
+        assert http(base, "/api/ai/status")[1] == {"configured": False, "providers": [], "models": {}}
+        assert http(base, dataset_path + "/ai/explain", "POST", {"kind": "overview", "context": {}})[0] == 503
+        checks.append("comment stored with owned plan target; AI without keys stays offline")
         persisted(base, dataset_id, plan, exported, analytics)
         checks.append("two synthetic CSVs -> import -> analytics -> textbook comparison -> planner -> saved JSON/CSV")
         command("docker", "restart", name)
@@ -212,7 +203,7 @@ def main():
         create(name, storage)
         base = start(name)
         persisted(base, dataset_id, plan, exported, analytics)
-        checks.append("identical dataset/analytics/comparison/plan/CSV after restart AND container replacement")
+        checks.append("identical dataset/analytics/comparison/plan/CSV/comments after restart AND container replacement")
         command("docker", "exec", name, "python", "-m", "backend.app.db.backup",
                 "--output", "/app/data/backups/rehearsal.sqlite3")
         backup = artifacts / "backup.sqlite3"
@@ -226,7 +217,7 @@ def main():
                 backend_image, "chown", "appuser:appuser", "/app/data/recovery.sqlite3")
         restored_base = start(restored_name)
         persisted(restored_base, dataset_id, plan, exported, analytics)
-        checks.append("off-volume backup restored to a NEW volume with identical dataset/analytics/comparison/plan/CSV")
+        checks.append("off-volume backup restored to a NEW volume with identical dataset/analytics/comparison/plan/CSV/comments")
         # Inspect Docker's real healthcheck, not just an external HTTP request.
         deadline = time.monotonic() + 45
         while True:
@@ -250,7 +241,7 @@ def main():
         status, public_demo, _ = http(public_base, "/api/datasets/demo", "POST")
         assert status == 200 and public_demo['created'] is False and public_demo['dataset_id'] == prepared['dataset_id']
         public_path = "/api/datasets/" + prepared['dataset_id']
-        for path in ("/api/datasets/import", "/api/datasets/restore", public_path + "/plans"):
+        for path in ("/api/datasets/import", "/api/datasets/restore", public_path + "/plans", public_path + "/comments", public_path + "/ai/explain"):
             assert http(public_base, path, "POST", {"class_id": "7A"})[0] == 403
         assert http(public_base, public_path + "/plans/preview", "POST", {"class_id": "7A"})[0] == 200
         assert http(public_base, public_path + "/overview")[0] == 200
@@ -269,8 +260,24 @@ def main():
         assert http(public_base, prepared['csv_url'], raw=True)[1] == public_csv
         assert command("docker", "exec", public_name, "python", "-c", dump_code).stdout.strip() == before
         checks.append("public HTTP cannot import/restore/save; demo/preview/report/export do not mutate SQLite; restart preserves report")
+        # The restored limiter shares the same SQLite. Spoofed XFF cannot bypass it.
+        for _ in range(9):
+            assert http(restored_base, comment_path, "POST", {
+                "target_type": "topic", "target_id": "fractions", "author_name": "Synthetic rate test",
+                "text": "Synthetic rate test"})[0] == 201
+        # Backup/restart may take longer than one minute; acquire until the first 429.
+        blocked = None
+        for _ in range(2):
+            blocked = http(restored_base, comment_path, "POST", {
+                "target_type": "topic", "target_id": "fractions", "author_name": "Synthetic rate test",
+                "text": "Synthetic rate test"}, headers={"X-Forwarded-For": "198.51.100.99"})
+            if blocked[0] == 429:
+                break
+        assert blocked[0] == 429 and int(blocked[2]["Retry-After"]) > 0
+        checks.append("Docker HTTP comment rate limit and spoofed forwarding-header rejection")
         report = {"infrastructure_passed": True, "server_p0_verified": True, "full_p0_verified": False, "synthetic_data_only": True,
-                  "frontend": "synthetic build probe; Damir React app unavailable",
+                  "frontend": "actual unmodified web/ from PR4 at 914d228; browser QA reported separately",
+                  "comments_persistence_verified": True, "ai_provider_calls": 0,
                   "public_read_only_verified": True, "public_report_id": prepared['plan_id'],
                   "analytics_available": features["analytics"], "comparison_available": features["textbook_comparison"],
                   "dataset_id": dataset_id, "plan_id": plan["plan_id"], "checks": checks,

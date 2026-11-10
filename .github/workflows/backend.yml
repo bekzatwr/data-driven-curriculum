@@ -1,7 +1,7 @@
 name: Backend checks
 on:
   push:
-    branches: [main, backend/bekzat, analytics/toni, 'integration/**', 'deployment/**']
+    branches: [main, backend/bekzat, analytics/toni, 'integration/**', 'deployment/**', 'feature/bekzat-*']
   pull_request:
     branches: [main, integration/p0-server]
 permissions:

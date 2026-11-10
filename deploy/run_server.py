@@ -55,4 +55,5 @@ if __name__ == "__main__":
         sys.exit(f"Deployment preflight failed: {exc}")
     os.execvp(sys.executable, [sys.executable, "-m", "uvicorn", "backend.app.main:app",
                               "--host", "0.0.0.0", "--port", str(port), "--workers", "1",
+                              "--no-proxy-headers",
                               "--timeout-graceful-shutdown", "25"])

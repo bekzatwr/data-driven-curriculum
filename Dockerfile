@@ -30,5 +30,5 @@ COPY --from=frontend-build --chown=appuser:appuser /build/dist /app/web
 ENV WEB_DIST_DIR=/app/web
 RUN test -f /app/web/index.html
 
-# Default builds remain backend-only while Damir's source is not published.
+# Explicit fullstack target builds the published React; backend target is for API checks.
 FROM ${APP_TARGET} AS final

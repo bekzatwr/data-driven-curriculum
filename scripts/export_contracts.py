@@ -65,6 +65,14 @@ def main():
             assert csv_report.status_code == 200
             saved_text = json.dumps(saved, ensure_ascii=False).replace(saved_id, "__PLAN_ID__").replace(saved["created_at"], "__PLAN_CREATED_AT__")
             example("integrated-plan-saved.response.json", json.loads(saved_text))
+            comment_response = client.post(f"/api/datasets/{dataset_id}/comments", json={
+                "target_type": "plan_topic", "target_id": saved_id + ":fractions",
+                "author_name": "Synthetic reviewer", "author_role": "methodist", "text": "Review the synthetic plan"})
+            assert comment_response.status_code == 201, comment_response.text
+            comment = comment_response.json()
+            comment_text = json.dumps(comment, ensure_ascii=False).replace(saved_id, "__PLAN_ID__").replace(comment["id"], "__COMMENT_ID__").replace(comment["created_at"], "__COMMENT_CREATED_AT__")
+            example("comment.response.json", json.loads(comment_text))
+            write("ai-status-offline.response.json", {"configured": False, "providers": [], "models": {}})
             write("capabilities.response.json", client.get("/api/capabilities").json())
             results, curriculum, metadata = demo_files()
             rows = list(csv.DictReader(io.StringIO(results.decode("utf-8"))))
