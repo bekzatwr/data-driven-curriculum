@@ -199,7 +199,7 @@ python scripts/check_frontend_handoff.py
 | **Тони** | Аналитика, фильтры, сравнение учебников | `analytics/toni` |
 | **Айдана** | Планировщик, ограничения и отчёт | `planner/aidana` |
 
-Каждый работает в своей ветке. Общая серверная сборка — [PR #3](https://github.com/bekzatwr/data-driven-curriculum/pull/3). Подготовка P1 — отдельная ветка `feature/bekzat-p1-infrastructure`; предшествующая подготовка deployment — [draft PR #5](https://github.com/bekzatwr/data-driven-curriculum/pull/5). Merge в `main` — после успешного CI и review команды.
+Каждый работает в своей ветке. Общая серверная сборка — [PR #3](https://github.com/bekzatwr/data-driven-curriculum/pull/3). Подготовка P1 Бекзата — [PR #6](https://github.com/bekzatwr/data-driven-curriculum/pull/6), ветка `feature/bekzat-p1-infrastructure`; предшествующая подготовка deployment — [draft PR #5](https://github.com/bekzatwr/data-driven-curriculum/pull/5). Merge в `main` — после успешного CI и review команды.
 
 ## Документация
 

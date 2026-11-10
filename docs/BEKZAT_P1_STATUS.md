@@ -52,6 +52,7 @@ Markdown UI использует React text nodes без raw HTML. Промпт�
 | Test | Passed | Failed | Skipped | Evidence |
 | --- | ---: | ---: | ---: | --- |
 | Полный pytest, Linux/Python 3.13 | **301** | **0** | **0** | 192,09 с; дополнительно 26 subtests passed; один прежний TestClient/httpx warning |
+| Полный pytest в GitHub Actions | **301** | **0** | **0** | 30,29 с; 26 subtests passed, head 34deee0; [backend job](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42810434156/job/129810184545) |
 | Existing P0 regression, subset | 224 | 0 | 0 | Включая 28 atomic-save, 8 percent boundary и 15 public regression cases |
 | P1 collab, subset | 77 | 0 | 0 | 8 адаптированных исходных + 69 новых в backend/tests/test_collab_hardening.py |
 | Исходные planner unittest отдельно | 7 | 0 | 0 | python -m unittest discover -s tests -p test_planner.py |
@@ -64,6 +65,7 @@ Markdown UI использует React text nodes без raw HTML. Промпт�
 | Frontend TypeScript / build | 2 команды | 0 | 0 | npm run typecheck; npm run build (tsc + Vite), Node 22 в Docker |
 | Render JSON Schema / Compose | 3 проверки | 0 | 0 | Schema 0 errors; root + fullstack local override |
 | React P0 browser E2E | 1 сценарий | 0 | 0 | Два CSV → отчёт/CSV, ручные правки, comment, restart/deep link; [матрица](MOBILE_ACCEPTANCE.md) |
+| Ошибочный CSV в frontend 68f5a56 | 1 сценарий | 0 | 0 | UI: results.csv, строка 2, score; импорт отключён. Повторная загрузка исправленного файла остановлена разрешением браузера |
 | Frontend unit tests / lint | — | — | — | **NOT RUN**: scripts отсутствуют; это не pytest skipped |
 | Физические телефоны / Safari / macOS / внешний HTTPS | — | — | — | **NOT RUN**: устройств/опубликованного сервиса нет |
 
@@ -123,7 +125,8 @@ WEB_DIST_DIR=/app/web задан образом. API-ключи public стен�
 - Конфликт при объединении PR #4 и public deployment: backend/app/main.py (lifespan/capabilities). Сохранены guard, preseed и collab initialization; проверены вместе. Последний frontend merge без конфликтов.
 - Сравнение web/ с 68f5a56 — без diff; analytics, planner/service.py, rules.py, storage.py, исходные planner tests и atomic-save tests совпадают с integration/p0-server.
 - PR #1–4 не merged; submitted reviews нет, approve Айданы для PR #1 отсутствует. CI их проверенных heads успешен; frontend 68f5a56: [Frontend](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42805125644), [Planner](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42805126327), [Toni](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42805125625).
-- Новый PR и CI текущей ветки фиксируются после push; результаты чужих heads не являются CI этой ветки. [Actions рабочей ветки](https://github.com/bekzatwr/data-driven-curriculum/actions?query=branch%3Afeature%2Fbekzat-p1-infrastructure).
+- **[PR #6](https://github.com/bekzatwr/data-driven-curriculum/pull/6)** открыт как draft в integration/p0-server; GitHub подтверждает mergeable=true, merge не выполнен. [PR #5](https://github.com/bekzatwr/data-driven-curriculum/pull/5) содержит ссылку на актуальное продолжение. Команде переданы ссылки, изменения контрактов и задачи через описание PR #6.
+- Проверенный опубликованный head **34deee0e4ebcb3110949d6173c06f6296dc6c2e1**: **8/8 PR jobs successful** — [Backend: pytest/contracts/benchmarks/container/rehearsal](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42810434156), [Frontend: TS/build/collab](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42810434096), [Toni: Windows + Ubuntu](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42810434143), [Planner](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42810434115). Последующее обновление этого отчёта не меняет runtime; CI окончательного head отображается в [Checks PR #6](https://github.com/bekzatwr/data-driven-curriculum/pull/6/checks).
 - Обычный push, без force; main/backend/analytics/planner/frontend ветки не переписываются. Merge только командой после review.
 
 ## F. Вердикт
