@@ -4274,6 +4274,29 @@
             "type": "integer",
             "title": "N Post Students"
           },
+          "topic_count": {
+            "type": "integer",
+            "title": "Topic Count"
+          },
+          "post_topic_count": {
+            "type": "integer",
+            "title": "Post Topic Count"
+          },
+          "n_complete_students": {
+            "type": "integer",
+            "title": "N Complete Students"
+          },
+          "complete_student_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Complete Student Share"
+          },
           "mean_post_pct": {
             "anyOf": [
               {
@@ -4375,6 +4398,10 @@
           "upcoming_hours",
           "n_post",
           "n_post_students",
+          "topic_count",
+          "post_topic_count",
+          "n_complete_students",
+          "complete_student_share",
           "mean_post_pct",
           "mean_pre_paired_pct",
           "mean_post_paired_pct",

@@ -39,6 +39,11 @@ def compute_teachers(records, topics, filters=None, settings=None):
     at both stages in addition to the shared assessment compatibility rules.
     Paired pre/post means use those same observations as the gain, whereas
     ``mean_post_pct`` also includes final results without a pair.
+    Curriculum coverage counts only post records after cohort filters, against
+    all unique curriculum topics. ``complete_student_share`` uses pupils with
+    at least one post as its denominator, not all observed or enrolled pupils.
+    Coverage describes result availability, independently of test comparability;
+    it remains defined when mixed versions suppress the numerical means.
     Hours per class always use the complete curriculum, even after filtering.
     """
     settings = normalize_settings(settings)
@@ -49,6 +54,9 @@ def compute_teachers(records, topics, filters=None, settings=None):
     paired_rows(selected)
     hours_per_class = sum(topic["current_hours"] for topic in topics)
     topic_ids = list(dict.fromkeys(topic["topic_id"] for topic in topics))
+    topic_positions = {topic: index for index, topic in enumerate(topic_ids)}
+    curriculum_topics = set(topic_ids)
+    topic_count = len(topic_ids)
     by_teacher = defaultdict(list)
     by_school = defaultdict(list)
     for row in selected:
@@ -65,10 +73,20 @@ def compute_teachers(records, topics, filters=None, settings=None):
         # Empty curriculum topics cannot contain mixed assessments. Preserve
         # curriculum order while avoiding one empty metric per teacher/topic.
         observed_topics = {row["topic_id"] for row in rows}
-        metrics = compute_topics(rows, {"topic_ids": [topic for topic in topic_ids if topic in observed_topics]}, settings)
+        metric_topics = sorted(observed_topics & curriculum_topics, key=topic_positions.__getitem__)
+        metrics = compute_topics(rows, {"topic_ids": metric_topics}, settings)
         mixed = [metric["topic_id"] for metric in metrics if len(metric["available_slices"]) > 1]
         class_ids = sorted({row["class_id"] for row in rows})
-        post_students = len({row["student_id"] for row in posts})
+        post_topics_by_student = defaultdict(set)
+        post_topics = set()
+        for post in posts:
+            student_topics = post_topics_by_student[post["student_id"]]
+            if post["topic_id"] in curriculum_topics:
+                student_topics.add(post["topic_id"])
+                post_topics.add(post["topic_id"])
+        post_students = len(post_topics_by_student)
+        complete_students = (sum(len(covered) == topic_count for covered in post_topics_by_student.values())
+                             if topic_count else 0)
         paired_students = len({post["student_id"] for _, post in pairs})
         warnings = []
         if teacher_id is None:
@@ -84,6 +102,12 @@ def compute_teachers(records, topics, filters=None, settings=None):
                 f"Мало учеников в парной выборке: {paired_students}, порог — {settings['min_students']}. "
                 "Прирост остаётся описательным; несколько пар по темам одного ученика не увеличивают число учеников."
             )
+        if topic_count and complete_students < post_students:
+            warnings.append(
+                f"Неполное покрытие учебного плана: итоговые результаты есть по {len(post_topics)} из {topic_count} тем; "
+                f"все темы покрыты у {complete_students} из {post_students} учеников с итогом. "
+                "Средний балл описывает доступные темы; отсутствие записей не означает отсутствие обучения."
+            )
         teachers.append({
             "teacher_id": teacher_id if teacher_id is not None else MISSING_TEACHER_LABEL,
             "school_id": school,
@@ -93,6 +117,10 @@ def compute_teachers(records, topics, filters=None, settings=None):
             "textbooks": sorted({row["textbook_id"] for row in rows}),
             "n_post": len(posts),
             "n_post_students": post_students,
+            "topic_count": topic_count,
+            "post_topic_count": len(post_topics),
+            "n_complete_students": complete_students,
+            "complete_student_share": complete_students / post_students if post_students and topic_count else None,
             "mean_post_pct": mean(percentage(row) for row in posts) if posts and not mixed else None,
             "n_pairs": len(pairs),
             "n_paired_students": paired_students,

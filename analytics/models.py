@@ -128,6 +128,10 @@ class TeacherMetrics(Model):
     upcoming_hours: int
     n_post: int
     n_post_students: int
+    topic_count: int
+    post_topic_count: int
+    n_complete_students: int
+    complete_student_share: float | None
     mean_post_pct: float | None
     mean_pre_paired_pct: float | None
     mean_post_paired_pct: float | None

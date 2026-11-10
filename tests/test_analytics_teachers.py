@@ -32,6 +32,10 @@ class TeacherMetricsTests(unittest.TestCase):
             self.assertEqual(teacher["n_post"], 180)
             self.assertEqual(teacher["n_pairs"], 180)
             self.assertEqual(teacher["n_post_students"], 30)
+            self.assertEqual(teacher["topic_count"], 6)
+            self.assertEqual(teacher["post_topic_count"], 6)
+            self.assertEqual(teacher["n_complete_students"], 30)
+            self.assertEqual(teacher["complete_student_share"], 1)
             self.assertEqual(teacher["n_paired_students"], 30)
             self.assertEqual(teacher["paired_student_share"], 1)
             self.assertEqual(teacher["pair_coverage"], 1)
@@ -299,6 +303,95 @@ class TeacherMetricsTests(unittest.TestCase):
         self.assertEqual(teacher["upcoming_hours"], 100)
         self.assertIsNone(teacher["mean_post_pct"])
         self.assertIsNone(teacher["mean_gain_pp"])
+
+    def test_full_pairs_on_one_of_hundred_topics_do_not_mean_complete_curriculum(self):
+        topics = [{"topic_id": f"t{i:03d}", "current_hours": 1} for i in range(100)]
+        records = [row(f"s{student}", 80 if stage == "pre" else 100, topic="t000", stage=stage)
+                   for student in range(30) for stage in ("pre", "post")]
+        teacher = compute_teachers(records, topics)["teachers"][0]
+        self.assertEqual(teacher["mean_post_pct"], 100)
+        self.assertEqual(teacher["pair_coverage"], 1)
+        self.assertEqual(teacher["paired_student_share"], 1)
+        self.assertEqual(teacher["topic_count"], 100)
+        self.assertEqual(teacher["post_topic_count"], 1)
+        self.assertEqual(teacher["n_complete_students"], 0)
+        self.assertEqual(teacher["complete_student_share"], 0)
+        self.assertTrue(any("отсутствие записей не означает отсутствие обучения" in warning
+                            for warning in teacher["warnings"]))
+
+    def test_topic_union_does_not_count_pupils_as_complete(self):
+        records = [row(f"s{i}", topic="t1" if i < 15 else "t2") for i in range(30)]
+        teacher = compute_teachers(records, TOPICS)["teachers"][0]
+        self.assertEqual(teacher["post_topic_count"], 2)
+        self.assertEqual(teacher["topic_count"], 2)
+        self.assertEqual(teacher["n_complete_students"], 0)
+        self.assertEqual(teacher["complete_student_share"], 0)
+        self.assertTrue(any("Неполное покрытие" in warning for warning in teacher["warnings"]))
+
+    def test_complete_share_uses_post_pupils_and_preserves_observation_weighting(self):
+        records = [row("full", 100), row("full", 0, topic="t2"), row("partial", 100),
+                   row("pre-only", 20, stage="pre"), row("pre-only", 30, topic="t2", stage="pre")]
+        teacher = compute_teachers(records, TOPICS)["teachers"][0]
+        self.assertEqual(teacher["students"], 3)
+        self.assertEqual(teacher["n_post_students"], 2)
+        self.assertEqual(teacher["n_complete_students"], 1)
+        self.assertEqual(teacher["complete_student_share"], 0.5)
+        self.assertAlmostEqual(teacher["mean_post_pct"], 200 / 3)
+        pre_only = compute_teachers([row("pre", stage="pre"), row("pre", topic="t2", stage="pre")], TOPICS)["teachers"][0]
+        self.assertEqual(pre_only["topic_count"], 2)
+        self.assertEqual(pre_only["post_topic_count"], 0)
+        self.assertEqual(pre_only["n_complete_students"], 0)
+        self.assertIsNone(pre_only["complete_student_share"])
+
+    def test_coverage_filters_records_but_keeps_full_curriculum_denominator(self):
+        records = [row("a", topic="t1", version="v1", textbook="A"),
+                   row("a", topic="t2", version="v2", textbook="B"),
+                   row("b", topic="t1", classroom="7B"), row("b", topic="t2", classroom="7B")]
+        complete = compute_teachers(records, TOPICS, {"class_ids": ["7B"]})["teachers"][0]
+        self.assertEqual(complete["n_complete_students"], 1)
+        self.assertEqual(complete["complete_student_share"], 1)
+        for filter_values in ({"test_version": "v1"}, {"textbook_ids": ["A"]}, {"topic_ids": ["t1"]}):
+            with self.subTest(filters=filter_values):
+                teacher = compute_teachers(records, TOPICS, {"class_ids": ["7A"], **filter_values})["teachers"][0]
+                self.assertEqual(teacher["n_post_students"], 1)
+                self.assertEqual(teacher["topic_count"], 2)
+                self.assertEqual(teacher["post_topic_count"], 1)
+                self.assertEqual(teacher["n_complete_students"], 0)
+                self.assertEqual(teacher["complete_student_share"], 0)
+                self.assertEqual(teacher["upcoming_hours"], 24)
+
+    def test_mixed_versions_keep_availability_counts_while_suppressing_means(self):
+        records = [row(student, 40 if stage == "pre" else 60, topic=topic, stage=stage, version=version)
+                   for student, version in (("a", "v1"), ("b", "v2"))
+                   for topic in ("t1", "t2") for stage in ("pre", "post")]
+        teacher = compute_teachers(records, TOPICS)["teachers"][0]
+        self.assertEqual(teacher["mixed_topic_ids"], ["t1", "t2"])
+        self.assertEqual(teacher["topic_count"], 2)
+        self.assertEqual(teacher["post_topic_count"], 2)
+        self.assertEqual(teacher["n_complete_students"], 2)
+        self.assertEqual(teacher["complete_student_share"], 1)
+        self.assertIsNone(teacher["mean_post_pct"])
+        self.assertIsNone(teacher["mean_pre_paired_pct"])
+        self.assertIsNone(teacher["mean_post_paired_pct"])
+        self.assertIsNone(teacher["mean_gain_pp"])
+
+    def test_unique_curriculum_topics_and_empty_curriculum_do_not_make_false_full_coverage(self):
+        records = [row("a"), row("a", topic="t2")]
+        unique = compute_teachers(records, [*TOPICS, TOPICS[0]])["teachers"][0]
+        self.assertEqual(unique["topic_count"], 2)
+        self.assertEqual(unique["n_complete_students"], 1)
+        empty = compute_teachers(records, [])["teachers"][0]
+        self.assertEqual(empty["topic_count"], 0)
+        self.assertEqual(empty["post_topic_count"], 0)
+        self.assertEqual(empty["n_complete_students"], 0)
+        self.assertIsNone(empty["complete_student_share"])
+
+    def test_coverage_stays_inside_teacher_and_school_group(self):
+        records = [row("a", teacher="T1"), row("a", teacher="T2", topic="t2"),
+                   row("b", teacher="T1", school="S2"), row("b", teacher="T1", school="S2", topic="t2")]
+        groups = compute_teachers(records, TOPICS)["teachers"]
+        self.assertEqual([(teacher["school_id"], teacher["teacher_id"], teacher["n_complete_students"])
+                          for teacher in groups], [("S1", "T1", 0), ("S1", "T2", 0), ("S2", "T1", 1)])
 
 
 if __name__ == "__main__":

@@ -34,6 +34,8 @@ class TeachersApiTests(unittest.TestCase):
         self.assertEqual(sum(t['n_pairs'] for t in body['teachers']), 720)
         self.assertEqual([t['n_paired_students'] for t in body['teachers']], [30] * 4)
         self.assertTrue(all(t['paired_student_share'] == 1 for t in body['teachers']))
+        self.assertTrue(all(t['topic_count'] == 6 and t['post_topic_count'] == 6 for t in body['teachers']))
+        self.assertTrue(all(t['n_complete_students'] == 30 and t['complete_student_share'] == 1 for t in body['teachers']))
         self.assertTrue(body['is_demo'])
         self.assertTrue(body['warnings'])
         self.assertIn('mean_post_pct', body['definitions'])
@@ -46,6 +48,39 @@ class TeachersApiTests(unittest.TestCase):
         self.assertIn('paired_student_share', fields['required'])
         self.assertIn('mean_pre_paired_pct', fields['required'])
         self.assertIn('mean_post_paired_pct', fields['required'])
+        for field in ('topic_count', 'post_topic_count', 'n_complete_students', 'complete_student_share'):
+            self.assertIn(field, fields['required'])
+
+    def test_valid_csv_exposes_one_tested_topic_in_hundred_topic_curriculum(self):
+        topics = [{'topic_id': f't{i:03d}', 'topic_name': f'Topic {i}', 'topic_order': i,
+                   'current_hours': 1, 'min_hours': 0, 'max_hours': 3, 'importance': 1,
+                   'is_locked': False} for i in range(100)]
+        records = [{'student_id': f's{i}', 'school_id': 'S1', 'class_id': '7A', 'teacher_id': 'T1',
+                    'textbook_id': 'A', 'topic_id': 't000', 'test_version': 'v1', 'stage': stage,
+                    'score': score, 'max_score': 100, 'tested_at': date}
+                   for i in range(30)
+                   for stage, score, date in (('pre', 80, '2026-09-01'), ('post', 100, '2026-10-01'))]
+        response = self.client.post('/api/datasets/import?dry_run=false',
+            data={'metadata': json.dumps(METADATA)}, files={
+                'results_file': ('results.csv', _csv(RESULT_FIELDS, records)),
+                'curriculum_file': ('curriculum.csv', _csv(TOPIC_FIELDS, topics)),
+            })
+        self.assertEqual(response.status_code, 201, response.text)
+        response = self.client.get(f"/api/datasets/{response.json()['dataset_id']}/teachers",
+                                   params={'class_ids': '7A', 'test_version': 'v1'})
+        self.assertEqual(response.status_code, 200, response.text)
+        teacher = response.json()['teachers'][0]
+        self.assertEqual(teacher['mean_post_pct'], 100)
+        self.assertEqual(teacher['mean_pre_paired_pct'], 80)
+        self.assertEqual(teacher['mean_post_paired_pct'], 100)
+        self.assertEqual(teacher['mean_gain_pp'], 20)
+        self.assertEqual(teacher['pair_coverage'], 1)
+        self.assertEqual(teacher['paired_student_share'], 1)
+        self.assertEqual(teacher['topic_count'], 100)
+        self.assertEqual(teacher['post_topic_count'], 1)
+        self.assertEqual(teacher['n_complete_students'], 0)
+        self.assertEqual(teacher['complete_student_share'], 0)
+        self.assertTrue(any('Неполное покрытие учебного плана' in warning for warning in teacher['warnings']))
 
     def test_valid_csv_keeps_paired_means_separate_from_all_post_mean(self):
         topics, records = demo_records()
