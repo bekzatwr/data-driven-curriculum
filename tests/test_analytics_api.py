@@ -117,6 +117,16 @@ class AnalyticsApiTests(unittest.TestCase):
                 self.assertTrue({'code', 'message', 'details', 'total_errors'} <= response.json().keys())
         self.assertEqual(self.client.get('/api/datasets/missing/overview').status_code, 404)
 
+    def test_large_finite_scores_normalize_without_overflow(self):
+        for row in self.app.state.store.records:
+            if row['topic_id'] == 'equations':
+                row['max_score'] = 1e308
+                row['score'] = 5e307 if row['stage'] == 'pre' else 1e308
+        metric = self.get('/topics/equations')['metrics']
+        self.assertEqual(metric['mean_post_pct'], 100)
+        self.assertEqual(metric['mean_pre_paired_pct'], 50)
+        self.assertEqual(metric['mean_gain_pp'], 50)
+
     def test_duplicate_input_never_silently_changes_weights(self):
         self.app.state.store.records.append(deepcopy(self.app.state.store.records[0]))
         response = self.client.get(self.base + '/overview')

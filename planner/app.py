@@ -36,8 +36,6 @@ def create_demo_app(database_path=None):
 
 
 def create_integrated_app():
-    # Use after the backend branch is merged; no edits to teammates' modules required.
+    # Compatibility entry point: the default backend now includes the planner.
     from backend.app.main import create_app
-    app = create_app(routers=(router,))
-    app.state.plan_snapshots = SnapshotStore(Path(app.state.settings.database_path).with_name('aidana-plans.sqlite3'))
-    return app
+    return create_app()

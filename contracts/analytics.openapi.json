@@ -106,7 +106,7 @@
                 }
               }
             },
-            "description": "Unprocessable Entity"
+            "description": "Unprocessable Content"
           }
         }
       }
@@ -221,7 +221,7 @@
                 }
               }
             },
-            "description": "Unprocessable Entity"
+            "description": "Unprocessable Content"
           }
         }
       }
@@ -335,7 +335,7 @@
                 }
               }
             },
-            "description": "Unprocessable Entity"
+            "description": "Unprocessable Content"
           }
         }
       }
@@ -582,6 +582,7 @@
             "title": "Is Demo"
           },
           "source": {
+            "additionalProperties": true,
             "type": "object",
             "title": "Source"
           },
@@ -707,6 +708,7 @@
           },
           "details": {
             "items": {
+              "additionalProperties": true,
               "type": "object"
             },
             "type": "array",
@@ -788,6 +790,7 @@
             "title": "Is Demo"
           },
           "source": {
+            "additionalProperties": true,
             "type": "object",
             "title": "Source"
           },
@@ -968,6 +971,7 @@
             "title": "Is Demo"
           },
           "source": {
+            "additionalProperties": true,
             "type": "object",
             "title": "Source"
           },
@@ -1233,6 +1237,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",

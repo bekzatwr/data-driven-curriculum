@@ -6,15 +6,18 @@ from pydantic import ValidationError
 from .models import PlanRequest, SaveRequest
 from .rules import PlanError
 from .service import preview, save_plan
+from .contracts import PlanPreview, SavedPlan, PlanErrorResponse
 
-router = APIRouter(prefix='/api', tags=['Plans'])
+router = APIRouter(prefix='/api', tags=['Plans'], responses={
+    status: {'model': PlanErrorResponse} for status in (404, 422, 503)
+})
 
 
 def error(message, status=422):
-    return JSONResponse(status_code=status, content={'code': 'PLAN_NOT_FOUND' if status == 404 else 'INVALID_PLAN', 'message': message, 'details': []})
+    return JSONResponse(status_code=status, content={'code': 'PLAN_NOT_FOUND' if status == 404 else 'INVALID_PLAN', 'message': message, 'details': [], 'total_errors': 0})
 
 
-@router.post('/datasets/{dataset_id}/plans/preview')
+@router.post('/datasets/{dataset_id}/plans/preview', response_model=PlanPreview, response_model_exclude_unset=True)
 def preview_route(dataset_id: str, payload: PlanRequest, request: Request):
     try:
         return preview(request.app.state.store, dataset_id, payload)
@@ -22,7 +25,7 @@ def preview_route(dataset_id: str, payload: PlanRequest, request: Request):
         return error(str(exc))
 
 
-@router.post('/datasets/{dataset_id}/plans', status_code=201)
+@router.post('/datasets/{dataset_id}/plans', status_code=201, response_model=SavedPlan, response_model_exclude_unset=True)
 def save_route(dataset_id: str, payload: SaveRequest, request: Request):
     try:
         return save_plan(request.app.state.store, request.app.state.plan_snapshots, dataset_id, payload)
@@ -37,7 +40,7 @@ def visible_plan(request, plan_id):
     return plan
 
 
-@router.get('/plans/{plan_id}')
+@router.get('/plans/{plan_id}', response_model=SavedPlan, response_model_exclude_unset=True)
 def get_route(plan_id: str, request: Request):
     return visible_plan(request, plan_id) or error('План не найден', 404)
 
@@ -57,7 +60,9 @@ def export_csv(plan):
     return stream.getvalue().encode('utf-8-sig')
 
 
-@router.get('/plans/{plan_id}/export.csv')
+@router.get('/plans/{plan_id}/export.csv', response_class=Response,
+            responses={200: {'content': {'text/csv': {'schema': {'type': 'string'}}},
+                             'description': 'Saved snapshot as UTF-8 CSV with BOM'}})
 def export_route(plan_id: str, request: Request):
     plan = visible_plan(request, plan_id)
     if not plan:

@@ -1,0 +1,13 @@
+{
+  "code": "INVALID_DATASET",
+  "message": "Набор не сохранён. Исправьте ошибки в файлах.",
+  "details": [
+    {
+      "file": "results.csv",
+      "row": 2,
+      "field": "score",
+      "reason": "Нужно 0 ≤ score ≤ max_score."
+    }
+  ],
+  "total_errors": 1
+}

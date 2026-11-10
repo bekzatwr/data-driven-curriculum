@@ -1,0 +1,4587 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Data-Driven Curriculum — backend",
+    "description": "Импорт, аналитика тем, сравнение учебников, планирование часов и сохранённые отчёты.",
+    "version": "0.2.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/capabilities": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Capabilities",
+        "operationId": "capabilities_api_capabilities_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Capabilities"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/import": {
+      "post": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Import Dataset",
+        "operationId": "import_dataset_api_datasets_import_post",
+        "parameters": [
+          {
+            "name": "dry_run",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Dry Run"
+            }
+          },
+          {
+            "name": "error_format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "json",
+                "csv"
+              ],
+              "type": "string",
+              "default": "json",
+              "title": "Error Format"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_dataset_api_datasets_import_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/api/datasets/demo": {
+      "post": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Create Demo",
+        "operationId": "create_demo_api_datasets_demo_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datasets/restore": {
+      "post": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Restore Dataset",
+        "operationId": "restore_dataset_api_datasets_restore_post",
+        "parameters": [
+          {
+            "name": "dry_run",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Dry Run"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetPackage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/api/datasets": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "List Datasets",
+        "operationId": "list_datasets_api_datasets_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetList"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Dataset",
+        "operationId": "get_dataset_api_datasets__dataset_id__get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dataset"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/quality": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Quality",
+        "operationId": "get_quality_api_datasets__dataset_id__quality_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetQuality"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/package": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Package",
+        "operationId": "get_package_api_datasets__dataset_id__package_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetPackage"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/filters": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Filters",
+        "operationId": "get_filters_api_datasets__dataset_id__filters_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/backend__app__schemas__Filters"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/curriculum": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Curriculum",
+        "operationId": "get_curriculum_api_datasets__dataset_id__curriculum_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Topic"
+                  },
+                  "title": "Response Get Curriculum Api Datasets  Dataset Id  Curriculum Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/results": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Get Results",
+        "operationId": "get_results_api_datasets__dataset_id__results_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "class_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "maxItems": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Ids"
+            }
+          },
+          {
+            "name": "textbook_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "maxItems": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Textbook Ids"
+            }
+          },
+          {
+            "name": "topic_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Topic Id"
+            }
+          },
+          {
+            "name": "stage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pre",
+                    "post"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stage"
+            }
+          },
+          {
+            "name": "test_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Test Version"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 1000,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordsPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/templates/{name}.csv": {
+      "get": {
+        "tags": [
+          "Datasets",
+          "Templates"
+        ],
+        "summary": "Template",
+        "operationId": "template_api_templates__name__csv_get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "results",
+                "curriculum"
+              ],
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/plans/preview": {
+      "post": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Preview Route",
+        "operationId": "preview_route_api_datasets__dataset_id__plans_preview_post",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanPreview"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/plans": {
+      "post": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Save Route",
+        "operationId": "save_route_api_datasets__dataset_id__plans_post",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedPlan"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/plans/{plan_id}": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Get Route",
+        "operationId": "get_route_api_plans__plan_id__get",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedPlan"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/plans/{plan_id}/export.csv": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Export Route",
+        "operationId": "export_route_api_plans__plan_id__export_csv_get",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved snapshot as UTF-8 CSV with BOM",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/overview": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Overview",
+        "operationId": "overview_api_datasets__dataset_id__overview_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "class_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Ids"
+            }
+          },
+          {
+            "name": "textbook_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Textbook Ids"
+            }
+          },
+          {
+            "name": "test_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Test Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overview"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/topics/{topic_id}": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Topic Detail",
+        "operationId": "topic_detail_api_datasets__dataset_id__topics__topic_id__get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "topic_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Topic Id"
+            }
+          },
+          {
+            "name": "class_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Ids"
+            }
+          },
+          {
+            "name": "textbook_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Textbook Ids"
+            }
+          },
+          {
+            "name": "test_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Test Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/comparison": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Comparison",
+        "operationId": "comparison_api_datasets__dataset_id__comparison_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "topic_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Topic Id"
+            }
+          },
+          {
+            "name": "textbook_a",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Textbook A"
+            }
+          },
+          {
+            "name": "textbook_b",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Textbook B"
+            }
+          },
+          {
+            "name": "class_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Ids"
+            }
+          },
+          {
+            "name": "test_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Test Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comparison"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyticsSettings": {
+        "properties": {
+          "threshold_pct": {
+            "type": "number",
+            "title": "Threshold Pct"
+          },
+          "mastered_pct": {
+            "type": "number",
+            "title": "Mastered Pct"
+          },
+          "min_students": {
+            "type": "integer",
+            "title": "Min Students"
+          },
+          "problem_share": {
+            "type": "number",
+            "title": "Problem Share"
+          },
+          "max_baseline_gap_pp": {
+            "type": "number",
+            "title": "Max Baseline Gap Pp"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "threshold_pct",
+          "mastered_pct",
+          "min_students",
+          "problem_share",
+          "max_baseline_gap_pp"
+        ],
+        "title": "AnalyticsSettings"
+      },
+      "ApiLimits": {
+        "properties": {
+          "csv_files_bytes": {
+            "type": "integer",
+            "title": "Csv Files Bytes"
+          },
+          "multipart_body_bytes": {
+            "type": "integer",
+            "title": "Multipart Body Bytes"
+          },
+          "package_body_bytes": {
+            "type": "integer",
+            "title": "Package Body Bytes"
+          },
+          "results_per_dataset": {
+            "type": "integer",
+            "title": "Results Per Dataset"
+          },
+          "topics_per_dataset": {
+            "type": "integer",
+            "title": "Topics Per Dataset"
+          },
+          "results_per_page": {
+            "type": "integer",
+            "title": "Results Per Page"
+          }
+        },
+        "type": "object",
+        "required": [
+          "csv_files_bytes",
+          "multipart_body_bytes",
+          "package_body_bytes",
+          "results_per_dataset",
+          "topics_per_dataset",
+          "results_per_page"
+        ],
+        "title": "ApiLimits"
+      },
+      "AppliedFilters": {
+        "properties": {
+          "class_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Class Ids"
+          },
+          "test_versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Test Versions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "class_ids",
+          "test_versions"
+        ],
+        "title": "AppliedFilters"
+      },
+      "Body_import_dataset_api_datasets_import_post": {
+        "properties": {
+          "results_file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Results File",
+            "description": "UTF-8 results.csv"
+          },
+          "curriculum_file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Curriculum File",
+            "description": "UTF-8 curriculum.csv"
+          },
+          "metadata": {
+            "type": "string",
+            "title": "Metadata",
+            "description": "JSON: name, subject, grade, period_start, period_end"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results_file",
+          "curriculum_file",
+          "metadata"
+        ],
+        "title": "Body_import_dataset_api_datasets_import_post"
+      },
+      "BookGroup": {
+        "properties": {
+          "textbook_id": {
+            "type": "string",
+            "title": "Textbook Id"
+          },
+          "n_post": {
+            "type": "integer",
+            "title": "N Post"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs"
+          },
+          "n_classes": {
+            "type": "integer",
+            "title": "N Classes"
+          },
+          "n_teachers": {
+            "type": "integer",
+            "title": "N Teachers"
+          },
+          "pair_coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Coverage"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "mean_pre_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Pre Paired Pct"
+          },
+          "mean_post_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Paired Pct"
+          },
+          "mean_gain_pp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Gain Pp"
+          },
+          "available_slices": {
+            "items": {
+              "$ref": "#/components/schemas/Slice"
+            },
+            "type": "array",
+            "title": "Available Slices"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "textbook_id",
+          "n_post",
+          "n_pairs",
+          "n_classes",
+          "n_teachers",
+          "pair_coverage",
+          "mean_post_pct",
+          "mean_pre_paired_pct",
+          "mean_post_paired_pct",
+          "mean_gain_pp",
+          "available_slices"
+        ],
+        "title": "BookGroup"
+      },
+      "Capabilities": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "local",
+              "read_only_demo"
+            ],
+            "title": "Mode"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/ApiLimits"
+          },
+          "features": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Features"
+          },
+          "links": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Links"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "mode",
+          "limits",
+          "features",
+          "links"
+        ],
+        "title": "Capabilities"
+      },
+      "ClassFilter": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "student_count": {
+            "type": "integer",
+            "title": "Student Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "school_id",
+          "student_count"
+        ],
+        "title": "ClassFilter"
+      },
+      "ClassMetrics": {
+        "properties": {
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/TopicMetrics"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "school_id",
+          "class_id",
+          "metrics"
+        ],
+        "title": "ClassMetrics"
+      },
+      "ClassQuality": {
+        "properties": {
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "results": {
+            "type": "integer",
+            "title": "Results"
+          },
+          "pre": {
+            "type": "integer",
+            "title": "Pre"
+          },
+          "post": {
+            "type": "integer",
+            "title": "Post"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          },
+          "post_without_pre": {
+            "type": "integer",
+            "title": "Post Without Pre"
+          },
+          "pre_without_post": {
+            "type": "integer",
+            "title": "Pre Without Post"
+          },
+          "missing_teacher": {
+            "type": "integer",
+            "title": "Missing Teacher"
+          },
+          "paired_post_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Post Share"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "topics_with_results": {
+            "type": "integer",
+            "title": "Topics With Results"
+          },
+          "topics_without_results": {
+            "type": "integer",
+            "title": "Topics Without Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "students",
+          "results",
+          "pre",
+          "post",
+          "pairs",
+          "post_without_pre",
+          "pre_without_post",
+          "missing_teacher",
+          "paired_post_share",
+          "class_id",
+          "school_id",
+          "topics_with_results",
+          "topics_without_results"
+        ],
+        "title": "ClassQuality"
+      },
+      "Comparison": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "source": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Source"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/analytics__models__Filters"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/AnalyticsSettings"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "comparison_status": {
+            "type": "string",
+            "enum": [
+              "comparable",
+              "insufficient_data",
+              "not_comparable"
+            ],
+            "title": "Comparison Status"
+          },
+          "difference_gain_pp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Difference Gain Pp"
+          },
+          "baseline_gap_pp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Gap Pp"
+          },
+          "group_a": {
+            "$ref": "#/components/schemas/BookGroup"
+          },
+          "group_b": {
+            "$ref": "#/components/schemas/BookGroup"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "conclusion": {
+            "type": "string",
+            "title": "Conclusion"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "is_demo",
+          "source",
+          "applied_filters",
+          "settings",
+          "warnings",
+          "topic_id",
+          "test_version",
+          "max_score",
+          "comparison_status",
+          "difference_gain_pp",
+          "baseline_gap_pp",
+          "group_a",
+          "group_b",
+          "reasons",
+          "conclusion"
+        ],
+        "title": "Comparison"
+      },
+      "Completeness": {
+        "properties": {
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "results": {
+            "type": "integer",
+            "title": "Results"
+          },
+          "pre": {
+            "type": "integer",
+            "title": "Pre"
+          },
+          "post": {
+            "type": "integer",
+            "title": "Post"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          },
+          "post_without_pre": {
+            "type": "integer",
+            "title": "Post Without Pre"
+          },
+          "pre_without_post": {
+            "type": "integer",
+            "title": "Pre Without Post"
+          },
+          "missing_teacher": {
+            "type": "integer",
+            "title": "Missing Teacher"
+          },
+          "paired_post_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Post Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "students",
+          "results",
+          "pre",
+          "post",
+          "pairs",
+          "post_without_pre",
+          "pre_without_post",
+          "missing_teacher",
+          "paired_post_share"
+        ],
+        "title": "Completeness"
+      },
+      "Counts": {
+        "properties": {
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "classes": {
+            "type": "integer",
+            "title": "Classes"
+          },
+          "topics": {
+            "type": "integer",
+            "title": "Topics"
+          },
+          "textbooks": {
+            "type": "integer",
+            "title": "Textbooks"
+          },
+          "results": {
+            "type": "integer",
+            "title": "Results"
+          },
+          "pre": {
+            "type": "integer",
+            "title": "Pre"
+          },
+          "post": {
+            "type": "integer",
+            "title": "Post"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "students",
+          "classes",
+          "topics",
+          "textbooks",
+          "results",
+          "pre",
+          "post",
+          "pairs"
+        ],
+        "title": "Counts"
+      },
+      "Dataset": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "upload",
+              "demo"
+            ],
+            "title": "Source Type"
+          },
+          "content_hash": {
+            "type": "string",
+            "title": "Content Hash"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/Counts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "metadata",
+          "source_type",
+          "content_hash",
+          "created_at",
+          "counts"
+        ],
+        "title": "Dataset"
+      },
+      "DatasetList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Dataset"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "DatasetList"
+      },
+      "DatasetPackage": {
+        "properties": {
+          "format": {
+            "type": "string",
+            "const": "ddc-dataset",
+            "title": "Format"
+          },
+          "version": {
+            "type": "integer",
+            "maximum": 1.0,
+            "minimum": 1.0,
+            "title": "Version"
+          },
+          "checksum": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Checksum"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PackageData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "format",
+          "version",
+          "checksum",
+          "data"
+        ],
+        "title": "DatasetPackage"
+      },
+      "DatasetQuality": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "upload",
+              "demo"
+            ],
+            "title": "Source Type"
+          },
+          "content_hash": {
+            "type": "string",
+            "title": "Content Hash"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/Completeness"
+          },
+          "topics_without_results": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Topics Without Results"
+          },
+          "by_topic": {
+            "items": {
+              "$ref": "#/components/schemas/TopicQuality"
+            },
+            "type": "array",
+            "title": "By Topic"
+          },
+          "by_class": {
+            "items": {
+              "$ref": "#/components/schemas/ClassQuality"
+            },
+            "type": "array",
+            "title": "By Class"
+          },
+          "notices": {
+            "items": {
+              "$ref": "#/components/schemas/QualityNotice"
+            },
+            "type": "array",
+            "title": "Notices"
+          },
+          "definitions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Definitions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "source_type",
+          "content_hash",
+          "summary",
+          "topics_without_results",
+          "by_topic",
+          "by_class",
+          "notices",
+          "definitions"
+        ],
+        "title": "DatasetQuality"
+      },
+      "Error": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Details"
+          },
+          "total_errors": {
+            "type": "integer",
+            "title": "Total Errors"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "details",
+          "total_errors"
+        ],
+        "title": "Error"
+      },
+      "ErrorDetail": {
+        "properties": {
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "row": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Row"
+          },
+          "field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "title": "ErrorDetail"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorDetail"
+            },
+            "type": "array",
+            "title": "Details",
+            "default": []
+          },
+          "total_errors": {
+            "type": "integer",
+            "title": "Total Errors",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorResponse"
+      },
+      "ImportResponse": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid",
+            "default": true
+          },
+          "dry_run": {
+            "type": "boolean",
+            "title": "Dry Run"
+          },
+          "created": {
+            "type": "boolean",
+            "title": "Created",
+            "default": false
+          },
+          "dataset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Id"
+          },
+          "dataset": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Dataset"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/Counts"
+          },
+          "preview": {
+            "additionalProperties": {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Preview"
+          },
+          "warnings": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dry_run",
+          "metadata",
+          "counts",
+          "preview",
+          "warnings"
+        ],
+        "title": "ImportResponse"
+      },
+      "Metadata": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Subject"
+          },
+          "grade": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Grade"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "subject",
+          "grade",
+          "period_start",
+          "period_end"
+        ],
+        "title": "Metadata"
+      },
+      "Metric": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "n_post": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "N Post"
+          },
+          "single_version": {
+            "type": "boolean",
+            "title": "Single Version"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_id",
+          "mean_post_pct",
+          "n_post",
+          "single_version",
+          "test_version",
+          "max_score"
+        ],
+        "title": "Metric"
+      },
+      "Override": {
+        "properties": {
+          "min_hours": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Hours"
+          },
+          "max_hours": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Hours"
+          },
+          "importance": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 3.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importance"
+          },
+          "is_locked": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Override"
+      },
+      "Overview": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "source": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Source"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/analytics__models__Filters"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/AnalyticsSettings"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/OverviewMetrics"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicMetrics"
+            },
+            "type": "array",
+            "title": "Topics"
+          },
+          "heatmap": {
+            "items": {
+              "$ref": "#/components/schemas/ClassMetrics"
+            },
+            "type": "array",
+            "title": "Heatmap"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "is_demo",
+          "source",
+          "applied_filters",
+          "settings",
+          "warnings",
+          "metrics",
+          "topics",
+          "heatmap"
+        ],
+        "title": "Overview"
+      },
+      "OverviewMetrics": {
+        "properties": {
+          "n_students": {
+            "type": "integer",
+            "title": "N Students"
+          },
+          "n_post_students": {
+            "type": "integer",
+            "title": "N Post Students"
+          },
+          "n_post_results": {
+            "type": "integer",
+            "title": "N Post Results"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs"
+          },
+          "n_paired_students": {
+            "type": "integer",
+            "title": "N Paired Students"
+          },
+          "pair_coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Coverage"
+          },
+          "paired_student_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Student Share"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "n_complete_students": {
+            "type": "integer",
+            "title": "N Complete Students"
+          },
+          "topic_count": {
+            "type": "integer",
+            "title": "Topic Count"
+          },
+          "n_problem_topics": {
+            "type": "integer",
+            "title": "N Problem Topics"
+          },
+          "mixed_topic_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Mixed Topic Ids"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "n_students",
+          "n_post_students",
+          "n_post_results",
+          "n_pairs",
+          "n_paired_students",
+          "pair_coverage",
+          "paired_student_share",
+          "mean_post_pct",
+          "n_complete_students",
+          "topic_count",
+          "n_problem_topics",
+          "mixed_topic_ids",
+          "warnings"
+        ],
+        "title": "OverviewMetrics"
+      },
+      "PackageData": {
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "curriculum": {
+            "items": {
+              "$ref": "#/components/schemas/PackageTopic"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Curriculum"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/PackageResult"
+            },
+            "type": "array",
+            "maxItems": 10000,
+            "minItems": 1,
+            "title": "Results"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metadata",
+          "curriculum",
+          "results"
+        ],
+        "title": "PackageData"
+      },
+      "PackageResult": {
+        "properties": {
+          "student_id": {
+            "type": "string",
+            "title": "Student Id"
+          },
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "teacher_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Teacher Id"
+          },
+          "textbook_id": {
+            "type": "string",
+            "title": "Textbook Id"
+          },
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "test_version": {
+            "type": "string",
+            "title": "Test Version"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "pre",
+              "post"
+            ],
+            "title": "Stage"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "max_score": {
+            "type": "number",
+            "title": "Max Score"
+          },
+          "tested_at": {
+            "type": "string",
+            "title": "Tested At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "student_id",
+          "school_id",
+          "class_id",
+          "teacher_id",
+          "textbook_id",
+          "topic_id",
+          "test_version",
+          "stage",
+          "score",
+          "max_score",
+          "tested_at"
+        ],
+        "title": "PackageResult"
+      },
+      "PackageTopic": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name"
+          },
+          "topic_order": {
+            "type": "integer",
+            "title": "Topic Order"
+          },
+          "current_hours": {
+            "type": "integer",
+            "title": "Current Hours"
+          },
+          "min_hours": {
+            "type": "integer",
+            "title": "Min Hours"
+          },
+          "max_hours": {
+            "type": "integer",
+            "title": "Max Hours"
+          },
+          "importance": {
+            "type": "integer",
+            "title": "Importance"
+          },
+          "is_locked": {
+            "type": "boolean",
+            "title": "Is Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topic_id",
+          "topic_name",
+          "topic_order",
+          "current_hours",
+          "min_hours",
+          "max_hours",
+          "importance",
+          "is_locked"
+        ],
+        "title": "PackageTopic"
+      },
+      "PlanErrorResponse": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Details"
+          },
+          "total_errors": {
+            "type": "integer",
+            "title": "Total Errors",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "details"
+        ],
+        "title": "PlanErrorResponse"
+      },
+      "PlanItem": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name"
+          },
+          "topic_order": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Topic Order"
+          },
+          "current_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Current Hours"
+          },
+          "min_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Min Hours"
+          },
+          "max_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Max Hours"
+          },
+          "importance": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Importance"
+          },
+          "is_locked": {
+            "type": "boolean",
+            "title": "Is Locked"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "n_post": {
+            "type": "integer",
+            "title": "N Post"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "automatic_eligible": {
+            "type": "boolean",
+            "title": "Automatic Eligible"
+          },
+          "proposed_hours": {
+            "type": "integer",
+            "title": "Proposed Hours"
+          },
+          "delta": {
+            "type": "integer",
+            "title": "Delta"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topic_id",
+          "topic_name",
+          "topic_order",
+          "current_hours",
+          "min_hours",
+          "max_hours",
+          "importance",
+          "is_locked",
+          "mean_post_pct",
+          "n_post",
+          "test_version",
+          "max_score",
+          "automatic_eligible",
+          "proposed_hours",
+          "delta",
+          "reason"
+        ],
+        "title": "PlanItem"
+      },
+      "PlanPreview": {
+        "properties": {
+          "total_hours": {
+            "type": "integer",
+            "title": "Total Hours"
+          },
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/AppliedFilters"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PlanSource"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/Metric"
+            },
+            "type": "array",
+            "title": "Metrics"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/Settings"
+          },
+          "algorithm_version": {
+            "type": "string",
+            "title": "Algorithm Version"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PlanItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "transfers": {
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            },
+            "type": "array",
+            "title": "Transfers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_hours",
+          "dataset_id",
+          "class_id",
+          "applied_filters",
+          "source",
+          "is_demo",
+          "metrics",
+          "warnings",
+          "settings",
+          "algorithm_version",
+          "items",
+          "transfers"
+        ],
+        "title": "PlanPreview"
+      },
+      "PlanRequest": {
+        "properties": {
+          "class_id": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Class Id"
+          },
+          "test_versions": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "propertyNames": {
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Test Versions"
+          },
+          "constraints": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Override"
+            },
+            "propertyNames": {
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Constraints"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/Settings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "class_id"
+        ],
+        "title": "PlanRequest"
+      },
+      "PlanSource": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "upload",
+              "demo"
+            ],
+            "title": "Source Type"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/SourceMetadata"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Counts"
+          },
+          "content_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Hash"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_type",
+          "metadata",
+          "counts"
+        ],
+        "title": "PlanSource"
+      },
+      "QualityNotice": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "count",
+          "message"
+        ],
+        "title": "QualityNotice"
+      },
+      "RecordsPage": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Result"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "RecordsPage"
+      },
+      "Result": {
+        "properties": {
+          "student_id": {
+            "type": "string",
+            "title": "Student Id"
+          },
+          "school_id": {
+            "type": "string",
+            "title": "School Id"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "teacher_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Teacher Id"
+          },
+          "textbook_id": {
+            "type": "string",
+            "title": "Textbook Id"
+          },
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "test_version": {
+            "type": "string",
+            "title": "Test Version"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "pre",
+              "post"
+            ],
+            "title": "Stage"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "max_score": {
+            "type": "number",
+            "title": "Max Score"
+          },
+          "tested_at": {
+            "type": "string",
+            "title": "Tested At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "student_id",
+          "school_id",
+          "class_id",
+          "teacher_id",
+          "textbook_id",
+          "topic_id",
+          "test_version",
+          "stage",
+          "score",
+          "max_score",
+          "tested_at"
+        ],
+        "title": "Result"
+      },
+      "SaveRequest": {
+        "properties": {
+          "class_id": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Class Id"
+          },
+          "test_versions": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "propertyNames": {
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Test Versions"
+          },
+          "constraints": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Override"
+            },
+            "propertyNames": {
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Constraints"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/Settings"
+          },
+          "hours_by_topic": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer",
+                  "maximum": 10000.0,
+                  "minimum": 0.0
+                },
+                "propertyNames": {
+                  "maxLength": 120,
+                  "minLength": 1
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hours By Topic"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Comment",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "class_id"
+        ],
+        "title": "SaveRequest"
+      },
+      "SavedItem": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name"
+          },
+          "topic_order": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Topic Order"
+          },
+          "current_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Current Hours"
+          },
+          "min_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Min Hours"
+          },
+          "max_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Max Hours"
+          },
+          "importance": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Importance"
+          },
+          "is_locked": {
+            "type": "boolean",
+            "title": "Is Locked"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "n_post": {
+            "type": "integer",
+            "title": "N Post"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "automatic_eligible": {
+            "type": "boolean",
+            "title": "Automatic Eligible"
+          },
+          "proposed_hours": {
+            "type": "integer",
+            "title": "Proposed Hours"
+          },
+          "delta": {
+            "type": "integer",
+            "title": "Delta"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "recommended_hours": {
+            "type": "integer",
+            "title": "Recommended Hours"
+          },
+          "recommendation_reason": {
+            "type": "string",
+            "title": "Recommendation Reason"
+          },
+          "manually_modified": {
+            "type": "boolean",
+            "title": "Manually Modified"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topic_id",
+          "topic_name",
+          "topic_order",
+          "current_hours",
+          "min_hours",
+          "max_hours",
+          "importance",
+          "is_locked",
+          "mean_post_pct",
+          "n_post",
+          "test_version",
+          "max_score",
+          "automatic_eligible",
+          "proposed_hours",
+          "delta",
+          "reason",
+          "recommended_hours",
+          "recommendation_reason",
+          "manually_modified"
+        ],
+        "title": "SavedItem"
+      },
+      "SavedPlan": {
+        "properties": {
+          "total_hours": {
+            "type": "integer",
+            "title": "Total Hours"
+          },
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/AppliedFilters"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PlanSource"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/Metric"
+            },
+            "type": "array",
+            "title": "Metrics"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/Settings"
+          },
+          "algorithm_version": {
+            "type": "string",
+            "title": "Algorithm Version"
+          },
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SavedItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "manually_modified": {
+            "type": "boolean",
+            "title": "Manually Modified"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment"
+          },
+          "recommendation_transfers": {
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            },
+            "type": "array",
+            "title": "Recommendation Transfers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_hours",
+          "dataset_id",
+          "class_id",
+          "applied_filters",
+          "source",
+          "is_demo",
+          "metrics",
+          "warnings",
+          "settings",
+          "algorithm_version",
+          "plan_id",
+          "created_at",
+          "items",
+          "manually_modified",
+          "comment",
+          "recommendation_transfers"
+        ],
+        "title": "SavedPlan"
+      },
+      "Settings": {
+        "properties": {
+          "target_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Target Pct",
+            "default": 70
+          },
+          "donor_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Donor Pct",
+            "default": 80
+          },
+          "min_students": {
+            "type": "integer",
+            "minimum": 10.0,
+            "title": "Min Students",
+            "default": 10
+          },
+          "max_change": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Max Change",
+            "default": 2
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Settings"
+      },
+      "Slice": {
+        "properties": {
+          "test_version": {
+            "type": "string",
+            "title": "Test Version"
+          },
+          "max_score": {
+            "type": "number",
+            "title": "Max Score"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "test_version",
+          "max_score"
+        ],
+        "title": "Slice"
+      },
+      "SourceMetadata": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "grade": {
+            "type": "integer",
+            "title": "Grade"
+          },
+          "period_start": {
+            "type": "string",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "title": "Period End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "subject",
+          "grade",
+          "period_start",
+          "period_end"
+        ],
+        "title": "SourceMetadata"
+      },
+      "TestVersion": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "test_version": {
+            "type": "string",
+            "title": "Test Version"
+          },
+          "max_score": {
+            "type": "number",
+            "title": "Max Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_id",
+          "test_version",
+          "max_score"
+        ],
+        "title": "TestVersion"
+      },
+      "TextbookFilter": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label"
+        ],
+        "title": "TextbookFilter"
+      },
+      "Topic": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name"
+          },
+          "topic_order": {
+            "type": "integer",
+            "title": "Topic Order"
+          },
+          "current_hours": {
+            "type": "integer",
+            "title": "Current Hours"
+          },
+          "min_hours": {
+            "type": "integer",
+            "title": "Min Hours"
+          },
+          "max_hours": {
+            "type": "integer",
+            "title": "Max Hours"
+          },
+          "importance": {
+            "type": "integer",
+            "title": "Importance"
+          },
+          "is_locked": {
+            "type": "boolean",
+            "title": "Is Locked"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_id",
+          "topic_name",
+          "topic_order",
+          "current_hours",
+          "min_hours",
+          "max_hours",
+          "importance",
+          "is_locked"
+        ],
+        "title": "Topic"
+      },
+      "TopicDetail": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "source": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Source"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/analytics__models__Filters"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/AnalyticsSettings"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/TopicMetrics"
+          },
+          "by_class": {
+            "items": {
+              "$ref": "#/components/schemas/ClassMetrics"
+            },
+            "type": "array",
+            "title": "By Class"
+          },
+          "slices": {
+            "items": {
+              "$ref": "#/components/schemas/TopicMetrics"
+            },
+            "type": "array",
+            "title": "Slices"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "is_demo",
+          "source",
+          "applied_filters",
+          "settings",
+          "warnings",
+          "metrics",
+          "by_class",
+          "slices"
+        ],
+        "title": "TopicDetail"
+      },
+      "TopicMetrics": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Name"
+          },
+          "topic_order": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Order"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "below_threshold_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Below Threshold Share"
+          },
+          "n_post": {
+            "type": "integer",
+            "title": "N Post"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs"
+          },
+          "mean_pre_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Pre Paired Pct"
+          },
+          "mean_post_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Paired Pct"
+          },
+          "mean_gain_pp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Gain Pp"
+          },
+          "pair_coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pair Coverage"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requires_attention",
+              "needs_practice",
+              "mastered",
+              "insufficient_data",
+              "no_data",
+              "mixed_versions"
+            ],
+            "title": "Status"
+          },
+          "status_label": {
+            "type": "string",
+            "title": "Status Label"
+          },
+          "problem_topic": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Problem Topic"
+          },
+          "single_version": {
+            "type": "boolean",
+            "title": "Single Version"
+          },
+          "available_slices": {
+            "items": {
+              "$ref": "#/components/schemas/Slice"
+            },
+            "type": "array",
+            "title": "Available Slices"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "topic_id",
+          "test_version",
+          "max_score",
+          "mean_post_pct",
+          "below_threshold_share",
+          "n_post",
+          "n_pairs",
+          "mean_pre_paired_pct",
+          "mean_post_paired_pct",
+          "mean_gain_pp",
+          "pair_coverage",
+          "status",
+          "status_label",
+          "problem_topic",
+          "single_version",
+          "available_slices",
+          "warnings"
+        ],
+        "title": "TopicMetrics"
+      },
+      "TopicQuality": {
+        "properties": {
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "results": {
+            "type": "integer",
+            "title": "Results"
+          },
+          "pre": {
+            "type": "integer",
+            "title": "Pre"
+          },
+          "post": {
+            "type": "integer",
+            "title": "Post"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          },
+          "post_without_pre": {
+            "type": "integer",
+            "title": "Post Without Pre"
+          },
+          "pre_without_post": {
+            "type": "integer",
+            "title": "Pre Without Post"
+          },
+          "missing_teacher": {
+            "type": "integer",
+            "title": "Missing Teacher"
+          },
+          "paired_post_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired Post Share"
+          },
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name"
+          },
+          "classes_with_results": {
+            "type": "integer",
+            "title": "Classes With Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "students",
+          "results",
+          "pre",
+          "post",
+          "pairs",
+          "post_without_pre",
+          "pre_without_post",
+          "missing_teacher",
+          "paired_post_share",
+          "topic_id",
+          "topic_name",
+          "classes_with_results"
+        ],
+        "title": "TopicQuality"
+      },
+      "Transfer": {
+        "properties": {
+          "from_topic_id": {
+            "type": "string",
+            "title": "From Topic Id"
+          },
+          "to_topic_id": {
+            "type": "string",
+            "title": "To Topic Id"
+          },
+          "hours": {
+            "type": "integer",
+            "title": "Hours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_topic_id",
+          "to_topic_id",
+          "hours"
+        ],
+        "title": "Transfer"
+      },
+      "analytics__models__Filters": {
+        "properties": {
+          "class_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Class Ids"
+          },
+          "textbook_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Textbook Ids"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "class_ids",
+          "textbook_ids",
+          "test_version"
+        ],
+        "title": "Filters"
+      },
+      "backend__app__schemas__Filters": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "classes": {
+            "items": {
+              "$ref": "#/components/schemas/ClassFilter"
+            },
+            "type": "array",
+            "title": "Classes"
+          },
+          "textbooks": {
+            "items": {
+              "$ref": "#/components/schemas/TextbookFilter"
+            },
+            "type": "array",
+            "title": "Textbooks"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/Topic"
+            },
+            "type": "array",
+            "title": "Topics"
+          },
+          "test_versions": {
+            "items": {
+              "$ref": "#/components/schemas/TestVersion"
+            },
+            "type": "array",
+            "title": "Test Versions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "classes",
+          "textbooks",
+          "topics",
+          "test_versions"
+        ],
+        "title": "Filters"
+      }
+    }
+  }
+}

@@ -62,7 +62,7 @@ def select_records(records, filters=None):
 
 
 def percentage(row):
-    return 100 * row["score"] / row["max_score"]
+    return (row["score"] / row["max_score"]) * 100
 
 
 def paired_rows(records):

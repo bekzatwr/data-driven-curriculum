@@ -1,0 +1,129 @@
+{
+  "dataset_id": "__DATASET_ID__",
+  "classes": [
+    {
+      "id": "7A",
+      "school_id": "DEMO-SCHOOL",
+      "student_count": 30
+    },
+    {
+      "id": "7B",
+      "school_id": "DEMO-SCHOOL",
+      "student_count": 30
+    },
+    {
+      "id": "7C",
+      "school_id": "DEMO-SCHOOL",
+      "student_count": 30
+    },
+    {
+      "id": "7D",
+      "school_id": "DEMO-SCHOOL",
+      "student_count": 30
+    }
+  ],
+  "textbooks": [
+    {
+      "id": "Учебник A",
+      "label": "Учебник A"
+    },
+    {
+      "id": "Учебник B",
+      "label": "Учебник B"
+    }
+  ],
+  "topics": [
+    {
+      "topic_id": "fractions",
+      "topic_name": "Дроби",
+      "topic_order": 1,
+      "current_hours": 6,
+      "min_hours": 3,
+      "max_hours": 8,
+      "importance": 3,
+      "is_locked": false
+    },
+    {
+      "topic_id": "equations",
+      "topic_name": "Уравнения",
+      "topic_order": 2,
+      "current_hours": 5,
+      "min_hours": 3,
+      "max_hours": 8,
+      "importance": 3,
+      "is_locked": false
+    },
+    {
+      "topic_id": "proportions",
+      "topic_name": "Пропорции",
+      "topic_order": 3,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 6,
+      "importance": 2,
+      "is_locked": false
+    },
+    {
+      "topic_id": "geometry",
+      "topic_name": "Геометрия",
+      "topic_order": 4,
+      "current_hours": 3,
+      "min_hours": 2,
+      "max_hours": 5,
+      "importance": 2,
+      "is_locked": true
+    },
+    {
+      "topic_id": "statistics",
+      "topic_name": "Статистика",
+      "topic_order": 5,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 5,
+      "importance": 1,
+      "is_locked": false
+    },
+    {
+      "topic_id": "revision",
+      "topic_name": "Повторение",
+      "topic_order": 6,
+      "current_hours": 2,
+      "min_hours": 1,
+      "max_hours": 4,
+      "importance": 1,
+      "is_locked": false
+    }
+  ],
+  "test_versions": [
+    {
+      "topic_id": "equations",
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "fractions",
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "geometry",
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "proportions",
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "revision",
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "statistics",
+      "test_version": "v1",
+      "max_score": 100.0
+    }
+  ]
+}

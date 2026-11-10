@@ -1,0 +1,243 @@
+{
+  "valid": true,
+  "dry_run": false,
+  "created": true,
+  "dataset_id": "__DATASET_ID__",
+  "dataset": {
+    "id": "__DATASET_ID__",
+    "metadata": {
+      "name": "Искусственные данные Тони: математика, 7 класс",
+      "subject": "Математика",
+      "grade": 7,
+      "period_start": "2026-09-01",
+      "period_end": "2026-10-31"
+    },
+    "source_type": "demo",
+    "content_hash": "eae7538e4fbedf94f61f802759c072f2f2522a756bce110345635dcd6cb545a6",
+    "created_at": "__CREATED_AT__",
+    "counts": {
+      "students": 120,
+      "classes": 4,
+      "topics": 6,
+      "textbooks": 2,
+      "results": 1440,
+      "pre": 720,
+      "post": 720,
+      "pairs": 720
+    }
+  },
+  "metadata": {
+    "name": "Искусственные данные Тони: математика, 7 класс",
+    "subject": "Математика",
+    "grade": 7,
+    "period_start": "2026-09-01",
+    "period_end": "2026-10-31"
+  },
+  "counts": {
+    "students": 120,
+    "classes": 4,
+    "topics": 6,
+    "textbooks": 2,
+    "results": 1440,
+    "pre": 720,
+    "post": 720,
+    "pairs": 720
+  },
+  "preview": {
+    "results": [
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "equations",
+        "test_version": "v1",
+        "stage": "post",
+        "score": 61.0,
+        "max_score": 100.0,
+        "tested_at": "2026-10-01"
+      },
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "equations",
+        "test_version": "v1",
+        "stage": "pre",
+        "score": 45.0,
+        "max_score": 100.0,
+        "tested_at": "2026-09-01"
+      },
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "fractions",
+        "test_version": "v1",
+        "stage": "post",
+        "score": 41.0,
+        "max_score": 100.0,
+        "tested_at": "2026-10-01"
+      },
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "fractions",
+        "test_version": "v1",
+        "stage": "pre",
+        "score": 28.0,
+        "max_score": 100.0,
+        "tested_at": "2026-09-01"
+      },
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "geometry",
+        "test_version": "v1",
+        "stage": "post",
+        "score": 67.0,
+        "max_score": 100.0,
+        "tested_at": "2026-10-01"
+      },
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "geometry",
+        "test_version": "v1",
+        "stage": "pre",
+        "score": 53.0,
+        "max_score": 100.0,
+        "tested_at": "2026-09-01"
+      },
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "proportions",
+        "test_version": "v1",
+        "stage": "post",
+        "score": 40.0,
+        "max_score": 100.0,
+        "tested_at": "2026-10-01"
+      },
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "proportions",
+        "test_version": "v1",
+        "stage": "pre",
+        "score": 32.0,
+        "max_score": 100.0,
+        "tested_at": "2026-09-01"
+      },
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "revision",
+        "test_version": "v1",
+        "stage": "post",
+        "score": 85.0,
+        "max_score": 100.0,
+        "tested_at": "2026-10-01"
+      },
+      {
+        "student_id": "S001",
+        "school_id": "DEMO-SCHOOL",
+        "class_id": "7A",
+        "teacher_id": "T1",
+        "textbook_id": "Учебник A",
+        "topic_id": "revision",
+        "test_version": "v1",
+        "stage": "pre",
+        "score": 73.0,
+        "max_score": 100.0,
+        "tested_at": "2026-09-01"
+      }
+    ],
+    "curriculum": [
+      {
+        "topic_id": "fractions",
+        "topic_name": "Дроби",
+        "topic_order": 1,
+        "current_hours": 6,
+        "min_hours": 3,
+        "max_hours": 8,
+        "importance": 3,
+        "is_locked": false
+      },
+      {
+        "topic_id": "equations",
+        "topic_name": "Уравнения",
+        "topic_order": 2,
+        "current_hours": 5,
+        "min_hours": 3,
+        "max_hours": 8,
+        "importance": 3,
+        "is_locked": false
+      },
+      {
+        "topic_id": "proportions",
+        "topic_name": "Пропорции",
+        "topic_order": 3,
+        "current_hours": 4,
+        "min_hours": 2,
+        "max_hours": 6,
+        "importance": 2,
+        "is_locked": false
+      },
+      {
+        "topic_id": "geometry",
+        "topic_name": "Геометрия",
+        "topic_order": 4,
+        "current_hours": 3,
+        "min_hours": 2,
+        "max_hours": 5,
+        "importance": 2,
+        "is_locked": true
+      },
+      {
+        "topic_id": "statistics",
+        "topic_name": "Статистика",
+        "topic_order": 5,
+        "current_hours": 4,
+        "min_hours": 2,
+        "max_hours": 5,
+        "importance": 1,
+        "is_locked": false
+      },
+      {
+        "topic_id": "revision",
+        "topic_name": "Повторение",
+        "topic_order": 6,
+        "current_hours": 2,
+        "min_hours": 1,
+        "max_hours": 4,
+        "importance": 1,
+        "is_locked": false
+      }
+    ]
+  },
+  "warnings": []
+}

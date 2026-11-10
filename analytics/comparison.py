@@ -102,6 +102,10 @@ overlap contains only unmatched tests.
 
     status = "not_comparable" if incompatible else "insufficient_data" if insufficient else "comparable"
     difference = group_a["mean_gain_pp"] - group_b["mean_gain_pp"] if status == "comparable" else None
+    if difference is not None and isclose(difference, 0, rel_tol=0, abs_tol=1e-12):
+        # Match the tie explanation: remove only floating-point cancellation
+        # noise in the final difference, without rounding underlying metrics.
+        difference = 0.0
     if difference is None:
         conclusion = "Сопоставимый вывод о разнице приростов недоступен. Проверьте причины ограничения."
     elif isclose(difference, 0, rel_tol=0, abs_tol=1e-12):

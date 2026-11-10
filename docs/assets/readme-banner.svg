@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-labelledby="title desc">
+  <title id="title">Data-Driven Curriculum</title>
+  <desc id="desc">Учебные решения на основе данных: результаты тестирования, анализ тем и планирование часов.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101e32"/><stop offset="1" stop-color="#08121f"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#b4d4e6" opacity=".1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="400" rx="20" fill="url(#bg)"/>
+  <rect x="670" width="530" height="400" rx="20" fill="url(#grid)"/>
+  <path d="M710 0V400" stroke="#bfd5ed" stroke-opacity=".1"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="48" y="40" width="36" height="36" rx="10" fill="#80e8bd"/>
+    <path d="M57 65V54M64 65V49M71 65V57" stroke="#132f2a" stroke-width="4" stroke-linecap="round"/>
+    <text x="100" y="64" fill="#b6c9dc" font-size="16" font-weight="700" letter-spacing="2">EDTECH / HACKATHON 2026</text>
+    <text x="46" y="158" fill="#f4f8fc" font-size="62" font-weight="700" letter-spacing="-2">Data-Driven</text>
+    <text x="46" y="224" fill="#80e8bd" font-size="62" font-weight="700" letter-spacing="-2">Curriculum</text>
+    <text x="49" y="278" fill="#b6c9dc" font-size="23">Учебные решения</text>
+    <text x="49" y="310" fill="#b6c9dc" font-size="23">на основе измеримых результатов.</text>
+    <path d="M49 350H91" stroke="#80e8bd" stroke-width="3"/>
+    <text x="104" y="356" fill="#7e97b1" font-size="15" letter-spacing="1.7">DATA → INSIGHT → DECISION</text>
+    <path d="M796 124V288" stroke="#496073" stroke-width="2" stroke-dasharray="5 6"/>
+    <rect x="758" y="48" width="392" height="88" rx="14" fill="#142b35" stroke="#30574f"/>
+    <circle cx="796" cy="92" r="19" fill="#80e8bd"/>
+    <text x="796" y="98" text-anchor="middle" fill="#123029" font-size="16" font-weight="700">01</text>
+    <text x="833" y="86" fill="#e9f8f2" font-size="23" font-weight="700">Данные</text>
+    <text x="833" y="112" fill="#a4c6bd" font-size="17">Тесты и учебный план</text>
+    <rect x="758" y="156" width="392" height="88" rx="14" fill="#20263c" stroke="#444866"/>
+    <circle cx="796" cy="200" r="19" fill="#bcb2f3"/>
+    <text x="796" y="206" text-anchor="middle" fill="#292444" font-size="16" font-weight="700">02</text>
+    <text x="833" y="194" fill="#f2efff" font-size="23" font-weight="700">Аналитика</text>
+    <text x="833" y="220" fill="#bebbd6" font-size="17">Темы, классы, учебники</text>
+    <rect x="758" y="264" width="392" height="88" rx="14" fill="#2b2a29" stroke="#565044"/>
+    <circle cx="796" cy="308" r="19" fill="#f3d291"/>
+    <text x="796" y="314" text-anchor="middle" fill="#40351d" font-size="16" font-weight="700">03</text>
+    <text x="833" y="302" fill="#fff6e4" font-size="23" font-weight="700">Решение</text>
+    <text x="833" y="328" fill="#cfbfa3" font-size="17">План часов и проверка</text>
+  </g>
+</svg>
