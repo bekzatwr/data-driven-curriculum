@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_MODELS = {"groq": "llama-3.3-70b-versatile", "gemini": "gemini-3.5-flash-lite"}
 TIMEOUT_SECONDS = 45
 MAX_OUTPUT_TOKENS = 2048
+USER_AGENT = "data-driven-curriculum/0.2 (+https://github.com/bekzatwr/data-driven-curriculum)"
 
 SYSTEM_PROMPT = """Ты — помощник школьного методиста в системе Data-Driven Curriculum (Казахстан).
 Тебе передают уже рассчитанные показатели в JSON внутри тега <data>. Правила:
@@ -64,7 +65,8 @@ def status():
 def _post_json(url, payload, headers):
     request = urllib.request.Request(
         url, data=json.dumps(payload, ensure_ascii=False).encode("utf-8"), method="POST",
-        headers={"Content-Type": "application/json", **headers},
+        # Свой User-Agent обязателен: Cloudflare перед Groq отвечает 403 (error 1010) на «Python-urllib».
+        headers={"Content-Type": "application/json", "User-Agent": USER_AGENT, **headers},
     )
     with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
         return json.loads(response.read().decode("utf-8"))
