@@ -66,8 +66,8 @@ async def import_dataset(
         upload = await run_in_threadpool(validate_upload, *payloads, metadata, settings)
         if dry_run:
             return import_response(upload, True)
-        dataset, created = await run_in_threadpool(store.save_upload, upload)
-        return import_response(upload, False, dataset, created)
+        return await run_in_threadpool(store.save_upload, upload,
+            response_factory=lambda dataset, created: import_response(upload, False, dataset, created))
     except ApiError as exc:
         return exc.response(as_csv=error_format == "csv")
     finally:
@@ -81,8 +81,8 @@ def create_demo(request: Request, store: StoreDep):
         upload, dataset = request.app.state.public_demo
         return import_response(upload, False, dataset, False)
     upload = validate_upload(*demo_files(), request.app.state.settings, source_type="demo")
-    dataset, created = store.save_upload(upload)
-    return import_response(upload, False, dataset, created)
+    return store.save_upload(upload,
+        response_factory=lambda dataset, created: import_response(upload, False, dataset, created))
 
 
 @router.post("/datasets/restore", response_model=ImportResponse, responses={201: {"model": ImportResponse}})
@@ -93,8 +93,8 @@ def restore_dataset(request: Request, store: StoreDep, package: DatasetPackage, 
     upload = validate_package(package, settings)
     if dry_run:
         return import_response(upload, True)
-    dataset, created = store.save_upload(upload)
-    return import_response(upload, False, dataset, created)
+    return store.save_upload(upload,
+        response_factory=lambda dataset, created: import_response(upload, False, dataset, created))
 
 
 @router.get("/datasets", response_model=DatasetList)

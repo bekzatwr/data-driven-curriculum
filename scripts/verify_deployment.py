@@ -33,6 +33,7 @@ def main():
     containers, volumes = [], []
     backend_image, web_image = run_id + ":backend", run_id + ":fullstack"
     checks = []
+    extra_reports = {}
 
     def command(*args, ok=True, timeout=600):
         print("$ " + " ".join(str(a) for a in args), flush=True)
@@ -95,6 +96,9 @@ def main():
         for path, expected in analytics.items():
             status, actual, _ = http(base, path)
             assert status == 200 and actual == expected
+        for path, (snapshot, csv_bytes) in extra_reports.items():
+            assert http(base, path)[1] == snapshot
+            assert http(base, path + '/export.csv', raw=True)[1] == csv_bytes
 
     try:
         command("docker", "info", "--format", "{{.ServerVersion}}", timeout=30)
@@ -158,7 +162,7 @@ def main():
         dataset_path = f"/api/datasets/{dataset_id}"
         comparison_query = urlencode({'topic_id': 'equations', 'textbook_a': 'Учебник A', 'textbook_b': 'Учебник B'})
         analytics = {}
-        for suffix in ('/overview', '/topics/equations', '/comparison?' + comparison_query,
+        for suffix in ('/overview', '/topics/equations', '/teachers', '/comparison?' + comparison_query,
                        '/overview?class_ids=7A&class_ids=7B'):
             status, response, _ = http(base, dataset_path + suffix)
             assert status == 200 and response['is_demo'] is False
@@ -174,17 +178,34 @@ def main():
         assert comparison['group_a']['mean_gain_pp'] == 16
         assert comparison['group_b']['mean_gain_pp'] == 8
         assert comparison['difference_gain_pp'] == 8 and comparison['baseline_gap_pp'] == 1
+        teachers = analytics[dataset_path + '/teachers']['teachers']
+        assert len(teachers) == 4 and sum(t['students'] for t in teachers) == 120
+        assert all(t['students'] == 30 and t['upcoming_hours'] == 24 for t in teachers)
         checks.append("real HTTP topic analytics, heatmap, repeated class filters and paired textbook comparison")
+        checks.append("real server Teachers API: 4 teachers, 120 students, 30 students/24 hours per teacher")
         status, preview, _ = http(base, f"/api/datasets/{dataset_id}/plans/preview", "POST", {"class_id": "7A"})
         assert status == 200 and preview["total_hours"] == 24
         hours = {item["topic_id"]: item["proposed_hours"] for item in preview["items"]}
         status, plan, _ = http(base, f"/api/datasets/{dataset_id}/plans", "POST",
                                {"class_id": "7A", "hours_by_topic": hours, "comment": "Synthetic Docker rehearsal"})
         assert status == 201
+        assert plan['algorithm_version'] == 'rules_v1'
         status, exported, _ = http(base, "/api/plans/" + plan["plan_id"] + "/export.csv", raw=True)
         assert status == 200 and exported.startswith(b"\xef\xbb\xbf")
         csv_rows = csv.DictReader(io.StringIO(exported.decode("utf-8-sig")))
         assert {row["topic_id"]: int(row["proposed_hours"]) for row in csv_rows} == hours
+        period_payload = {'class_id': '7A', 'settings': {'mode': 'period'}}
+        status, period_preview, _ = http(base, dataset_path + '/plans/preview', 'POST', period_payload)
+        assert status == 200 and period_preview['algorithm_version'] == 'period_v1'
+        status, period, _ = http(base, dataset_path + '/plans', 'POST', period_payload)
+        assert status == 201 and period['algorithm_version'] == 'period_v1'
+        assert period['settings']['mode'] == 'period' and period['total_hours'] == 24
+        period_path = '/api/plans/' + period['plan_id']
+        status, period_csv, _ = http(base, period_path + '/export.csv', raw=True)
+        assert status == 200
+        assert {r['algorithm_version'] for r in csv.DictReader(io.StringIO(period_csv.decode('utf-8-sig')))} == {'period_v1'}
+        extra_reports[period_path] = (period, period_csv)
+        checks.append("default rules_v1 and explicit period_v1 coexist; period JSON/CSV persisted")
         comment_path = dataset_path + "/comments"
         status, comment, _ = http(base, comment_path, "POST", {
             "target_type": "plan_topic", "target_id": plan["plan_id"] + ":fractions",
@@ -219,6 +240,11 @@ def main():
         restored_base = start(restored_name)
         persisted(restored_base, dataset_id, plan, exported, analytics)
         checks.append("off-volume backup restored to a NEW volume with identical dataset/analytics/comparison/plan/CSV/comments")
+        integrity = command('docker', 'exec', restored_name, 'python', '-c',
+            "import sqlite3,json; c=sqlite3.connect('/app/data/recovery.sqlite3'); "
+            "print(json.dumps([c.execute('PRAGMA integrity_check').fetchall(),c.execute('PRAGMA foreign_key_check').fetchall()])); c.close()")
+        assert json.loads(integrity.stdout) == [[['ok']], []]
+        checks.append("restored SQLite integrity_check=ok and foreign_key_check empty")
         # Inspect Docker's real healthcheck, not just an external HTTP request.
         deadline = time.monotonic() + 45
         while True:
@@ -291,6 +317,8 @@ def main():
                   "source_commit": command("git", "rev-parse", "HEAD").stdout.strip(),
                   "source_dirty": bool(command("git", "status", "--porcelain").stdout.strip()),
                   "comments_persistence_verified": True, "ai_provider_calls": 0,
+                  "teachers_api_verified": True, "period_persistence_verified": True,
+                  "period_plan_id": period['plan_id'],
                   "public_read_only_verified": True, "public_report_id": prepared['plan_id'],
                   "analytics_available": features["analytics"], "comparison_available": features["textbook_comparison"],
                   "dataset_id": dataset_id, "plan_id": plan["plan_id"], "checks": checks,

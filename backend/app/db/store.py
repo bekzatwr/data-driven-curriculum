@@ -48,13 +48,19 @@ class Store:
             "source_type": row["source_type"], "created_at": row["created_at"],
         }
 
-    def save_upload(self, upload: ValidatedUpload):
+    def save_upload(self, upload: ValidatedUpload, *, response_factory=None):
+        # Build/validate the HTTP response before leaving the transaction. A failure
+        # must roll back dataset, topics and results together, just like plan save.
+        def response(row, created):
+            dataset = self._dataset(row)
+            return response_factory(dataset, created) if response_factory is not None else (dataset, created)
+
         # A write lock covers duplicate lookup and insertion, including concurrent requests.
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             existing = db.execute("SELECT * FROM datasets WHERE content_hash = ?", (upload.content_hash,)).fetchone()
             if existing:
-                return self._dataset(existing), False
+                return response(existing, False)
             dataset_id = str(uuid4())
             now = datetime.now(timezone.utc).isoformat()
             db.execute("INSERT INTO datasets VALUES (?, ?, ?, ?, ?, ?)", (
@@ -70,7 +76,7 @@ class Store:
                 [(dataset_id, *(r[field] for field in RESULT_FIELDS)) for r in upload.results],
             )
             row = db.execute("SELECT * FROM datasets WHERE id=?", (dataset_id,)).fetchone()
-            return self._dataset(row), True
+            return response(row, True)
 
     def get_dataset(self, dataset_id):
         with self.connect() as db:
