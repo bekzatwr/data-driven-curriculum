@@ -1,0 +1,229 @@
+{
+  "total_hours": 24,
+  "dataset_id": "__DATASET_ID__",
+  "class_id": "7A",
+  "applied_filters": {
+    "class_ids": [
+      "7A"
+    ],
+    "test_versions": {}
+  },
+  "source": {
+    "id": "__DATASET_ID__",
+    "source_type": "demo",
+    "metadata": {
+      "name": "Искусственные данные Тони: математика, 7 класс",
+      "subject": "Математика",
+      "grade": 7,
+      "period_start": "2026-09-01",
+      "period_end": "2026-10-31"
+    },
+    "counts": {
+      "classes": 4,
+      "pairs": 720,
+      "post": 720,
+      "pre": 720,
+      "results": 1440,
+      "students": 120,
+      "textbooks": 2,
+      "topics": 6
+    },
+    "content_hash": "eae7538e4fbedf94f61f802759c072f2f2522a756bce110345635dcd6cb545a6",
+    "created_at": "__CREATED_AT__"
+  },
+  "is_demo": true,
+  "metrics": [
+    {
+      "topic_id": "fractions",
+      "mean_post_pct": 48.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "equations",
+      "mean_post_pct": 68.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "proportions",
+      "mean_post_pct": 64.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "geometry",
+      "mean_post_pct": 74.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "statistics",
+      "mean_post_pct": 88.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100.0
+    },
+    {
+      "topic_id": "revision",
+      "mean_post_pct": 92.0,
+      "n_post": 30,
+      "single_version": true,
+      "test_version": "v1",
+      "max_score": 100.0
+    }
+  ],
+  "warnings": [
+    "Предложение не прогнозирует рост баллов; решение принимает методист."
+  ],
+  "settings": {
+    "mode": "period",
+    "target_pct": 70.0,
+    "donor_pct": 80.0,
+    "min_students": 10,
+    "max_change": 2
+  },
+  "algorithm_version": "period_v1",
+  "plan_id": "__PLAN_ID__",
+  "created_at": "__PLAN_CREATED_AT__",
+  "items": [
+    {
+      "topic_id": "fractions",
+      "topic_name": "Дроби",
+      "topic_order": 1,
+      "current_hours": 6,
+      "min_hours": 3,
+      "max_hours": 8,
+      "importance": 3,
+      "is_locked": false,
+      "mean_post_pct": 48.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "automatic_eligible": true,
+      "proposed_hours": 8,
+      "delta": 2,
+      "reason": "Минимум 3 ч + 5 ч по приоритету (важность 3; 48% при цели 70% — дефицит 22 п.п.). Было 6 ч → 8 ч.",
+      "recommended_hours": 8,
+      "recommendation_reason": "Минимум 3 ч + 5 ч по приоритету (важность 3; 48% при цели 70% — дефицит 22 п.п.). Было 6 ч → 8 ч.",
+      "manually_modified": false
+    },
+    {
+      "topic_id": "equations",
+      "topic_name": "Уравнения",
+      "topic_order": 2,
+      "current_hours": 5,
+      "min_hours": 3,
+      "max_hours": 8,
+      "importance": 3,
+      "is_locked": false,
+      "mean_post_pct": 68.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "automatic_eligible": true,
+      "proposed_hours": 6,
+      "delta": 1,
+      "reason": "Минимум 3 ч + 3 ч по приоритету (важность 3; 68% при цели 70% — дефицит 2 п.п.). Было 5 ч → 6 ч.",
+      "recommended_hours": 6,
+      "recommendation_reason": "Минимум 3 ч + 3 ч по приоритету (важность 3; 68% при цели 70% — дефицит 2 п.п.). Было 5 ч → 6 ч.",
+      "manually_modified": false
+    },
+    {
+      "topic_id": "proportions",
+      "topic_name": "Пропорции",
+      "topic_order": 3,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 6,
+      "importance": 2,
+      "is_locked": false,
+      "mean_post_pct": 64.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "automatic_eligible": true,
+      "proposed_hours": 4,
+      "delta": 0,
+      "reason": "Минимум 2 ч + 2 ч по приоритету (важность 2; 64% при цели 70% — дефицит 6 п.п.). Было 4 ч → 4 ч.",
+      "recommended_hours": 4,
+      "recommendation_reason": "Минимум 2 ч + 2 ч по приоритету (важность 2; 64% при цели 70% — дефицит 6 п.п.). Было 4 ч → 4 ч.",
+      "manually_modified": false
+    },
+    {
+      "topic_id": "geometry",
+      "topic_name": "Геометрия",
+      "topic_order": 4,
+      "current_hours": 3,
+      "min_hours": 2,
+      "max_hours": 5,
+      "importance": 2,
+      "is_locked": true,
+      "mean_post_pct": 74.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "automatic_eligible": false,
+      "proposed_hours": 3,
+      "delta": 0,
+      "reason": "Тема заблокирована: остаётся 3 ч.",
+      "recommended_hours": 3,
+      "recommendation_reason": "Тема заблокирована: остаётся 3 ч.",
+      "manually_modified": false
+    },
+    {
+      "topic_id": "statistics",
+      "topic_name": "Статистика",
+      "topic_order": 5,
+      "current_hours": 4,
+      "min_hours": 2,
+      "max_hours": 5,
+      "importance": 1,
+      "is_locked": false,
+      "mean_post_pct": 88.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "automatic_eligible": true,
+      "proposed_hours": 2,
+      "delta": -2,
+      "reason": "Минимум 2 ч + 0 ч по приоритету (важность 1; 88% — освоена, половинный вес). Было 4 ч → 2 ч.",
+      "recommended_hours": 2,
+      "recommendation_reason": "Минимум 2 ч + 0 ч по приоритету (важность 1; 88% — освоена, половинный вес). Было 4 ч → 2 ч.",
+      "manually_modified": false
+    },
+    {
+      "topic_id": "revision",
+      "topic_name": "Повторение",
+      "topic_order": 6,
+      "current_hours": 2,
+      "min_hours": 1,
+      "max_hours": 4,
+      "importance": 1,
+      "is_locked": false,
+      "mean_post_pct": 92.0,
+      "n_post": 30,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "automatic_eligible": true,
+      "proposed_hours": 1,
+      "delta": -1,
+      "reason": "Минимум 1 ч + 0 ч по приоритету (важность 1; 92% — освоена, половинный вес). Было 2 ч → 1 ч.",
+      "recommended_hours": 1,
+      "recommendation_reason": "Минимум 1 ч + 0 ч по приоритету (важность 1; 92% — освоена, половинный вес). Было 2 ч → 1 ч.",
+      "manually_modified": false
+    }
+  ],
+  "manually_modified": false,
+  "comment": "",
+  "recommendation_transfers": []
+}

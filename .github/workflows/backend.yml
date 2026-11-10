@@ -1,9 +1,9 @@
 name: Backend checks
 on:
   push:
-    branches: [main, backend/bekzat, analytics/toni, 'integration/**']
+    branches: [main, backend/bekzat, analytics/toni, 'integration/**', feature/aidana-period-planner]
   pull_request:
-    branches: [main]
+    branches: [main, 'integration/**']
 permissions:
   contents: read
 jobs:

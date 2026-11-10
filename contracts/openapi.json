@@ -3975,6 +3975,15 @@
       },
       "Settings": {
         "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "rules_v1",
+              "period"
+            ],
+            "title": "Mode",
+            "default": "rules_v1"
+          },
           "target_pct": {
             "type": "number",
             "maximum": 100.0,
