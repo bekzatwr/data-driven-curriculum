@@ -7,7 +7,8 @@ from .topics import compute_overview, compute_topics
 from .models import Comparison, Error, Overview, TopicDetail
 
 router = APIRouter(prefix='/api/datasets', tags=['Analytics'],
-                   responses={404: {'model': Error}, 422: {'model': Error}})
+                   responses={404: {'model': Error, 'description': 'Dataset or topic not found'},
+                              422: {'model': Error, 'description': 'Invalid analytics request'}})
 Ids = Annotated[list[str] | None, Query()]
 
 

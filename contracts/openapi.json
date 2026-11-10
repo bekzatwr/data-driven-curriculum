@@ -1491,24 +1491,24 @@
             }
           },
           "404": {
+            "description": "Dataset or topic not found",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
               }
-            },
-            "description": "Not Found"
+            }
           },
           "422": {
+            "description": "Invalid analytics request",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
               }
-            },
-            "description": "Unprocessable Content"
+            }
           }
         }
       }
@@ -1606,24 +1606,24 @@
             }
           },
           "404": {
+            "description": "Dataset or topic not found",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
               }
-            },
-            "description": "Not Found"
+            }
           },
           "422": {
+            "description": "Invalid analytics request",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
               }
-            },
-            "description": "Unprocessable Content"
+            }
           }
         }
       }
@@ -1720,24 +1720,24 @@
             }
           },
           "404": {
+            "description": "Dataset or topic not found",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
               }
-            },
-            "description": "Not Found"
+            }
           },
           "422": {
+            "description": "Invalid analytics request",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
               }
-            },
-            "description": "Unprocessable Content"
+            }
           }
         }
       }
