@@ -4,6 +4,7 @@ import {
   ArrowRight,
   CheckCircle2,
   ChevronRight,
+  Database,
   Download,
   FileSpreadsheet,
   FlaskConical,
@@ -22,6 +23,7 @@ import { Badge, Banner, Button, DemoBadge, EmptyState, ErrorState, LoadingBlock,
 import { fmtBytes, fmtDate, fmtDateTimeUtc5, fmtNum, plural } from '../lib/format';
 import { useAsync } from '../lib/useAsync';
 import { datasetToCurrent, useApp } from '../state/app';
+import { isMac } from '../components/CommandPalette';
 
 const DEFAULT_META: DatasetMetadata = {
   name: '',
@@ -71,38 +73,70 @@ export function UploadPage() {
 
   return (
     <div className="stack" style={{ gap: 24 }}>
-      <section className="hero fade-up">
-        <Badge tone="outline">
-          <Sparkles size={13} /> P0 · Импорт → Аналитика → Сравнение → План → Отчёт
-        </Badge>
-        <h1 style={{ marginTop: 14 }}>Где ученики испытывают трудности и как перераспределить часы</h1>
-        <p>
-          Загрузите результаты тестов и учебный план — увидите проблемные темы, честное сравнение учебников и объяснимое
-          предложение по часам с сохранением общей суммы.
+      <section className="hero">
+        <span className="hero-badge fade-up">
+          <span className="pill">P0</span>
+          Импорт → аналитика → сравнение → план → отчёт
+        </span>
+        <h1 className="fade-up-2">Данные о результатах — в решение по учебным часам</h1>
+        <p className="fade-up-2">
+          Загрузите результаты тестов и учебный план. Система покажет проблемные темы, честно сравнит учебники и предложит
+          объяснимое перераспределение часов без изменения общей суммы.
         </p>
-        <div className="hero-actions">
-          <Button size="lg" className="btn-white" onClick={loadDemo} loading={demoLoading} icon={<FlaskConical size={18} />}>
-            Загрузить демоданные
-          </Button>
-          <Button
-            size="lg"
-            icon={<UploadCloud size={18} />}
-            onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-          >
-            Загрузить свои CSV
-          </Button>
-          {current && (
-            <Button size="lg" icon={<ArrowRight size={18} />} onClick={() => navigate(`/datasets/${encodeURIComponent(current.id)}/overview`)}>
-              Продолжить: {current.name.length > 26 ? `${current.name.slice(0, 26)}…` : current.name}
-            </Button>
+
+        <div className="tiles fade-up-3">
+          <button type="button" className="tile primary" onClick={loadDemo} disabled={demoLoading}>
+            <span className="tile-icon">{demoLoading ? <span className="spinner" /> : <FlaskConical size={16} />}</span>
+            <span className="tile-title">Демоданные за один клик</span>
+            <span className="tile-desc">120 искусственных учеников, 4 класса, 6 тем, 2 учебника</span>
+            <span className="tile-cta">
+              {demoLoading ? 'Готовим набор…' : 'Открыть демо'} <ArrowRight size={13} />
+            </span>
+          </button>
+          <button type="button" className="tile" onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+            <span className="tile-icon">
+              <UploadCloud size={16} />
+            </span>
+            <span className="tile-title">Свои CSV</span>
+            <span className="tile-desc">results.csv и curriculum.csv — проверка до сохранения, ошибки по строкам</span>
+            <span className="tile-cta">
+              К импорту <ArrowRight size={13} />
+            </span>
+          </button>
+          {current ? (
+            <button type="button" className="tile" onClick={() => navigate(`/datasets/${encodeURIComponent(current.id)}/overview`)}>
+              <span className="tile-icon">
+                <Sparkles size={16} />
+              </span>
+              <span className="tile-title">Продолжить работу</span>
+              <span className="tile-desc" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                {current.name}
+              </span>
+              <span className="tile-cta">
+                К обзору <ArrowRight size={13} />
+              </span>
+            </button>
+          ) : (
+            <div className="tile" style={{ cursor: 'default' }}>
+              <span className="tile-icon">
+                <Sparkles size={16} />
+              </span>
+              <span className="tile-title">Быстрая навигация</span>
+              <span className="tile-desc">Переходы, темы, классы и отчёты — из любого места</span>
+              <span className="tile-cta" style={{ color: 'var(--muted)' }}>
+                Нажмите <span className="kbd">{isMac ? '⌘' : 'Ctrl'}</span>
+                <span className="kbd">K</span>
+              </span>
+            </div>
           )}
         </div>
-        <div className="hero-flow" aria-hidden>
+
+        <div className="features fade-up-3" aria-hidden>
           <span>
             <ShieldCheck size={14} /> Проверка до сохранения
           </span>
           <span>
-            <Layers size={14} /> Темы × классы
+            <Layers size={14} /> Теплокарта «тема × класс»
           </span>
           <span>
             <ListChecks size={14} /> Сравнение без «лучшего учебника»
@@ -127,7 +161,7 @@ export function UploadPage() {
         <section className="card fade-up-2">
           <div className="card-head">
             <h2>
-              <FileSpreadsheet size={18} /> Наборы данных
+              <Database size={16} /> Наборы данных
             </h2>
             <span className="spacer" />
             {datasets.data && <Badge>{datasets.data.total}</Badge>}
@@ -147,7 +181,7 @@ export function UploadPage() {
                   onClick={() => setCurrent(datasetToCurrent(d))}
                   style={current?.id === d.id ? { background: 'var(--accent-soft)' } : undefined}
                 >
-                  <span className="dataset-icon">{d.source_type === 'demo' ? <FlaskConical size={18} /> : <FileSpreadsheet size={18} />}</span>
+                  <span className="dataset-icon">{d.source_type === 'demo' ? <FlaskConical size={15} /> : <FileSpreadsheet size={15} />}</span>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div className="row" style={{ gap: 6 }}>
                       <span className="name">{d.metadata.name}</span>
@@ -161,7 +195,7 @@ export function UploadPage() {
                       записей · {fmtDateTimeUtc5(d.created_at)}
                     </div>
                   </div>
-                  <ChevronRight size={18} className="muted" />
+                  <ChevronRight size={16} className="faint" />
                 </Link>
               ))}
             </div>

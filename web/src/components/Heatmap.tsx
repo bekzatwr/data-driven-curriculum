@@ -4,14 +4,15 @@ import { fmtNum, fmtOne, fmtPct, fmtPp, fmtShare, isNum } from '../lib/format';
 import { TOPIC_STATUS } from '../lib/status';
 
 /** Дивергентная шкала: ниже порога — красный, выше — синий, у порога — нейтральный серый. */
-export function divergingStyle(value: number | null | undefined, center: number, span = 25): React.CSSProperties {
+export function divergingStyle(value: number | null | undefined, center: number, span = 20): React.CSSProperties {
   if (!isNum(value)) return {};
   const t = Math.max(-1, Math.min(1, (value - center) / span));
   const p = Math.round(Math.abs(t) * 100);
   const pole = t < 0 ? 'var(--div-neg)' : 'var(--div-pos)';
+  // Цвет текста зависит от темы: --hm-ink-strong (насыщенные) / --hm-ink-mid (средние).
   return {
     background: `color-mix(in oklab, rgb(${pole}) ${p}%, rgb(var(--div-mid)))`,
-    color: p > 52 ? '#fff' : 'var(--text)',
+    color: p >= 72 ? 'var(--hm-ink-strong)' : p >= 35 ? 'var(--hm-ink-mid)' : 'var(--text)',
   };
 }
 

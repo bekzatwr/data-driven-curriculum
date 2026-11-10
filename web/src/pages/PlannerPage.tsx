@@ -326,10 +326,10 @@ function PlanEditor({ classId }: { classId: string }) {
   return (
     <div className="stack">
       {/* ---------- Сводка ---------- */}
-      <div className="plan-summary fade-up">
-        <div className={`card budget`} style={!sumOk ? { borderColor: 'var(--critical)' } : undefined}>
+      <div className="kpi-strip wide-first fade-up">
+        <div className={`kpi ${sumOk ? '' : 'tone-critical'}`}>
           <div className="row">
-            <span className="kpi-label">Сумма текущего варианта / общий лимит</span>
+            <span className="kpi-label">Сумма часов / лимит</span>
             <span className="spacer" />
             {sumOk ? (
               <Badge tone="good" icon={<CheckCircle2 size={13} />}>
@@ -353,14 +353,14 @@ function PlanEditor({ classId }: { classId: string }) {
                 title={`${it.topic_name}: ${hours[it.topic_id]} ч`}
                 style={{
                   flexGrow: Math.max(0, hours[it.topic_id] ?? 0),
-                  background: `color-mix(in oklab, var(--accent) ${100 - i * 11}%, var(--accent-2))`,
+                  background: `color-mix(in oklab, var(--accent) ${100 - i * 14}%, var(--accent-2))`,
                 }}
               />
             ))}
             {sumDiff < 0 && <div className="budget-seg" style={{ flexGrow: -sumDiff, background: 'var(--critical-bg)', outline: '1px dashed var(--critical)' }} />}
           </div>
         </div>
-        <div className="card kpi">
+        <div className="kpi">
           <div className="kpi-label">Изменено тем</div>
           <div className="kpi-value">
             {changedCount}
@@ -368,14 +368,14 @@ function PlanEditor({ classId }: { classId: string }) {
           </div>
           <div className="kpi-sub">перенесено {hoursLabel(moved)}</div>
         </div>
-        <div className="card kpi">
+        <div className="kpi">
           <div className="kpi-label">Ручные правки</div>
           <div className="kpi-value">{manualCount}</div>
           <div className="kpi-sub">{manualCount ? 'отклонение от рекомендации сохранится в плане' : 'вариант совпадает с рекомендацией'}</div>
         </div>
-        <div className={`card kpi ${errorCount ? 'tone-critical' : ''}`}>
+        <div className={`kpi ${errorCount ? 'tone-critical' : ''}`}>
           <div className="kpi-label">Проверки ограничений</div>
-          <div className="kpi-value" style={{ fontSize: 22, marginTop: 12 }}>
+          <div className="kpi-value" style={{ fontSize: 20, marginTop: 12, letterSpacing: '-0.02em' }}>
             {errorCount === 0 ? (
               <span className="row" style={{ color: 'var(--good-text)', gap: 6 }}>
                 <CheckCircle2 size={22} /> Пройдены

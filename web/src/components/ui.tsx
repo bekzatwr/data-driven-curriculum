@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   CircleHelp,
+  FlaskConical,
   Info,
   Inbox,
   Minus,
@@ -74,13 +75,53 @@ export function Badge({ tone = 'neutral', children, icon, title }: { tone?: Tone
   );
 }
 
+/** Значок статуса в стиле Linear: форма различается, а не только цвет. */
+export function StatusIcon({ tone, size = 14 }: { tone: Tone; size?: number }) {
+  const common = { width: size, height: size, viewBox: '0 0 14 14', 'aria-hidden': true } as const;
+  switch (tone) {
+    case 'critical':
+      return (
+        <svg {...common}>
+          <circle cx="7" cy="7" r="6.25" fill="currentColor" />
+          <rect x="6.2" y="3.3" width="1.6" height="4.6" rx="0.8" fill="var(--bg)" />
+          <circle cx="7" cy="10.1" r="0.95" fill="var(--bg)" />
+        </svg>
+      );
+    case 'warning':
+      return (
+        <svg {...common}>
+          <circle cx="7" cy="7" r="5.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M7 3.4 A3.6 3.6 0 0 1 7 10.6 Z" fill="currentColor" />
+        </svg>
+      );
+    case 'good':
+      return (
+        <svg {...common}>
+          <circle cx="7" cy="7" r="6.25" fill="currentColor" />
+          <path d="M4.3 7.2 6.2 9 9.8 5.2" fill="none" stroke="var(--bg)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'serious':
+      return (
+        <svg {...common}>
+          <circle cx="7" cy="7" r="5.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M4.6 5.8h4.8M4.6 8.2h4.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...common}>
+          <circle cx="7" cy="7" r="5.75" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2.2 2" />
+        </svg>
+      );
+  }
+}
+
 export function StatusBadge({ status, label }: { status: TopicStatus; label?: string }) {
   const meta = TOPIC_STATUS[status] ?? TOPIC_STATUS.no_data;
   return (
-    <span className={`badge badge-${meta.tone}`}>
-      <span className="badge-ico" aria-hidden>
-        {meta.icon}
-      </span>
+    <span className={`status tone-${meta.tone}`}>
+      <StatusIcon tone={meta.tone} />
       {label || meta.label}
     </span>
   );
@@ -89,7 +130,7 @@ export function StatusBadge({ status, label }: { status: TopicStatus; label?: st
 export function DemoBadge({ compact }: { compact?: boolean }) {
   return (
     <span className="badge badge-demo" title="Набор создан демомаршрутом сервера: все ученики искусственные">
-      <span aria-hidden>🧪</span>
+      <FlaskConical size={12} aria-hidden />
       {compact ? 'Демо' : 'Искусственные данные'}
     </span>
   );

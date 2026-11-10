@@ -34,6 +34,7 @@ import {
   Refreshing,
   Skeleton,
   StatusBadge,
+  StatusIcon,
   WarningsList,
 } from '../components/ui';
 import { fmtDate, fmtNum, fmtOne, fmtPct, fmtPp, fmtShare, isNum, plural } from '../lib/format';
@@ -208,12 +209,12 @@ function OverviewBody({
     <div className="stack">
       <WarningsList warnings={[...data.warnings, ...m.warnings]} />
 
-      <div className="grid-4">
-        <div className="card kpi fade-up">
+      <div className="kpi-strip fade-up">
+        <div className="kpi">
           <div className="kpi-top">
             <span className="kpi-label">Ученики</span>
             <span className="kpi-icon">
-              <Users size={17} />
+              <Users size={15} />
             </span>
           </div>
           <div className="kpi-value">
@@ -224,11 +225,11 @@ function OverviewBody({
           </div>
         </div>
 
-        <div className="card kpi fade-up-2">
+        <div className="kpi">
           <div className="kpi-top">
             <span className="kpi-label">Итоговые результаты</span>
             <span className="kpi-icon">
-              <ClipboardList size={17} />
+              <ClipboardList size={15} />
             </span>
           </div>
           <div className="kpi-value">
@@ -239,7 +240,7 @@ function OverviewBody({
           </div>
         </div>
 
-        <div className="card kpi fade-up-3">
+        <div className="kpi">
           <div className="kpi-top">
             <span className="kpi-label row" style={{ gap: 4 }}>
               Средний итоговый балл
@@ -252,7 +253,7 @@ function OverviewBody({
               </InfoPopover>
             </span>
             <span className="kpi-icon">
-              <Percent size={17} />
+              <Percent size={15} />
             </span>
           </div>
           <div className="kpi-value">
@@ -271,7 +272,7 @@ function OverviewBody({
           </div>
         </div>
 
-        <div className={`card kpi fade-up-3 ${m.n_problem_topics > 0 ? 'tone-critical' : ''}`}>
+        <div className={`kpi ${m.n_problem_topics > 0 ? 'tone-critical' : ''}`}>
           <div className="kpi-top">
             <span className="kpi-label row" style={{ gap: 4 }}>
               Проблемные темы
@@ -280,7 +281,7 @@ function OverviewBody({
               </InfoPopover>
             </span>
             <span className="kpi-icon">
-              <AlertOctagon size={17} />
+              <AlertOctagon size={15} />
             </span>
           </div>
           <div className="kpi-value">
@@ -288,11 +289,15 @@ function OverviewBody({
             <span className="unit"> из {m.topic_count}</span>
           </div>
           <div className="kpi-sub row-wrap" style={{ gap: 4 }}>
-            {statusCounts.map(({ st, n }) => (
-              <span key={st} className="nowrap">
-                {TOPIC_STATUS[st as keyof typeof TOPIC_STATUS].icon} {TOPIC_STATUS[st as keyof typeof TOPIC_STATUS].label}: {n}
-              </span>
-            ))}
+            {statusCounts.map(({ st, n }) => {
+              const meta = TOPIC_STATUS[st as keyof typeof TOPIC_STATUS];
+              return (
+                <span key={st} className={`status tone-${meta.tone}`} style={{ fontSize: 12, marginRight: 6 }} title={meta.label}>
+                  <StatusIcon tone={meta.tone} size={12} />
+                  {n} {meta.label.toLowerCase()}
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>

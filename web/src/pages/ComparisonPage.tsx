@@ -382,7 +382,7 @@ function BookCard({ group, letter, label, color }: { group: BookGroup; letter: s
           <div className="k">После · парная</div>
           <div className="v">{fmtPct(group.mean_post_paired_pct)}</div>
         </div>
-        <div className="stat wide" style={{ background: 'var(--accent-soft)' }}>
+        <div className="stat wide" style={{ background: 'color-mix(in srgb, var(--accent) 8%, var(--surface))' }}>
           <div className="k">Средний прирост</div>
           <div className="v big">{fmtPp(group.mean_gain_pp)}</div>
           <div className="tiny muted">
