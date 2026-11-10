@@ -109,7 +109,7 @@ class TextbookComparisonTests(unittest.TestCase):
         self.assertEqual(result["group_b"]["n_teachers"], 1)
         self.assertIn(DISCLAIMER, result["warnings"])
         self.assertTrue(any("одним классом" in warning for warning in result["warnings"]))
-        self.assertTrue(any("одним учителем" in warning for warning in result["warnings"]))
+        self.assertTrue(any("один известный идентификатор учителя" in warning for warning in result["warnings"]))
         self.assertTrue(any("неполно" in warning for warning in result["warnings"]))
 
     def test_overlapping_students_rejected_even_unpaired(self):
@@ -129,7 +129,53 @@ class TextbookComparisonTests(unittest.TestCase):
         self.assertEqual(result["group_a"]["n_teachers"], 2)
         self.assertEqual(result["group_a"]["n_classes"], 2)
         self.assertEqual(result["group_a"]["n_pairs"], 20)
-        self.assertFalse(any(w.startswith("A:") and "одним учителем" in w for w in result["warnings"]))
+        self.assertFalse(any(w.startswith("A:") and "один известный идентификатор учителя" in w for w in result["warnings"]))
+
+    def test_teacher_counts_use_both_paired_stages_without_changing_comparison(self):
+        baseline = compare(group("A", teacher="T-old") + group("B"))
+        cases = [
+            ("T-old", "T-new", 2, 10),
+            ("T-old", None, 1, 0),
+            (None, "T-new", 1, 0),
+            (None, None, 0, 0),
+            ("T-same", "T-same", 1, 0),
+        ]
+        for pre_teacher, post_teacher, expected_count, differing_pairs in cases:
+            with self.subTest(pre=pre_teacher, post=post_teacher):
+                rows_a = group("A")
+                for row in rows_a:
+                    row["teacher_id"] = pre_teacher if row["stage"] == "pre" else post_teacher
+                result = compare(rows_a + group("B"))
+                self.assertEqual(result["group_a"]["n_teachers"], expected_count)
+                self.assertEqual({key: value for key, value in result["group_a"].items() if key != "n_teachers"},
+                                 {key: value for key, value in baseline["group_a"].items() if key != "n_teachers"})
+                self.assertEqual(result["group_b"], baseline["group_b"])
+                for field in ("comparison_status", "difference_gain_pp", "baseline_gap_pp", "reasons", "conclusion"):
+                    self.assertEqual(result[field], baseline[field])
+                warnings = [warning for warning in result["warnings"] if warning.startswith("A:")]
+                changes = [warning for warning in warnings if "различающимися" in warning]
+                self.assertEqual(len(changes), int(differing_pairs > 0))
+                if changes:
+                    self.assertIn(f"pre/post: {differing_pairs}.", changes[0])
+                    self.assertIn("не подтверждает фактическую смену", changes[0])
+                self.assertEqual(any("один известный идентификатор" in warning for warning in warnings),
+                                 expected_count == 1)
+                self.assertEqual(any("число известных учителей неполно" in warning for warning in warnings),
+                                 pre_teacher is None or post_teacher is None)
+
+    def test_unmatched_teachers_do_not_enter_paired_teacher_count(self):
+        rows_a = group("A", teacher="T-paired")
+        extras = [
+            {**rows_a[0], "student_id": "unmatched-pre", "teacher_id": "T-extra-pre"},
+            {**rows_a[1], "student_id": "unmatched-post", "teacher_id": "T-extra-post"},
+        ]
+        result = compare(rows_a + extras + group("B"))
+        self.assertEqual(result["group_a"]["n_teachers"], 1)
+        self.assertEqual(result["group_a"]["n_pairs"], 10)
+        self.assertEqual(result["group_a"]["n_post"], 11)
+        self.assertEqual(result["group_a"]["mean_gain_pp"], 20)
+        self.assertEqual(result["comparison_status"], "comparable")
+        self.assertFalse(any(w.startswith("A:") and "различающимися" in w for w in result["warnings"]))
 
     def test_same_book_and_duplicate_result_rejected(self):
         with self.assertRaises(AnalyticsError) as caught:

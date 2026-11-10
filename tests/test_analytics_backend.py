@@ -45,6 +45,18 @@ class BackendAnalyticsIntegrationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 201, response.text)
         return response.json()["dataset_id"]
 
+    def import_result_rows(self, rows, curriculum, metadata):
+        content = io.StringIO(newline="")
+        writer = csv.DictWriter(content, fieldnames=rows[0].keys())
+        writer.writeheader()
+        writer.writerows(rows)
+        response = self.client.post("/api/datasets/import?dry_run=false", data={"metadata": metadata}, files={
+            "results_file": ("results.csv", content.getvalue().encode("utf-8")),
+            "curriculum_file": ("curriculum.csv", curriculum),
+        })
+        self.assertEqual(response.status_code, 201, response.text)
+        return response.json()["dataset_id"]
+
     def assert_analytics_and_saved_plan(self, dataset_id, *, is_demo):
         base = f"/api/datasets/{dataset_id}"
         filters_response = self.client.get(base + "/filters")
@@ -128,6 +140,48 @@ class BackendAnalyticsIntegrationTests(unittest.TestCase):
         self.assertEqual(compared.json()['difference_gain_pp'], 8)
         teachers = self.client.get(base + '/teachers').json()['teachers']
         self.assertEqual(len([row for row in teachers if row['teacher_id'] == 'T1']), 2)
+
+    def test_imported_teacher_ids_on_both_stages_describe_book_pairs(self):
+        results, curriculum, metadata = demo_files()
+        source = list(csv.DictReader(io.StringIO(results.decode("utf-8"))))
+        cases = [
+            ("known_changed", "T-old", "T-new", 2, 60, False),
+            ("known_missing", "T-old", "", 1, 0, False),
+            ("missing_known", "", "T-new", 1, 0, False),
+            ("both_missing", "", "", 0, 0, False),
+            ("stable", "T-same", "T-same", 1, 0, False),
+            ("unmatched_extra", "T-same", "T-same", 1, 0, True),
+        ]
+        for name, pre_teacher, post_teacher, count, differing_pairs, add_unmatched in cases:
+            with self.subTest(case=name):
+                rows = [dict(row) for row in source]
+                for row in rows:
+                    if row["textbook_id"] == "Учебник A":
+                        row["teacher_id"] = pre_teacher if row["stage"] == "pre" else post_teacher
+                if add_unmatched:
+                    for stage in ("pre", "post"):
+                        template = next(row for row in rows if row["student_id"] == "S001"
+                                        and row["topic_id"] == "equations" and row["stage"] == stage)
+                        rows.append({**template, "student_id": f"extra-{stage}", "teacher_id": f"T-extra-{stage}"})
+                dataset_id = self.import_result_rows(rows, curriculum, metadata)
+                response = self.client.get(f"/api/datasets/{dataset_id}/comparison", params={
+                    "topic_id": "equations", "textbook_a": "Учебник A", "textbook_b": "Учебник B",
+                })
+                self.assertEqual(response.status_code, 200, response.text)
+                body = response.json()
+                self.assertEqual(body["group_a"]["n_teachers"], count)
+                self.assertEqual(body["group_a"]["n_pairs"], 60)
+                self.assertEqual(body["group_a"]["mean_pre_paired_pct"], 52)
+                self.assertEqual(body["group_a"]["mean_post_paired_pct"], 68)
+                self.assertEqual(body["group_a"]["mean_gain_pp"], 16)
+                self.assertEqual(body["comparison_status"], "comparable")
+                self.assertEqual(body["difference_gain_pp"], 8)
+                self.assertEqual(body["baseline_gap_pp"], 1)
+                notices = [warning for warning in body["warnings"]
+                           if warning.startswith("Учебник A:") and "различающимися" in warning]
+                self.assertEqual(len(notices), int(differing_pairs > 0))
+                if notices:
+                    self.assertIn(f"pre/post: {differing_pairs}.", notices[0])
 
     def test_integrated_factory_does_not_duplicate_analytics_routes(self):
         with warnings.catch_warnings(record=True) as captured:
