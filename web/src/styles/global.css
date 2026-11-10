@@ -1494,6 +1494,9 @@ select.mini-input option {
 .kpi-strip.wide-first {
   grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
 }
+.kpi-strip.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
 .kpi-strip > .kpi + .kpi {
   border-left: 1px solid var(--border);
 }
@@ -1517,6 +1520,16 @@ select.mini-input option {
   .kpi-strip > .kpi + .kpi {
     border-left: 0;
     border-top: 1px solid var(--border);
+  }
+  .kpi-strip.three {
+    grid-template-columns: 1fr;
+  }
+}
+/* Три показателя остаются в одну строку до телефонной ширины. */
+@media (min-width: 521px) and (max-width: 1100px) {
+  .kpi-strip.three > .kpi:nth-child(3) {
+    border-left: 1px solid var(--border);
+    border-top: 0;
   }
 }
 .kpi {

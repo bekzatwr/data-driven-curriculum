@@ -23,15 +23,9 @@ export function useFeatures() {
   };
 }
 
-/**
- * Серверный модуль нагрузки учителей (GET /api/datasets/{id}/teachers, владелец — Тони)
- * ещё не подключён. Расчёт в браузере (lib/teachers.ts) — прототип и не показывается.
- * Включить вместе с серверным контрактом.
- */
-export const TEACHERS_SERVER_CONNECTED = false;
-
+/** Нагрузка учителей считается сервером (GET /api/datasets/{id}/teachers, модуль Тони). */
 export function teachersModuleReady(features: ReturnType<typeof useFeatures>) {
-  return TEACHERS_SERVER_CONNECTED && features.on('teachers_api');
+  return features.on('teachers_api');
 }
 
 /** Короткое объяснение, почему действие недоступно. */

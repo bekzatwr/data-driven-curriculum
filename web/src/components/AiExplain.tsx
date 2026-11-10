@@ -89,10 +89,12 @@ export function AiExplain({
   };
 
   // Сервер ещё не ответил, есть ли ИИ, — ничего не показываем, чтобы не мигать.
-  if (!features.loaded) return null;
+  // Если ИИ на сервере выключен или набор не демо, блок не занимает место на экране:
+  // пустая карточка «ИИ не подключён» на каждой странице только перегружает интерфейс.
+  if (!features.loaded || !features.on('ai_explain') || !isDemo) return null;
 
-  const unavailable = !features.on('ai_explain') || code === 'AI_NOT_CONFIGURED';
-  const demoOnly = !isDemo || code === 'AI_DEMO_ONLY';
+  const unavailable = code === 'AI_NOT_CONFIGURED';
+  const demoOnly = code === 'AI_DEMO_ONLY';
 
   return (
     <section className={`ai-card ${compact ? 'compact' : ''}`}>
@@ -113,7 +115,7 @@ export function AiExplain({
 
       {unavailable ? (
         <div className="tiny muted ai-off">
-          ИИ не подключён на сервере{features.readOnly ? ' (публичный демо-режим)' : ''}. Остальные функции работают без него.
+          ИИ не подключён на сервере. Остальные функции работают без него.
         </div>
       ) : demoOnly ? (
         <div className="tiny muted ai-off">ИИ-пояснения доступны только для встроенного синтетического демонабора — данные загруженных наборов в ИИ не передаются.</div>

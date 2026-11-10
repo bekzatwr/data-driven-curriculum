@@ -449,3 +449,57 @@ export interface RecordsPage {
   limit: number;
   offset: number;
 }
+
+/* ---------- Нагрузка учителей (GET /api/datasets/{id}/teachers, P1 Тони) ---------- */
+
+export interface TeacherAttribution {
+  fully_attributed_students: number;
+  partially_attributed_students: number;
+  unattributed_students: number;
+  fully_attributed_student_share: number | null;
+  missing_teacher_rows: number;
+}
+
+export interface TeacherLoad {
+  teacher_id: string;
+  school_id: string;
+  is_missing_teacher: boolean;
+  class_ids: string[];
+  students: number;
+  textbooks: string[];
+  upcoming_hours: number;
+  n_post: number;
+  n_post_students: number;
+  mean_post_pct: number | null;
+  mean_pre_paired_pct: number | null;
+  mean_post_paired_pct: number | null;
+  mean_gain_pp: number | null;
+  n_pairs: number;
+  n_paired_students: number;
+  paired_student_share: number | null;
+  warnings: string[];
+}
+
+export interface SchoolLoad {
+  school_id: string;
+  teachers: number;
+  students: number;
+  classes: number;
+  students_per_teacher: number | null;
+  classes_per_teacher: number | null;
+  hours_per_teacher: number | null;
+  teacher_attribution: TeacherAttribution;
+}
+
+export interface TeachersResponse {
+  dataset_id: string;
+  is_demo: boolean;
+  applied_filters: AppliedFilters;
+  warnings: string[];
+  teachers: TeacherLoad[];
+  schools: SchoolLoad[];
+  total: SchoolLoad;
+  hours_per_class: number;
+  missing_teacher_rows: number;
+  definitions: Record<string, string>;
+}

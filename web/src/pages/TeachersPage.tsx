@@ -1,42 +1,25 @@
-import { useMemo } from 'react';
-import { BookOpen, Clock3, GraduationCap, School, Users } from 'lucide-react';
+import { AlertTriangle, BookOpen, Clock3, GraduationCap, School, Users } from 'lucide-react';
 import { api } from '../api/client';
-import { Badge, Banner, CountUp, DemoBadge, EmptyState, ErrorState, InfoPopover, LoadingBlock } from '../components/ui';
-import { fmtNum, fmtOne, fmtPct, fmtPp, isNum, plural } from '../lib/format';
+import type { TeachersResponse } from '../api/types';
+import { FilterBar } from '../components/FilterBar';
+import { Badge, Banner, Button, CountUp, DemoBadge, EmptyState, ErrorState, InfoPopover, LoadingBlock, Refreshing } from '../components/ui';
+import { fmtNum, fmtOne, fmtPct, fmtPp, fmtShare, isNum, plural } from '../lib/format';
 import { teachersModuleReady, useFeatures } from '../lib/features';
-import { computeTeachers } from '../lib/teachers';
 import { useAsync } from '../lib/useAsync';
 import { useDataset } from '../state/dataset';
 
+/**
+ * Нагрузка учителей. Всё считает сервер (модуль Тони, GET /api/datasets/{id}/teachers)
+ * по всем записям набора; страница только показывает готовые числа.
+ * Баллы и прирост — контекст для планирования поддержки, не рейтинг учителей.
+ */
 export function TeachersPage() {
   const features = useFeatures();
-  const { dataset } = useDataset();
-  if (teachersModuleReady(features)) return <TeachersPrototype />;
-  return (
-    <div className="stack" style={{ gap: 0 }}>
-      <div className="page-head fade-up">
-        <div style={{ flex: 1, minWidth: 280 }}>
-          <div className="eyebrow">Школа · Нагрузка учителей</div>
-          <h1>Нагрузка учителей</h1>
-          <p>
-            {dataset.metadata.subject}, {dataset.metadata.grade} класс. {dataset.source_type === 'demo' && <DemoBadge />}
-          </p>
-        </div>
-      </div>
-      <div className="card">
-        <EmptyState title="Раздел ещё не подключён на сервере" icon={<GraduationCap size={26} />}>
-          Расчёт нагрузки (учеников, классов и часов на учителя, средние по школе) появится, когда сервер начнёт отдавать его
-          через API. Мы не показываем расчёт в браузере, чтобы не выдавать прототип за проверенный модуль.
-        </EmptyState>
-      </div>
-    </div>
-  );
-}
-
-function TeachersPrototype() {
-  const { datasetId, dataset, filters } = useDataset();
-  const state = useAsync((s) => api.allResults(datasetId, s), `teachers|${datasetId}`);
-  const summary = useMemo(() => (state.data ? computeTeachers(state.data, filters.topics) : null), [state.data, filters.topics]);
+  const { datasetId, dataset, shared, resetShared } = useDataset();
+  const ready = teachersModuleReady(features);
+  const af = { class_ids: shared.classIds, textbook_ids: shared.textbookIds, test_version: shared.testVersion };
+  const state = useAsync(ready ? (s) => api.teachers(datasetId, af, s) : null, `teachers|${datasetId}|${JSON.stringify(af)}|${ready}`);
+  const data = state.data;
 
   return (
     <div className="stack" style={{ gap: 0 }}>
@@ -45,48 +28,83 @@ function TeachersPrototype() {
           <div className="eyebrow">Школа · Нагрузка учителей</div>
           <h1>Сколько учеников и часов на учителя</h1>
           <p>
-            Считается по загруженному набору: {dataset.metadata.subject}, {dataset.metadata.grade} класс. Это нагрузка в рамках этого предмета и
-            параллели, а не полная ставка учителя. {dataset.source_type === 'demo' && <DemoBadge />}
+            {dataset.metadata.subject}, {dataset.metadata.grade} класс. Это наблюдаемая нагрузка по одному предмету — не полная ставка и не оценка работы
+            учителя. {dataset.source_type === 'demo' && <DemoBadge />}
           </p>
         </div>
       </div>
 
-      {state.error != null && (
+      {!ready ? (
         <div className="card">
-          <ErrorState error={state.error} onRetry={state.reload} />
+          <EmptyState title="Раздел не подключён на этом сервере" icon={<GraduationCap size={26} />}>
+            Сервер не сообщил о модуле нагрузки учителей. Остальные разделы работают как обычно.
+          </EmptyState>
         </div>
+      ) : (
+        <>
+          <FilterBar />
+          {state.error != null && !data && (
+            <div className="card">
+              <ErrorState error={state.error} onRetry={state.reload} />
+            </div>
+          )}
+          {state.error != null && data && (
+            <div style={{ marginBottom: 16 }}>
+              <Banner tone="critical" title="Не удалось применить фильтры" action={<Button size="sm" onClick={state.reload}>Повторить</Button>}>
+                Ниже показаны данные для предыдущих фильтров.
+              </Banner>
+            </div>
+          )}
+          {state.loading && (
+            <div className="card">
+              <LoadingBlock rows={6} label="Считаем нагрузку…" />
+            </div>
+          )}
+          {data && (
+            <Refreshing active={state.refreshing}>
+              {data.teachers.length === 0 ? (
+                <div className="card">
+                  <EmptyState
+                    title="В выбранной выборке нет записей"
+                    icon={<GraduationCap size={26} />}
+                    action={
+                      <Button variant="primary" onClick={resetShared}>
+                        Сбросить фильтры
+                      </Button>
+                    }
+                  />
+                </div>
+              ) : (
+                <TeachersBody data={data} />
+              )}
+            </Refreshing>
+          )}
+        </>
       )}
-      {state.loading && (
-        <div className="card">
-          <LoadingBlock rows={6} label="Считаем нагрузку…" />
-        </div>
-      )}
-      {summary && summary.teachers.length === 0 && (
-        <div className="card">
-          <EmptyState title="В наборе нет записей об учителях" icon={<GraduationCap size={26} />} />
-        </div>
-      )}
-      {summary && summary.teachers.length > 0 && <TeachersBody summary={summary} />}
     </div>
   );
 }
 
-function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers> }) {
-  const t = summary.total;
-  const real = summary.teachers.filter((x) => x.teacher_id !== 'Не указан');
-  const avgStudents = t.students_per_teacher ?? 0;
-  const maxStudents = Math.max(1, ...summary.teachers.map((x) => x.students));
-  const range = real.length ? [Math.min(...real.map((x) => x.students)), Math.max(...real.map((x) => x.students))] : null;
+function TeachersBody({ data }: { data: TeachersResponse }) {
+  const t = data.total;
+  const known = data.teachers.filter((x) => !x.is_missing_teacher);
+  const avgStudents = t.students_per_teacher;
+  const maxStudents = Math.max(1, ...data.teachers.map((x) => x.students));
+  const range = known.length ? [Math.min(...known.map((x) => x.students)), Math.max(...known.map((x) => x.students))] : null;
+  const attr = t.teacher_attribution;
+  const partial = isNum(attr.fully_attributed_student_share) && attr.fully_attributed_student_share < 1;
 
   return (
     <div className="stack">
-      {summary.missing_teacher_rows > 0 && (
-        <Banner tone="warning" title="Не у всех записей указан учитель">
-          {fmtNum(summary.missing_teacher_rows)} строк без teacher_id собраны в группу «Не указан» и не входят в средние по школе.
+      {partial && (
+        <Banner tone="warning" title="Не у всех учеников указан учитель">
+          Учитель указан во всех записях у {fmtNum(attr.fully_attributed_students)} из {fmtNum(t.students)}{' '}
+          {plural(t.students, ['ученика', 'учеников', 'учеников'])} ({fmtShare(attr.fully_attributed_student_share)}). Записи без учителя (
+          {fmtNum(data.missing_teacher_rows)}) собраны в строку «Учитель не указан» и не считаются отдельным учителем.
         </Banner>
       )}
 
-      <div className="kpi-strip fade-up">
+      <div className="kpi-strip three fade-up">
         <div className="kpi">
           <div className="kpi-top">
             <span className="kpi-label">Учителей</span>
@@ -106,7 +124,7 @@ function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers>
             <span className="kpi-label row" style={{ gap: 4 }}>
               Учеников на учителя
               <InfoPopover iconOnly label="Как рассчитано: учеников на учителя">
-                <p>Уникальные ученики набора ÷ уникальные учителя (teacher_id). Ученик одного учителя по предмету считается один раз.</p>
+                <p>{data.definitions.students_per_teacher || 'Уникальные ученики ÷ число известных учителей.'}</p>
               </InfoPopover>
             </span>
             <span className="kpi-icon">
@@ -114,27 +132,14 @@ function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers>
             </span>
           </div>
           <div className="kpi-value">{isNum(t.students_per_teacher) ? <CountUp value={t.students_per_teacher} format={fmtOne} /> : '—'}</div>
-          <div className="kpi-sub">{range ? `от ${range[0]} до ${range[1]} у разных учителей` : 'нет данных'}</div>
-        </div>
-        <div className="kpi">
-          <div className="kpi-top">
-            <span className="kpi-label">Классов на учителя</span>
-            <span className="kpi-icon">
-              <School size={15} />
-            </span>
-          </div>
-          <div className="kpi-value">{isNum(t.classes_per_teacher) ? <CountUp value={t.classes_per_teacher} format={fmtOne} /> : '—'}</div>
-          <div className="kpi-sub">в среднем по набору</div>
+          <div className="kpi-sub">{range ? (range[0] === range[1] ? `у каждого учителя ${range[0]}` : `от ${range[0]} до ${range[1]} у разных учителей`) : 'нет известных учителей'}</div>
         </div>
         <div className="kpi">
           <div className="kpi-top">
             <span className="kpi-label row" style={{ gap: 4 }}>
               Часов на учителя
               <InfoPopover iconOnly label="Как рассчитано: часы" align="right">
-                <p>
-                  Предстоящие часы по учебному плану: число классов учителя × {summary.hours_per_class} ч (сумма current_hours всех тем плана на один
-                  класс).
-                </p>
+                <p>{data.definitions.hours_per_teacher || 'Связи учитель–класс × часы плана на класс ÷ число учителей.'}</p>
               </InfoPopover>
             </span>
             <span className="kpi-icon">
@@ -143,13 +148,13 @@ function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers>
           </div>
           <div className="kpi-value">
             {isNum(t.hours_per_teacher) ? <CountUp value={t.hours_per_teacher} format={fmtOne} /> : '—'}
-            <span className="unit"> ч</span>
+            {isNum(t.hours_per_teacher) && <span className="unit"> ч</span>}
           </div>
-          <div className="kpi-sub">{summary.hours_per_class} ч на один класс по плану</div>
+          <div className="kpi-sub">{fmtNum(data.hours_per_class)} ч на один класс по учебному плану</div>
         </div>
       </div>
 
-      {summary.schools.length > 1 && (
+      {data.schools.length > 1 && (
         <section className="card">
           <div className="card-head">
             <h2>
@@ -163,20 +168,18 @@ function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers>
                   <th>Школа</th>
                   <th className="r">Учителей</th>
                   <th className="r">Учеников</th>
-                  <th className="r">Классов</th>
                   <th className="r">Учеников на учителя</th>
                   <th className="r">Часов на учителя</th>
                 </tr>
               </thead>
               <tbody>
-                {summary.schools.map((s) => (
+                {data.schools.map((s) => (
                   <tr key={s.school_id}>
                     <td className="strong">{s.school_id}</td>
-                    <td className="r num">{s.teachers}</td>
-                    <td className="r num">{s.students}</td>
-                    <td className="r num">{s.classes}</td>
-                    <td className="r num strong">{s.students_per_teacher != null ? fmtOne(s.students_per_teacher) : '—'}</td>
-                    <td className="r num">{s.hours_per_teacher != null ? fmtOne(s.hours_per_teacher) : '—'}</td>
+                    <td className="r num">{fmtNum(s.teachers)}</td>
+                    <td className="r num">{fmtNum(s.students)}</td>
+                    <td className="r num strong">{isNum(s.students_per_teacher) ? fmtOne(s.students_per_teacher) : '—'}</td>
+                    <td className="r num">{isNum(s.hours_per_teacher) ? fmtOne(s.hours_per_teacher) : '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -190,7 +193,7 @@ function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers>
           <h2>
             <GraduationCap size={16} /> Учителя
           </h2>
-          <span className="small muted">черта на шкале — среднее по набору ({fmtOne(avgStudents)} уч.)</span>
+          {isNum(avgStudents) && <span className="small muted">черта на шкале — среднее ({fmtOne(avgStudents)} уч.)</span>}
         </div>
         <div className="table-wrap">
           <table className="table">
@@ -199,21 +202,29 @@ function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers>
                 <th>Учитель</th>
                 <th>Классы</th>
                 <th>Ученики</th>
-                <th className="r">Часов (план)</th>
+                <th className="r">Часов</th>
                 <th>Учебники</th>
                 <th className="r">Итоговый средний</th>
                 <th className="r">Прирост</th>
               </tr>
             </thead>
             <tbody>
-              {summary.teachers.map((x) => {
-                const high = avgStudents > 0 && x.students > avgStudents * 1.2;
+              {data.teachers.map((x) => {
+                // Флаг перегрузки — только для известных учителей и только по числу учеников.
+                const high = !x.is_missing_teacher && isNum(avgStudents) && avgStudents > 0 && x.students > avgStudents * 1.2;
                 return (
-                  <tr key={x.teacher_id}>
+                  <tr key={JSON.stringify([x.school_id, x.teacher_id, x.is_missing_teacher])} className={x.is_missing_teacher ? 'row-locked' : undefined}>
                     <td>
                       <div className="cell-topic">
-                        <span className="t">{x.teacher_id}</span>
-                        <span className="s">{x.school_id}</span>
+                        <span className="t">{x.is_missing_teacher ? 'Учитель не указан' : x.teacher_id}</span>
+                        <span className="s">
+                          {x.school_id}
+                          {x.warnings.length > 0 && (
+                            <span className="row" style={{ gap: 3, display: 'inline-flex', marginLeft: 6 }} title={x.warnings.join('\n')}>
+                              <AlertTriangle size={11} /> {x.warnings.length} {plural(x.warnings.length, ['оговорка', 'оговорки', 'оговорок'])}
+                            </span>
+                          )}
+                        </span>
                       </div>
                     </td>
                     <td>
@@ -226,20 +237,20 @@ function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers>
                     <td style={{ minWidth: 170 }}>
                       <div className="row" style={{ gap: 10 }}>
                         <span className="num strong" style={{ width: 28, textAlign: 'right' }}>
-                          {x.students}
+                          {fmtNum(x.students)}
                         </span>
                         <div className={`load-bar ${high ? 'high' : ''}`} style={{ flex: 1 }}>
                           <span style={{ width: `${(x.students / maxStudents) * 100}%` }} />
-                          {avgStudents > 0 && <i className="avg" style={{ left: `${(avgStudents / maxStudents) * 100}%` }} />}
+                          {isNum(avgStudents) && avgStudents > 0 && <i className="avg" style={{ left: `${(avgStudents / maxStudents) * 100}%` }} />}
                         </div>
                       </div>
                       {high && (
                         <div style={{ marginTop: 4 }}>
-                          <Badge tone="serious">выше среднего на {Math.round((x.students / avgStudents - 1) * 100)}%</Badge>
+                          <Badge tone="serious">более чем на 20% выше средней нагрузки</Badge>
                         </div>
                       )}
                     </td>
-                    <td className="r num strong">{x.upcoming_hours}</td>
+                    <td className="r num strong">{x.is_missing_teacher ? '—' : fmtNum(x.upcoming_hours)}</td>
                     <td>
                       <div className="class-tags">
                         {x.textbooks.map((b) => (
@@ -251,20 +262,26 @@ function TeachersBody({ summary }: { summary: ReturnType<typeof computeTeachers>
                       </div>
                     </td>
                     <td className="r num">{fmtPct(x.mean_post_pct)}</td>
-                    <td className="r num">{fmtPp(x.mean_gain_pp)}</td>
+                    <td className="r num" title={isNum(x.mean_gain_pp) ? `${fmtPct(x.mean_pre_paired_pct)} → ${fmtPct(x.mean_post_paired_pct)}, пар: ${fmtNum(x.n_pairs)}` : undefined}>
+                      {fmtPp(x.mean_gain_pp)}
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
-        <div className="card-foot">
+        <div className="card-foot stack-sm" style={{ alignItems: 'flex-start' }}>
           <span className="tiny muted">
             Результаты учеников — для планирования поддержки, а не оценка работы учителя: на них влияют состав класса, учебник и условия.
           </span>
+          {data.warnings.map((w, i) => (
+            <span key={i} className="tiny muted">
+              {w}
+            </span>
+          ))}
         </div>
       </section>
-
     </div>
   );
 }

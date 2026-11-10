@@ -98,7 +98,7 @@ export function HeroPreview() {
           <Sparkles size={13} />
         </span>
         <span>
-          <b>ИИ:</b> «Дроби» ниже порога на 12 п.п. — нужна практика
+          <b>Вывод:</b> «Дроби» ниже порога на 12 п.п. — нужна практика
         </span>
       </div>
       <div className="hp-chip hp-chip-plan">

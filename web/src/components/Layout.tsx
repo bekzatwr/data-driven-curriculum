@@ -123,7 +123,7 @@ export function Layout() {
   const teachersActive = path.endsWith('/teachers');
   const briefActive = path.endsWith('/brief');
   const teachersVisible = teachersModuleReady(features);
-  const pageTitle = teachersActive ? 'Учителя и нагрузка' : briefActive ? 'Справка для педсовета' : steps[activeIndex]?.label ?? 'Страница';
+  const pageTitle = teachersActive ? 'Нагрузка учителей' : briefActive ? 'Справка для педсовета' : steps[activeIndex]?.label ?? 'Страница';
   const inDataset = path.startsWith('/datasets/') || path.startsWith('/plans/');
 
   return (
@@ -132,15 +132,6 @@ export function Layout() {
         <Link to="/" className="sb-brand" aria-label="Data-Driven Curriculum — на главную">
           <Brand size={28} />
         </Link>
-
-        <button type="button" className="sb-search" onClick={() => setPaletteOpen(true)}>
-          <Search size={14} />
-          Поиск и команды
-          <span className="kbds">
-            <span className="kbd">{isMac ? '⌘' : 'Ctrl'}</span>
-            <span className="kbd">K</span>
-          </span>
-        </button>
 
         <div className="sb-label">Сценарий методиста</div>
         <nav aria-label="Шаги сценария" className="stack-sm" style={{ gap: 2 }}>
@@ -164,7 +155,7 @@ export function Layout() {
           })}
         </nav>
 
-        <div className="sb-label">Документы</div>
+        <div className="sb-label">Ещё</div>
         <NavLink
           to={base ? `${base}/brief` : '#'}
           className={`sb-item ${briefActive ? 'active' : ''} ${base ? '' : 'disabled'}`}
@@ -178,18 +169,17 @@ export function Layout() {
         </NavLink>
 
         {teachersVisible && (
-          <>
-            <div className="sb-label">Школа</div>
-            <NavLink
-              to={base ? `${base}/teachers` : '#'}
-              className={`sb-item ${teachersActive ? 'active' : ''} ${base ? '' : 'disabled'}`}
-              aria-current={teachersActive ? 'page' : undefined}
-              tabIndex={base ? undefined : -1}
-            >
-              <GraduationCap size={16} />
-              Учителя и нагрузка
-            </NavLink>
-          </>
+          <NavLink
+            to={base ? `${base}/teachers` : '#'}
+            className={`sb-item ${teachersActive ? 'active' : ''} ${base ? '' : 'disabled'}`}
+            aria-current={teachersActive ? 'page' : undefined}
+            aria-disabled={!base || undefined}
+            tabIndex={base ? undefined : -1}
+            title={base ? undefined : 'Сначала выберите или загрузите набор данных'}
+          >
+            <GraduationCap size={16} />
+            Нагрузка учителей
+          </NavLink>
         )}
 
         {current && (
@@ -220,18 +210,6 @@ export function Layout() {
           >
             <span className={`dot ${apiOnline === false ? 'off' : apiOnline ? '' : 'wait'}`} />
             {apiOnline === false ? 'API недоступен' : apiOnline ? 'API подключён' : 'Проверяем…'}
-          </button>
-          <span className="spacer" />
-          <button
-            type="button"
-            className="btn btn-ghost btn-icon btn-sm"
-            onClick={(e) => toggleTheme(e)}
-            aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
-            title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
-          >
-            <span key={theme} className="theme-icon">
-              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-            </span>
           </button>
         </div>
       </aside>
