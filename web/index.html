@@ -4,13 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Data-Driven Curriculum — аналитика результатов по темам, сравнение учебников и план учебных часов для методиста." />
-    <meta name="theme-color" content="#f5f3ee" />
+    <meta name="theme-color" content="#fbfbfc" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Data-Driven Curriculum</title>
     <script>
-      // Светлая «бумага» по умолчанию; тёмная — по кнопке (выбор запоминается).
       try {
-        var t = localStorage.getItem('ddc.theme4');
+        var t = localStorage.getItem('ddc.theme2');
         document.documentElement.dataset.theme = t === 'dark' ? 'dark' : 'light';
       } catch (e) {
         document.documentElement.dataset.theme = 'light';
