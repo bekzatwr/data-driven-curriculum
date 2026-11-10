@@ -3219,3 +3219,26 @@ select.mini-input option {
   border: 1px solid var(--border);
   background: var(--surface);
 }
+
+/* Печать отчёта: широкая колонка объяснения, плотнее таблица */
+@media print {
+  .report .table {
+    font-size: 10px;
+  }
+  .report .table td.reason {
+    min-width: 62mm;
+    max-width: none !important;
+    font-size: 9px;
+    line-height: 1.35;
+  }
+  .report .table th {
+    white-space: normal;
+    font-size: 9px;
+  }
+  .report .cell-topic {
+    min-width: 0;
+  }
+  .report h2 {
+    margin: 14px 0 8px;
+  }
+}

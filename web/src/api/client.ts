@@ -116,7 +116,10 @@ async function request<T>(
     }
   }
   if (!response.ok) {
-    throw new ApiError(response.status, (body as Partial<ErrorBody>) || {});
+    const apiBody = body && typeof body === 'object' && 'code' in (body as object) ? (body as Partial<ErrorBody>) : null;
+    // 5xx без JSON-ответа нашего API — это прокси/шлюз: сервер недоступен, а не ошибка в коде.
+    if (!apiBody && response.status >= 500) throw new ApiError(0, {});
+    throw new ApiError(response.status, apiBody || {});
   }
   return { data: body as T, status: response.status, response };
 }

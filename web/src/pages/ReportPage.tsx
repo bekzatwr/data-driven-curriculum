@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Braces, Check, Download, FileText, Link2, Lock, MessageSquare, Printer } from 'lucide-react';
 import { api } from '../api/client';
-import type { SavedPlan } from '../api/types';
+import type { SavedItem, SavedPlan } from '../api/types';
 import { Badge, Banner, Button, CloseButton, Drawer, ErrorState, LoadingBlock, WarningsList, errorText, useToast } from '../components/ui';
 import { AiExplain } from '../components/AiExplain';
 import { CommentsPanel } from '../components/Comments';
 import { Brand } from '../components/Logo';
+import { buildPeriodPlan } from '../lib/periodPlan';
 import { fmtDate, fmtDateTimeUtc5, fmtNum, fmtPct, fmtSigned, hours as hoursLabel, shortId } from '../lib/format';
 import { rememberPlan } from '../lib/storage';
 import { useAsync } from '../lib/useAsync';
@@ -63,9 +64,14 @@ function Report({ plan }: { plan: SavedPlan }) {
   const items = [...plan.items].sort((a, b) => a.topic_order - b.topic_order);
   const changed = items.filter((i) => i.proposed_hours !== i.current_hours);
   const moved = items.reduce((s, i) => s + Math.max(0, i.proposed_hours - i.current_hours), 0);
-  const manual = items.filter((i) => i.manually_modified);
   const name = (tid: string) => items.find((i) => i.topic_id === tid)?.topic_name || tid;
   const isPeriod = plan.comment.startsWith('[План на весь период]');
+  // План на период: то же детерминированное распределение, что и на экране плана.
+  const period = isPeriod ? buildPeriodPlan(items, plan.total_hours, plan.settings.target_pct, plan.settings.donor_pct) : null;
+  const recommendedOf = (i: SavedItem) => (period ? period.hours[i.topic_id] ?? i.recommended_hours : i.recommended_hours);
+  const reasonOf = (i: SavedItem) => (period ? period.reasons[i.topic_id] ?? i.recommendation_reason : i.recommendation_reason);
+  const manual = items.filter((i) => (period ? i.proposed_hours !== recommendedOf(i) : i.manually_modified));
+  const isManual = (i: SavedItem) => manual.includes(i);
   const comment = isPeriod ? plan.comment.replace('[План на весь период]', '').trim() : plan.comment;
   const [openTopic, setOpenTopic] = useState<string | null>(null);
   const counts = useAsync((sig) => api.comments(plan.dataset_id, { type: 'plan_topic' }, sig), `pt|${plan.plan_id}|${openTopic ?? ''}`);
@@ -131,7 +137,7 @@ function Report({ plan }: { plan: SavedPlan }) {
           <div className="stack-sm" style={{ alignItems: 'flex-end' }}>
             {plan.is_demo && <span className="demo-stamp">🧪 Искусственные данные</span>}
             {isPeriod ? (
-              <Badge tone="accent">План на весь период</Badge>
+              <Badge tone={manual.length ? 'warning' : 'accent'}>{manual.length ? 'План на период · с правками' : 'План на весь период'}</Badge>
             ) : (
               <Badge tone={plan.manually_modified ? 'warning' : 'good'}>{plan.manually_modified ? 'С ручными правками' : 'По рекомендации'}</Badge>
             )}
@@ -154,7 +160,9 @@ function Report({ plan }: { plan: SavedPlan }) {
           />
           <Meta
             k="Настройки порогов"
-            v={`цель ${plan.settings.target_pct}% · донор от ${plan.settings.donor_pct}% · мин. ${plan.settings.min_students} учеников · лимит ±${plan.settings.max_change} ч`}
+            v={`цель ${plan.settings.target_pct}% · донор от ${plan.settings.donor_pct}% · мин. ${plan.settings.min_students} учеников · ${
+              isPeriod ? 'распределение на весь период' : `лимит ±${plan.settings.max_change} ч`
+            }`}
           />
           <Meta k="Алгоритм" v={plan.algorithm_version} />
           <Meta
@@ -179,7 +187,7 @@ function Report({ plan }: { plan: SavedPlan }) {
             <div className="v">{hoursLabel(moved)}</div>
           </div>
           <div className="stat">
-            <div className="k">{isPeriod ? 'Отличий от rules_v1' : 'Ручные правки'}</div>
+            <div className="k">Ручные правки</div>
             <div className="v">{manual.length}</div>
           </div>
         </div>
@@ -225,10 +233,10 @@ function Report({ plan }: { plan: SavedPlan }) {
                     </td>
                     <td className="c num">{i.importance}</td>
                     <td className="c">{i.is_locked ? <Lock size={13} aria-label="да" /> : '—'}</td>
-                    <td className="r num">{i.recommended_hours}</td>
+                    <td className="r num">{recommendedOf(i)}</td>
                     <td className="r num strong">
                       {i.proposed_hours}
-                      {i.manually_modified && (
+                      {isManual(i) && (
                         <div className="tiny" style={{ color: 'var(--warning-text)', fontWeight: 600 }}>
                           вручную
                         </div>
@@ -238,7 +246,7 @@ function Report({ plan }: { plan: SavedPlan }) {
                       <span className={`delta ${d > 0 ? 'up' : d < 0 ? 'down' : ''}`}>{fmtSigned(d)}</span>
                     </td>
                     <td className="reason" style={{ maxWidth: 320 }}>
-                      {i.recommendation_reason}
+                      {reasonOf(i)}
                     </td>
                     <td className="no-print">
                       <button
@@ -260,7 +268,7 @@ function Report({ plan }: { plan: SavedPlan }) {
                 <td colSpan={2} />
                 <td className="r num strong">{items.reduce((s, i) => s + i.current_hours, 0)}</td>
                 <td colSpan={3} />
-                <td className="r num">{items.reduce((s, i) => s + i.recommended_hours, 0)}</td>
+                <td className="r num">{items.reduce((s, i) => s + recommendedOf(i), 0)}</td>
                 <td className="r num strong">{items.reduce((s, i) => s + i.proposed_hours, 0)}</td>
                 <td colSpan={2} />
                 <td className="no-print" />
@@ -271,8 +279,20 @@ function Report({ plan }: { plan: SavedPlan }) {
 
         <div className="grid-2" style={{ marginTop: 8, alignItems: 'start' }}>
           <div>
-            <h2>Переносы по рекомендации</h2>
-            {plan.recommendation_transfers.length === 0 ? (
+            <h2>{period ? 'Распределение на период' : 'Переносы по рекомендации'}</h2>
+            {period ? (
+              <div className="transfers">
+                {items.map((i) => (
+                  <div className="transfer" key={i.topic_id}>
+                    <span className="strong">{i.topic_name}</span>
+                    <span className="tiny muted">
+                      {i.is_locked ? 'заблокирована' : `мин ${i.min_hours} + ${period.added[i.topic_id] ?? 0} по приоритету`}
+                    </span>
+                    <span className="h">{hoursLabel(recommendedOf(i))}</span>
+                  </div>
+                ))}
+              </div>
+            ) : plan.recommendation_transfers.length === 0 ? (
               <p className="text-2">Переносов нет: свободных часов в рамках ограничений не было.</p>
             ) : (
               <div className="transfers">
@@ -292,8 +312,8 @@ function Report({ plan }: { plan: SavedPlan }) {
             {comment ? <p style={{ whiteSpace: 'pre-wrap' }}>{comment}</p> : <p className="muted">Без комментария.</p>}
             {manual.length > 0 && (
               <div style={{ marginTop: 12 }}>
-                <Banner tone={isPeriod ? 'info' : 'warning'} title={isPeriod ? 'План на период против правила rules_v1' : 'Ручные изменения'}>
-                  {manual.map((i) => `${i.topic_name}: ${i.recommended_hours} → ${i.proposed_hours} ч`).join('; ')}
+                <Banner tone="warning" title="Ручные изменения">
+                  {manual.map((i) => `${i.topic_name}: ${recommendedOf(i)} → ${i.proposed_hours} ч`).join('; ')}
                 </Banner>
               </div>
             )}
@@ -336,10 +356,10 @@ function Report({ plan }: { plan: SavedPlan }) {
               n_post: i.n_post,
               current_hours: i.current_hours,
               planned_hours: i.proposed_hours,
-              recommended_hours: i.recommended_hours,
-              manually_modified: i.manually_modified,
+              recommended_hours: recommendedOf(i),
+              manually_modified: isManual(i),
             })),
-            transfers: plan.recommendation_transfers.map((t) => ({ from: name(t.from_topic_id), to: name(t.to_topic_id), hours: t.hours })),
+            transfers: period ? [] : plan.recommendation_transfers.map((t) => ({ from: name(t.from_topic_id), to: name(t.to_topic_id), hours: t.hours })),
             comment,
           })}
           saveTo={{ type: 'plan', id: plan.plan_id }}
