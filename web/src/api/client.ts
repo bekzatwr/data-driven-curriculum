@@ -1,6 +1,13 @@
 import type {
+  AiKind,
+  AuthorRole,
   Capabilities,
+  CommentItem,
+  CommentList,
+  CommentTarget,
   Comparison,
+  Explanation,
+  RecordsPage,
   Dataset,
   DatasetList,
   DatasetMetadata,
@@ -109,7 +116,10 @@ async function request<T>(
     }
   }
   if (!response.ok) {
-    throw new ApiError(response.status, (body as Partial<ErrorBody>) || {});
+    const apiBody = body && typeof body === 'object' && 'code' in (body as object) ? (body as Partial<ErrorBody>) : null;
+    // 5xx без JSON-ответа нашего API — это прокси/шлюз: сервер недоступен, а не ошибка в коде.
+    if (!apiBody && response.status >= 500) throw new ApiError(0, {});
+    throw new ApiError(response.status, apiBody || {});
   }
   return { data: body as T, status: response.status, response };
 }
@@ -191,6 +201,40 @@ export const api = {
 
   getPlan: (planId: string, signal?: AbortSignal) =>
     request<SavedPlan>(`/api/plans/${enc(planId)}`, { signal }).then((r) => r.data),
+
+  results: (id: string, offset: number, limit = 1000, signal?: AbortSignal) =>
+    request<RecordsPage>(`/api/datasets/${enc(id)}/results`, { signal, query: { offset, limit } }).then((r) => r.data),
+
+  /** Все записи набора (до 10 000 строк) — для расчёта нагрузки учителей на клиенте. */
+  async allResults(id: string, signal?: AbortSignal) {
+    const first = await api.results(id, 0, 1000, signal);
+    const items = [...first.items];
+    for (let offset = first.items.length; offset < first.total; offset += 1000) {
+      const page = await api.results(id, offset, 1000, signal);
+      items.push(...page.items);
+      if (!page.items.length) break;
+    }
+    return items;
+  },
+
+  comments: (id: string, target?: { type?: CommentTarget; id?: string }, signal?: AbortSignal) =>
+    request<CommentList>(`/api/datasets/${enc(id)}/comments`, {
+      signal,
+      query: { target_type: target?.type, target_id: target?.id },
+    }).then((r) => r.data),
+
+  addComment: (
+    id: string,
+    body: { target_type: CommentTarget; target_id: string; author_name: string; author_school?: string; author_role: AuthorRole; text: string },
+  ) => request<CommentItem>(`/api/datasets/${enc(id)}/comments`, { method: 'POST', json: body }).then((r) => r.data),
+
+  aiStatus: (signal?: AbortSignal) =>
+    request<{ configured: boolean; providers: string[]; models: Record<string, string> }>('/api/ai/status', { signal }).then(
+      (r) => r.data,
+    ),
+
+  aiExplain: (id: string, body: { kind: AiKind; context: unknown; question?: string | null }) =>
+    request<Explanation>(`/api/datasets/${enc(id)}/ai/explain`, { method: 'POST', json: body }).then((r) => r.data),
 
   planCsvUrl: (planId: string) => apiUrl(`/api/plans/${enc(planId)}/export.csv`),
   planJsonUrl: (planId: string) => apiUrl(`/api/plans/${enc(planId)}`),

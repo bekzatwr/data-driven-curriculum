@@ -16,7 +16,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { api } from '../api/client';
-import type { ConstraintOverride, PlanPreview, PlanRequest, PlanSettings, SavedPlan } from '../api/types';
+import type { ConstraintOverride, PlanItem, PlanPreview, PlanRequest, PlanSettings, SavedPlan } from '../api/types';
 import {
   Badge,
   Banner,
@@ -35,8 +35,12 @@ import {
 } from '../components/ui';
 import { fmtNum, fmtPct, fmtSigned, hours as hoursLabel, plural } from '../lib/format';
 import { rememberPlan } from '../lib/storage';
+import { buildPeriodPlan } from '../lib/periodPlan';
+import { AiExplain } from '../components/AiExplain';
 import { useApp } from '../state/app';
 import { useDataset } from '../state/dataset';
+
+type PlanMode = 'shift' | 'period';
 
 const DEFAULT_SETTINGS: PlanSettings = { target_pct: 70, donor_pct: 80, min_students: 10, max_change: 2 };
 
@@ -160,8 +164,15 @@ function PlanEditor({ classId }: { classId: string }) {
   const [saveError, setSaveError] = useState<unknown>(null);
   const [saved, setSaved] = useState<SavedPlan | null>(null);
   const reqId = useRef(0);
+  const [mode, setMode] = useState<PlanMode>('shift');
+  const totalCurrent = useMemo(() => filters.topics.reduce((sum, t) => sum + t.current_hours, 0), [filters.topics]);
+  // План на период: снимаем лимит ±N (сервер разрешает max_change до 10000), распределение строит buildPeriodPlan.
+  const settingsFor = useCallback(
+    (m: PlanMode): PlanSettings => (m === 'period' ? { ...settings, max_change: Math.max(settings.max_change, totalCurrent) } : settings),
+    [settings, totalCurrent],
+  );
 
-  const buildRequest = useCallback((): PlanRequest => {
+  const buildRequest = useCallback((m: PlanMode = mode): PlanRequest => {
     const overrides: Record<string, ConstraintOverride> = {};
     Object.entries(constraints).forEach(([tid, c]) => {
       const b = baseConstraints[tid];
@@ -172,11 +183,11 @@ function PlanEditor({ classId }: { classId: string }) {
       if (!b || c.is_locked !== b.is_locked) o.is_locked = c.is_locked;
       if (Object.keys(o).length) overrides[tid] = o;
     });
-    const req: PlanRequest = { class_id: classId, settings };
+    const req: PlanRequest = { class_id: classId, settings: settingsFor(m) };
     if (Object.keys(overrides).length) req.constraints = overrides;
     if (Object.keys(testVersions).length) req.test_versions = testVersions;
     return req;
-  }, [constraints, baseConstraints, classId, settings, testVersions]);
+  }, [constraints, baseConstraints, classId, settingsFor, testVersions, mode]);
 
   const request = buildRequest();
   const sig = JSON.stringify(request);
@@ -204,7 +215,11 @@ function PlanEditor({ classId }: { classId: string }) {
   const canCalculate = Object.keys(constraintErrors).length === 0 && !settingsError && !loading;
 
   const calculate = useCallback(
-    async (req: PlanRequest, snapshot: { constraints: Record<string, Constraint>; settings: PlanSettings; testVersions: Record<string, string> }) => {
+    async (
+      req: PlanRequest,
+      snapshot: { constraints: Record<string, Constraint>; settings: PlanSettings; testVersions: Record<string, string> },
+      periodMode = false,
+    ) => {
       const id = ++reqId.current;
       setLoading(true);
       setPreviewError(null);
@@ -215,7 +230,11 @@ function PlanEditor({ classId }: { classId: string }) {
         setPreview(res);
         setPreviewSig(JSON.stringify(req));
         setPreviewReq(snapshot);
-        setHours(Object.fromEntries(res.items.map((i) => [i.topic_id, i.proposed_hours])));
+        setHours(
+          periodMode
+            ? buildPeriodPlan(res.items, res.total_hours, res.settings.target_pct, res.settings.donor_pct).hours
+            : Object.fromEntries(res.items.map((i) => [i.topic_id, i.proposed_hours])),
+        );
       } catch (e) {
         if (id !== reqId.current) return;
         setPreviewError(e);
@@ -232,7 +251,14 @@ function PlanEditor({ classId }: { classId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const runCalculate = () => canCalculate && calculate(request, { constraints, settings, testVersions });
+  const runCalculate = () => canCalculate && calculate(request, { constraints, settings, testVersions }, mode === 'period');
+
+  const switchMode = (m: PlanMode) => {
+    if (m === mode || !canCalculate) return;
+    setMode(m);
+    setSaved(null);
+    calculate(buildRequest(m), { constraints, settings, testVersions }, m === 'period');
+  };
 
   const resetChanges = () => {
     if (previewReq) {
@@ -240,12 +266,22 @@ function PlanEditor({ classId }: { classId: string }) {
       setSettings(previewReq.settings);
       setTestVersions(previewReq.testVersions);
     }
-    if (preview) setHours(Object.fromEntries(preview.items.map((i) => [i.topic_id, i.proposed_hours])));
+    if (preview) setHours(Object.fromEntries(preview.items.map((i) => [i.topic_id, baselineOf(i)])));
     setSaveError(null);
   };
 
   /* ---------- Проверка ручных часов ---------- */
   const items = preview?.items || [];
+  const period = useMemo(
+    () =>
+      preview && mode === 'period'
+        ? buildPeriodPlan(preview.items, preview.total_hours, preview.settings.target_pct, preview.settings.donor_pct)
+        : null,
+    [preview, mode],
+  );
+  function baselineOf(it: PlanItem) {
+    return period ? period.hours[it.topic_id] ?? it.proposed_hours : it.proposed_hours;
+  }
   const maxChange = preview?.settings.max_change ?? settings.max_change;
   const rowErrors = useMemo(() => {
     const e: Record<string, string> = {};
@@ -263,7 +299,7 @@ function PlanEditor({ classId }: { classId: string }) {
   const sum = items.reduce((s, it) => s + (hours[it.topic_id] ?? 0), 0);
   const total = preview?.total_hours ?? 0;
   const sumDiff = sum - total;
-  const manualCount = items.filter((it) => hours[it.topic_id] !== it.proposed_hours).length;
+  const manualCount = items.filter((it) => hours[it.topic_id] !== baselineOf(it)).length;
   const changedCount = items.filter((it) => hours[it.topic_id] !== it.current_hours).length;
   const moved = items.reduce((s, it) => s + Math.max(0, (hours[it.topic_id] ?? 0) - it.current_hours), 0);
   const errorCount = Object.keys(rowErrors).length + (sumDiff !== 0 ? 1 : 0);
@@ -275,7 +311,8 @@ function PlanEditor({ classId }: { classId: string }) {
     setSaving(true);
     setSaveError(null);
     try {
-      const body = { ...request, hours_by_topic: Object.fromEntries(items.map((it) => [it.topic_id, hours[it.topic_id]])), comment: comment.trim() };
+      const note = mode === 'period' ? `[План на весь период] ${comment.trim()}`.trim() : comment.trim();
+      const body = { ...request, hours_by_topic: Object.fromEntries(items.map((it) => [it.topic_id, hours[it.topic_id]])), comment: note };
       const res = await api.savePlan(datasetId, body);
       setSaved(res);
       setLastPlanId(res.plan_id);
@@ -315,7 +352,7 @@ function PlanEditor({ classId }: { classId: string }) {
   if (!preview && previewError != null) {
     return (
       <div className="card">
-        <ErrorState error={previewError} onRetry={() => calculate(request, { constraints, settings, testVersions })} />
+        <ErrorState error={previewError} onRetry={() => calculate(request, { constraints, settings, testVersions }, mode === 'period')} />
       </div>
     );
   }
@@ -325,6 +362,33 @@ function PlanEditor({ classId }: { classId: string }) {
 
   return (
     <div className="stack">
+      {/* ---------- Режим ---------- */}
+      <div className="mode-switch fade-up">
+        <div className="segmented" role="tablist" aria-label="Режим планирования">
+          <button role="tab" aria-selected={mode === 'shift'} className={mode === 'shift' ? 'on' : ''} onClick={() => switchMode('shift')}>
+            Перераспределение ±{settings.max_change} ч
+          </button>
+          <button role="tab" aria-selected={mode === 'period'} className={mode === 'period' ? 'on' : ''} onClick={() => switchMode('period')}>
+            План на весь период
+          </button>
+        </div>
+        <span className="small muted" style={{ flex: 1, minWidth: 240 }}>
+          {mode === 'period'
+            ? `Все ${preview.total_hours} ч распределяются по темам с нуля: минимум каждой теме, остаток — по приоритету трудных и важных тем.`
+            : 'Небольшие переносы часов между темами по правилу rules_v1 с лимитом изменения на тему.'}
+        </span>
+      </div>
+      {period && period.overflow > 0 && (
+        <Banner tone="critical" title="Минимумы больше общего лимита">
+          Сумма минимумов и заблокированных часов превышает {preview.total_hours} ч на {period.overflow} ч. Уменьшите минимумы или снимите блокировку.
+        </Banner>
+      )}
+      {period && period.leftover > 0 && (
+        <Banner tone="warning" title="Не все часы удалось распределить">
+          {period.leftover} ч не помещаются из-за максимумов тем. Увеличьте максимум у важных тем и нажмите «Рассчитать».
+        </Banner>
+      )}
+
       {/* ---------- Сводка ---------- */}
       <div className="kpi-strip wide-first fade-up">
         <div className={`kpi ${sumOk ? '' : 'tone-critical'}`}>
@@ -459,7 +523,8 @@ function PlanEditor({ classId }: { classId: string }) {
                   const delta = h - it.current_hours;
                   const err = rowErrors[it.topic_id];
                   const cErr = constraintErrors[it.topic_id];
-                  const manual = h !== it.proposed_hours;
+                  const base0 = baselineOf(it);
+                  const manual = h !== base0;
                   const lo = Math.max(it.min_hours, it.current_hours - maxChange);
                   const hi = Math.min(it.max_hours, it.current_hours + maxChange);
                   return (
@@ -563,10 +628,10 @@ function PlanEditor({ classId }: { classId: string }) {
                               type="button"
                               className="reason-toggle tiny row"
                               style={{ gap: 3 }}
-                              onClick={() => setHours((hs) => ({ ...hs, [it.topic_id]: it.proposed_hours }))}
+                              onClick={() => setHours((hs) => ({ ...hs, [it.topic_id]: base0 }))}
                               title="Вернуть рекомендацию"
                             >
-                              <Undo2 size={11} /> рекоменд. {it.proposed_hours}
+                              <Undo2 size={11} /> рекоменд. {base0}
                             </button>
                           )}
                         </div>
@@ -578,7 +643,7 @@ function PlanEditor({ classId }: { classId: string }) {
                         {err && <div className="field-error strong" style={{ marginBottom: 4 }}>{err}</div>}
                         {cErr && <div className="field-error strong" style={{ marginBottom: 4 }}>Ограничения: {cErr}</div>}
                         {manual && <Badge tone="warning">ручная правка: {fmtSigned(h - it.proposed_hours)} к рекомендации</Badge>}
-                        <Reason text={it.reason} />
+                        <Reason text={period ? period.reasons[it.topic_id] ?? it.reason : it.reason} />
                       </td>
                     </tr>
                   );
@@ -610,13 +675,27 @@ function PlanEditor({ classId }: { classId: string }) {
         <section className="card">
           <div className="card-head">
             <h3>
-              <ArrowRight size={16} /> Переносы по рекомендации
+              <ArrowRight size={16} /> {period ? 'Как распределены часы' : 'Переносы по рекомендации'}
             </h3>
             <span className="spacer" />
-            <Badge>{preview.transfers.length}</Badge>
+            <Badge>{period ? items.length : preview.transfers.length}</Badge>
           </div>
           <div className="card-body">
-            {preview.transfers.length === 0 ? (
+            {period ? (
+              <div className="transfers">
+                {[...items]
+                  .sort((a, b) => a.topic_order - b.topic_order)
+                  .map((it) => (
+                    <div className="transfer" key={it.topic_id}>
+                      <span className="strong">{it.topic_name}</span>
+                      <span className="tiny muted">
+                        {it.is_locked ? 'заблокирована' : `мин ${it.min_hours} + ${period.added[it.topic_id] ?? 0} по приоритету`}
+                      </span>
+                      <span className="h">{hoursLabel(period.hours[it.topic_id] ?? 0)}</span>
+                    </div>
+                  ))}
+              </div>
+            ) : preview.transfers.length === 0 ? (
               <EmptyState title="Переносов нет">Свободных часов в рамках ограничений нет; требуется решение методиста.</EmptyState>
             ) : (
               <div className="transfers">
@@ -681,6 +760,32 @@ function PlanEditor({ classId }: { classId: string }) {
           </div>
         </div>
       </section>
+
+      <AiExplain
+        datasetId={datasetId}
+        kind="plan"
+        title="ИИ: объясни план учителю"
+        hint="Простыми словами: откуда и куда идут часы, почему, какие риски."
+        context={() => ({
+          is_demo: preview.is_demo,
+          class_id: preview.class_id,
+          mode: mode === 'period' ? 'план на весь период' : 'перераспределение с лимитом',
+          total_hours: preview.total_hours,
+          settings: preview.settings,
+          topics: items.map((it) => ({
+            topic: it.topic_name,
+            mean_post_pct: it.mean_post_pct,
+            n_post: it.n_post,
+            current_hours: it.current_hours,
+            planned_hours: hours[it.topic_id],
+            min_hours: it.min_hours,
+            max_hours: it.max_hours,
+            importance: it.importance,
+            locked: it.is_locked,
+          })),
+          transfers: mode === 'period' ? [] : preview.transfers.map((t) => ({ from: topicName(t.from_topic_id), to: topicName(t.to_topic_id), hours: t.hours })),
+        })}
+      />
 
       {saveError != null && (
         <Banner tone="critical" title="Сервер отклонил план">

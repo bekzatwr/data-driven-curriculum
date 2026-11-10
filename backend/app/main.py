@@ -22,6 +22,9 @@ from planner.api import router as planner_router
 from planner.storage import SnapshotStore
 from analytics.api import router as analytics_router
 from analytics.app import register_analytics_errors
+from collab import ai as collab_ai
+from collab.api import router as collab_router
+from collab.storage import CommentStore
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +95,8 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
             upload = await run_in_threadpool(validate_upload, *demo_files(), settings, source_type="demo")
             dataset, _ = await run_in_threadpool(store.save_upload, upload)
             application.state.public_demo = (upload, dataset)
+        # P1: comments live in the same database file, so backups and restarts keep them.
+        application.state.comments = await run_in_threadpool(CommentStore, settings.database_path)
         yield
 
     application = FastAPI(
@@ -154,7 +159,8 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
                          "demo_dataset": True, "data_quality": True, "package_export": True,
                          "package_restore": not settings.read_only_demo,
                          "plan_preview": True, "plan_save": not settings.read_only_demo, "plan_report": True, "plan_csv": True,
-                         "analytics": True, "textbook_comparison": True},
+                         "analytics": True, "textbook_comparison": True,
+                         "comments": True, "ai_explain": collab_ai.status()["configured"]},
             "links": {"docs": "/docs", "openapi": "/openapi.json", "datasets": "/api/datasets",
                       "results_template": "/api/templates/results.csv",
                       "curriculum_template": "/api/templates/curriculum.csv"},
@@ -163,9 +169,10 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
     application.include_router(datasets_router)
     application.include_router(planner_router)
     application.include_router(analytics_router)
+    application.include_router(collab_router)
     register_analytics_errors(application)
     for router in routers:
-        if router is not planner_router and router is not analytics_router:
+        if router not in (planner_router, analytics_router, collab_router):
             application.include_router(router)
 
     if settings.web_dist:

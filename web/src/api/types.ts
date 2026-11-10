@@ -367,3 +367,43 @@ export interface ErrorBody {
   details?: ErrorDetail[];
   total_errors?: number;
 }
+
+// ---------- P1: комментарии и ИИ (модуль collab) ----------
+
+export type CommentTarget = 'dataset' | 'topic' | 'textbook' | 'class' | 'teacher' | 'plan' | 'plan_topic';
+export type AuthorRole = 'teacher' | 'methodist' | 'admin' | 'ai';
+
+export interface CommentItem {
+  id: string;
+  dataset_id: string;
+  target_type: CommentTarget;
+  target_id: string;
+  author_name: string;
+  author_school: string;
+  author_role: AuthorRole;
+  kind: 'human' | 'ai';
+  text: string;
+  created_at: string;
+}
+
+export interface CommentList {
+  items: CommentItem[];
+  total: number;
+}
+
+export type AiKind = 'overview' | 'topic' | 'comparison' | 'plan' | 'teachers' | 'comments';
+
+export interface Explanation {
+  text: string;
+  provider: string;
+  model: string;
+  created_at: string;
+}
+
+export interface RecordsPage {
+  dataset_id: string;
+  items: ResultRow[];
+  total: number;
+  limit: number;
+  offset: number;
+}

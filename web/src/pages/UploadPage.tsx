@@ -24,6 +24,7 @@ import { fmtBytes, fmtDate, fmtDateTimeUtc5, fmtNum, plural } from '../lib/forma
 import { useAsync } from '../lib/useAsync';
 import { datasetToCurrent, useApp } from '../state/app';
 import { isMac } from '../components/CommandPalette';
+import { LogoMark } from '../components/Logo';
 
 const DEFAULT_META: DatasetMetadata = {
   name: '',
@@ -74,6 +75,9 @@ export function UploadPage() {
   return (
     <div className="stack" style={{ gap: 24 }}>
       <section className="hero">
+        <div className="fade-up" style={{ marginBottom: 18 }}>
+          <LogoMark size={48} />
+        </div>
         <span className="hero-badge fade-up">
           <span className="pill">P0</span>
           Импорт → аналитика → сравнение → план → отчёт

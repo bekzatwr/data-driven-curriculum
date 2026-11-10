@@ -21,6 +21,9 @@ import { fmtNum, fmtOne, fmtPct, fmtPp, fmtShare, isNum } from '../lib/format';
 import { COMPARISON_STATUS } from '../lib/status';
 import { useAsync } from '../lib/useAsync';
 import { useDataset } from '../state/dataset';
+import { AiExplain } from '../components/AiExplain';
+import { CommentsPanel } from '../components/Comments';
+import { useState } from 'react';
 
 export function ComparisonPage() {
   const { datasetId, dataset, filters, shared, comparison, setComparison, topicName } = useDataset();
@@ -181,6 +184,8 @@ export function ComparisonPage() {
 }
 
 function ComparisonBody({ data, topicTitle, labelA, labelB }: { data: Comparison; topicTitle: string; labelA: string; labelB: string }) {
+  const { datasetId } = useDataset();
+  const [book, setBook] = useState<'a' | 'b'>('a');
   const st = COMPARISON_STATUS[data.comparison_status];
   const a = data.group_a;
   const b = data.group_b;
@@ -345,6 +350,49 @@ function ComparisonBody({ data, topicTitle, labelA, labelB }: { data: Comparison
       </div>
 
       <WarningsList warnings={data.warnings} tone="info" />
+
+      <AiExplain
+        datasetId={datasetId}
+        kind="comparison"
+        title="ИИ: сравнение методик и учебников"
+        hint="Что показывают данные, где ограничения и что проверить на уроках. Без вывода «лучший учебник»."
+        context={() => ({
+          is_demo: data.is_demo,
+          topic: topicTitle,
+          test_version: data.test_version,
+          comparison_status: data.comparison_status,
+          difference_gain_pp: data.difference_gain_pp,
+          baseline_gap_pp: data.baseline_gap_pp,
+          reasons: data.reasons,
+          conclusion: data.conclusion,
+          settings: data.settings,
+          group_a: { ...data.group_a, label: labelA },
+          group_b: { ...data.group_b, label: labelB },
+        })}
+        saveTo={{ type: 'textbook', id: book === 'a' ? data.group_a.textbook_id : data.group_b.textbook_id }}
+      />
+
+      <section className="card card-pad">
+        <div className="row-wrap" style={{ marginBottom: 12 }}>
+          <span className="section-title">Отзывы учителей об учебниках</span>
+          <span className="spacer" />
+          <div className="segmented" role="tablist" aria-label="Учебник">
+            <button role="tab" aria-selected={book === 'a'} className={book === 'a' ? 'on' : ''} onClick={() => setBook('a')}>
+              A · {labelA}
+            </button>
+            <button role="tab" aria-selected={book === 'b'} className={book === 'b' ? 'on' : ''} onClick={() => setBook('b')}>
+              B · {labelB}
+            </button>
+          </div>
+        </div>
+        <CommentsPanel
+          key={book}
+          datasetId={datasetId}
+          target={{ type: 'textbook', id: book === 'a' ? data.group_a.textbook_id : data.group_b.textbook_id }}
+          title={`Обсуждение: ${book === 'a' ? labelA : labelB}`}
+          placeholder="Чем удобен или неудобен учебник по этой теме? Задания, объяснения, методика…"
+        />
+      </section>
     </div>
   );
 }
