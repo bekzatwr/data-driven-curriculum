@@ -22,7 +22,7 @@ services:
       FORWARDED_ALLOW_IPS: "127.0.0.1"
       GROQ_API_KEY: "${GROQ_API_KEY:-}"
       GEMINI_API_KEY: "${GEMINI_API_KEY:-}"
-      GROQ_MODEL: "${GROQ_MODEL:-llama-3.3-70b-versatile}"
+      GROQ_MODEL: "${GROQ_MODEL:-openai/gpt-oss-120b}"
       GEMINI_MODEL: "${GEMINI_MODEL:-gemini-3.5-flash-lite}"
     volumes:
       - curriculum-data:/app/data

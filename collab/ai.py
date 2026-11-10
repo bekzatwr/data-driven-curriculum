@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MODELS = {"groq": "llama-3.3-70b-versatile", "gemini": "gemini-3.5-flash-lite"}
+DEFAULT_MODELS = {"groq": "openai/gpt-oss-120b", "gemini": "gemini-3.5-flash-lite"}
 TIMEOUT_SECONDS = 45
 MAX_OUTPUT_TOKENS = 2048
 USER_AGENT = "data-driven-curriculum/0.2 (+https://github.com/bekzatwr/data-driven-curriculum)"
@@ -74,12 +74,13 @@ def _post_json(url, payload, headers):
 
 def _groq(system, user):
     model = models()["groq"]
-    body = _post_json(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {"model": model, "temperature": 0.3, "max_tokens": MAX_OUTPUT_TOKENS,
-         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]},
-        {"Authorization": f"Bearer {os.environ['GROQ_API_KEY'].strip()}"},
-    )
+    payload = {"model": model, "temperature": 0.3, "max_tokens": MAX_OUTPUT_TOKENS,
+               "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
+    if model.startswith("openai/gpt-oss"):
+        # Модель рассуждает перед ответом: короткое рассуждение не съедает лимит токенов и быстрее.
+        payload["reasoning_effort"] = "low"
+    body = _post_json("https://api.groq.com/openai/v1/chat/completions", payload,
+                      {"Authorization": f"Bearer {os.environ['GROQ_API_KEY'].strip()}"})
     text = (body.get("choices") or [{}])[0].get("message", {}).get("content") or ""
     return model, text
 

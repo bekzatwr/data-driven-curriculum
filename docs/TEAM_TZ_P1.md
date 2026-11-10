@@ -63,7 +63,7 @@ P0 (импорт → обзор → сравнение → план → отчё
 `Comment`: `id, dataset_id, target_type, target_id, author_name, author_school, author_role, kind ("human"|"ai"), text, created_at (UTC)`.
 
 ### ИИ
-`GET /api/ai/status` → `{"configured": true, "providers": ["groq", "gemini"], "models": {"groq": "llama-3.3-70b-versatile", "gemini": "gemini-3.5-flash-lite"}}`
+`GET /api/ai/status` → `{"configured": true, "providers": ["groq", "gemini"], "models": {"groq": "openai/gpt-oss-120b", "gemini": "gemini-3.5-flash-lite"}}`
 
 `POST /api/datasets/{dataset_id}/ai/explain`
 ```json
@@ -78,7 +78,7 @@ P0 (импорт → обзор → сравнение → план → отчё
 | Переменная | По умолчанию | Назначение |
 | --- | --- | --- |
 | `GROQ_API_KEY` | — | Ключ Groq (бесплатный, console.groq.com) |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Модель Groq |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | Модель Groq |
 | `GEMINI_API_KEY` | — | Ключ Gemini (бесплатный, aistudio.google.com) |
 | `GEMINI_MODEL` | `gemini-3.5-flash-lite` | Модель Gemini |
 | `AI_PROVIDERS` | `groq,gemini` | Порядок попыток |
