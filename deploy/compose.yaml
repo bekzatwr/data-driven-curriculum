@@ -1,0 +1,32 @@
+name: ddc-hackathon
+services:
+  app:
+    image: ddc-hackathon:${IMAGE_TAG:-local}
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        APP_TARGET: ${APP_TARGET:-fullstack}
+        FRONTEND_DIR: ${FRONTEND_DIR:-web}
+        VITE_API_BASE_URL: ""
+    ports:
+      - "127.0.0.1:${HOST_PORT:-8080}:8000"
+    environment:
+      PORT: "8000"
+      DATABASE_PATH: ${DATABASE_PATH:-/app/data/curriculum.sqlite3}
+      DATA_MOUNT_PATH: /app/data
+      REQUIRE_PERSISTENT_STORAGE: "true"
+      REQUIRE_P0: "${REQUIRE_P0:-true}"
+      READ_ONLY_DEMO: "${READ_ONLY_DEMO:-true}"
+      CORS_ORIGINS: "${CORS_ORIGINS:-}"
+      FORWARDED_ALLOW_IPS: "127.0.0.1"
+    volumes:
+      - curriculum-data:/app/data
+    restart: unless-stopped
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+volumes:
+  curriculum-data:

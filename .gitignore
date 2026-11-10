@@ -12,3 +12,7 @@ web/dist/
 .DS_Store
 .idea/
 .vscode/
+deploy/.env
+deploy/test-logs/
+**/node_modules/
+**/dist/

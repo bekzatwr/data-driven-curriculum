@@ -1,0 +1,43 @@
+# PREPARED ONLY. Creating this Blueprint creates BILLABLE resources.
+# Do not apply before P0 + team review + the owner's budget approval.
+services:
+  - type: web
+    name: data-driven-curriculum
+    runtime: docker
+    repo: https://github.com/bekzatwr/data-driven-curriculum
+    branch: backend/bekzat
+    plan: 0.5c-512mb
+    region: frankfurt
+    numInstances: 1
+    autoDeployTrigger: "off"
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    maxShutdownDelaySeconds: 30
+    disk:
+      name: curriculum-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: APP_TARGET
+        value: fullstack
+      - key: FRONTEND_DIR
+        value: web
+      - key: VITE_API_BASE_URL
+        value: ""
+      - key: PORT
+        value: "8000"
+      - key: DATABASE_PATH
+        value: /app/data/curriculum.sqlite3
+      - key: DATA_MOUNT_PATH
+        value: /app/data
+      - key: REQUIRE_PERSISTENT_STORAGE
+        value: "true"
+      - key: REQUIRE_P0
+        value: "true"
+      - key: READ_ONLY_DEMO
+        value: "false"
+      - key: CORS_ORIGINS
+        value: ""
+      - key: FORWARDED_ALLOW_IPS
+        value: "*"

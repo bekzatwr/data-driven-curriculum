@@ -38,3 +38,15 @@ jobs:
         run: docker compose logs
       - if: always()
         run: docker compose down
+  deployment-rehearsal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python scripts/verify_deployment.py
+      - if: failure()
+        run: python -c "from pathlib import Path; [print(p.read_text()[-20000:]) for p in Path('data/deployment-checks').glob('*/docker.log')]"

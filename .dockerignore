@@ -4,6 +4,14 @@
 **/__pycache__
 data
 .env
-web
+**/node_modules
+**/dist
 *.docx
 backend/tests
+tests
+outputs
+*.sqlite3*
+*.db
+*.pem
+*.key
+.env.*
