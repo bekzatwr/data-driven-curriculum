@@ -1,0 +1,465 @@
+{
+  "recorded_at_utc": "2026-11-10T16:03:31.523725+00:00",
+  "tested_published_head": "de7c58598b61b31e8e29a4da4780cf54ed935688",
+  "environment": {
+    "web": "published React production build, no local frontend fix",
+    "api": "FastAPI + real SQLite, QA tee for planner HTTP",
+    "data": "synthetic demo only",
+    "base_url": "http://127.0.0.1:8768"
+  },
+  "tests": {
+    "full_pytest": {
+      "passed": 420,
+      "failed": 0,
+      "skipped": 0,
+      "subtests_passed_not_added": 102
+    },
+    "separate_qa": {
+      "passed": 22,
+      "failed": 0,
+      "skipped": 0
+    },
+    "frontend": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0
+    },
+    "typescript_python_parity_cases": 200,
+    "build": "passed",
+    "http_sqlite_e2e": "passed",
+    "docker": "not run; version command timed out at 20 seconds"
+  },
+  "browser": {
+    "csv_upload": "blocked by extension file access permission; not bypassed",
+    "demo_flow": "overview, topic analytics, comparison, P0 save, period preview, manual edit, save, report, CSV, reload, restart, reopen",
+    "full_csv_e2e": "NOT PASSED",
+    "period_stepper": "P1 critical: equations increment disabled at 7 despite max 8",
+    "initial_ui": [
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: Р”СЂРѕР±Рё",
+        "value": "8"
+      },
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: РЈСЂР°РІРЅРµРЅРёСЏ",
+        "value": "6"
+      },
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: РџСЂРѕРїРѕСЂС†РёРё",
+        "value": "4"
+      },
+      {
+        "disabled": true,
+        "label": "Р§Р°СЃС‹: Р“РµРѕРјРµС‚СЂРёСЏ",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: РЎС‚Р°С‚РёСЃС‚РёРєР°",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: РџРѕРІС‚РѕСЂРµРЅРёРµ",
+        "value": "1"
+      }
+    ],
+    "initial_preview_request": {
+      "class_id": "7A",
+      "settings": {
+        "target_pct": 70,
+        "donor_pct": 80,
+        "min_students": 10,
+        "max_change": 2,
+        "mode": "period"
+      }
+    },
+    "initial_response_items": [
+      {
+        "topic_id": "fractions",
+        "current_hours": 6,
+        "min_hours": 3,
+        "max_hours": 8,
+        "is_locked": false,
+        "proposed_hours": 8
+      },
+      {
+        "topic_id": "equations",
+        "current_hours": 5,
+        "min_hours": 3,
+        "max_hours": 8,
+        "is_locked": false,
+        "proposed_hours": 6
+      },
+      {
+        "topic_id": "proportions",
+        "current_hours": 4,
+        "min_hours": 2,
+        "max_hours": 6,
+        "is_locked": false,
+        "proposed_hours": 4
+      },
+      {
+        "topic_id": "geometry",
+        "current_hours": 3,
+        "min_hours": 2,
+        "max_hours": 5,
+        "is_locked": true,
+        "proposed_hours": 3
+      },
+      {
+        "topic_id": "statistics",
+        "current_hours": 4,
+        "min_hours": 2,
+        "max_hours": 5,
+        "is_locked": false,
+        "proposed_hours": 2
+      },
+      {
+        "topic_id": "revision",
+        "current_hours": 2,
+        "min_hours": 1,
+        "max_hours": 4,
+        "is_locked": false,
+        "proposed_hours": 1
+      }
+    ],
+    "ui_equals_server_proposed_hours": true,
+    "save_request": {
+      "class_id": "7A",
+      "settings": {
+        "target_pct": 70,
+        "donor_pct": 80,
+        "min_students": 10,
+        "max_change": 2,
+        "mode": "period"
+      },
+      "hours_by_topic": {
+        "fractions": 7,
+        "equations": 7,
+        "proportions": 4,
+        "geometry": 3,
+        "statistics": 2,
+        "revision": 1
+      },
+      "comment": "QA published de7c585: period manual 7/7/4/3/2/1; sum=24; locked geometry=3"
+    },
+    "save_status": 201,
+    "save_algorithm": "period_v1",
+    "save_plan_id": "15c7899c-020e-4476-b161-a91787fbf5f1",
+    "save_manually_modified": true,
+    "save_response_items": [
+      {
+        "topic_id": "fractions",
+        "current_hours": 6,
+        "min_hours": 3,
+        "max_hours": 8,
+        "is_locked": false,
+        "recommended_hours": 8,
+        "proposed_hours": 7,
+        "manually_modified": true
+      },
+      {
+        "topic_id": "equations",
+        "current_hours": 5,
+        "min_hours": 3,
+        "max_hours": 8,
+        "is_locked": false,
+        "recommended_hours": 6,
+        "proposed_hours": 7,
+        "manually_modified": true
+      },
+      {
+        "topic_id": "proportions",
+        "current_hours": 4,
+        "min_hours": 2,
+        "max_hours": 6,
+        "is_locked": false,
+        "recommended_hours": 4,
+        "proposed_hours": 4,
+        "manually_modified": false
+      },
+      {
+        "topic_id": "geometry",
+        "current_hours": 3,
+        "min_hours": 2,
+        "max_hours": 5,
+        "is_locked": true,
+        "recommended_hours": 3,
+        "proposed_hours": 3,
+        "manually_modified": false
+      },
+      {
+        "topic_id": "statistics",
+        "current_hours": 4,
+        "min_hours": 2,
+        "max_hours": 5,
+        "is_locked": false,
+        "recommended_hours": 2,
+        "proposed_hours": 2,
+        "manually_modified": false
+      },
+      {
+        "topic_id": "revision",
+        "current_hours": 2,
+        "min_hours": 1,
+        "max_hours": 4,
+        "is_locked": false,
+        "recommended_hours": 1,
+        "proposed_hours": 1,
+        "manually_modified": false
+      }
+    ],
+    "downloaded_csv_matches_api_bytes": true
+  },
+  "separate_http_plus_three": {
+    "request": {
+      "class_id": "7A",
+      "settings": {
+        "target_pct": 70,
+        "donor_pct": 80,
+        "min_students": 10,
+        "max_change": 2,
+        "mode": "period"
+      },
+      "hours_by_topic": {
+        "fractions": 6,
+        "equations": 8,
+        "proportions": 4,
+        "geometry": 3,
+        "statistics": 2,
+        "revision": 1
+      },
+      "comment": "HTTP-only verification beyond P0 +/-2; separate from browser save"
+    },
+    "status": 201,
+    "algorithm": "period_v1",
+    "items": [
+      {
+        "topic_id": "fractions",
+        "current_hours": 6,
+        "min_hours": 3,
+        "max_hours": 8,
+        "is_locked": false,
+        "recommended_hours": 8,
+        "proposed_hours": 6,
+        "manually_modified": true
+      },
+      {
+        "topic_id": "equations",
+        "current_hours": 5,
+        "min_hours": 3,
+        "max_hours": 8,
+        "is_locked": false,
+        "recommended_hours": 6,
+        "proposed_hours": 8,
+        "manually_modified": true
+      },
+      {
+        "topic_id": "proportions",
+        "current_hours": 4,
+        "min_hours": 2,
+        "max_hours": 6,
+        "is_locked": false,
+        "recommended_hours": 4,
+        "proposed_hours": 4,
+        "manually_modified": false
+      },
+      {
+        "topic_id": "geometry",
+        "current_hours": 3,
+        "min_hours": 2,
+        "max_hours": 5,
+        "is_locked": true,
+        "recommended_hours": 3,
+        "proposed_hours": 3,
+        "manually_modified": false
+      },
+      {
+        "topic_id": "statistics",
+        "current_hours": 4,
+        "min_hours": 2,
+        "max_hours": 5,
+        "is_locked": false,
+        "recommended_hours": 2,
+        "proposed_hours": 2,
+        "manually_modified": false
+      },
+      {
+        "topic_id": "revision",
+        "current_hours": 2,
+        "min_hours": 1,
+        "max_hours": 4,
+        "is_locked": false,
+        "recommended_hours": 1,
+        "proposed_hours": 1,
+        "manually_modified": false
+      }
+    ]
+  },
+  "restart": {
+    "passed": true,
+    "old_pid": 41564,
+    "new_pid": 42632,
+    "unchanged_saved_snapshots": 3,
+    "algorithms": [
+      "period_v1",
+      "rules_v1"
+    ],
+    "period_json_unchanged": true,
+    "period_csv_bytes_unchanged": true,
+    "sqlite_integrity": "ok",
+    "actual_browser_reopen_verified": true
+  },
+  "pr10": {
+    "baseRefName": "integration/p0-server",
+    "headRefName": "feature/aidana-period-planner",
+    "headRefOid": "62ad936ed19eab9e3beade22fd93dd3253849b33",
+    "mergeable": "MERGEABLE",
+    "number": 10,
+    "reviewRequests": [
+      {
+        "__typename": "User",
+        "login": "bekzatwr"
+      }
+    ],
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:53Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827097017/job/129867151304",
+        "name": "backend",
+        "startedAt": "2026-11-10T13:43:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:40Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827088539/job/129867120126",
+        "name": "backend",
+        "startedAt": "2026-11-10T13:43:14Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:36Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827097077/job/129867152040",
+        "name": "planner",
+        "startedAt": "2026-11-10T13:43:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Planner checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:30Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827088854/job/129867121055",
+        "name": "planner",
+        "startedAt": "2026-11-10T13:43:15Z",
+        "status": "COMPLETED",
+        "workflowName": "Planner checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:34Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827097149/job/129867152142",
+        "name": "analytics (ubuntu-latest)",
+        "startedAt": "2026-11-10T13:43:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Toni analytics"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:25Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827088607/job/129867122108",
+        "name": "analytics (ubuntu-latest)",
+        "startedAt": "2026-11-10T13:43:15Z",
+        "status": "COMPLETED",
+        "workflowName": "Toni analytics"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:50Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827097149/job/129867151352",
+        "name": "analytics (windows-latest)",
+        "startedAt": "2026-11-10T13:43:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Toni analytics"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827088607/job/129867122564",
+        "name": "analytics (windows-latest)",
+        "startedAt": "2026-11-10T13:43:15Z",
+        "status": "COMPLETED",
+        "workflowName": "Toni analytics"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827097017/job/129867151584",
+        "name": "container",
+        "startedAt": "2026-11-10T13:43:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:41Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827088539/job/129867120359",
+        "name": "container",
+        "startedAt": "2026-11-10T13:43:15Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:54Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827097017/job/129867151661",
+        "name": "deployment-rehearsal",
+        "startedAt": "2026-11-10T13:43:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T13:43:53Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42827088539/job/129867120488",
+        "name": "deployment-rehearsal",
+        "startedAt": "2026-11-10T13:43:14Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      }
+    ],
+    "title": "Planner: серверный period_v1, атомарные отчёты и интеграционный QA",
+    "url": "https://github.com/bekzatwr/data-driven-curriculum/pull/10"
+  },
+  "sha256": {
+    "full-tests.log": "2f655cba4f0ebbe92f3873fb1d9cc4f940e343d669446cad1f4b9a8f2c2e3210",
+    "full-tests.xml": "06dfb57238a87127d41cbe7003399b5872ad574f16718fcabf7e83470ad7c8ac",
+    "extra-qa.log": "171b7c9ee27bbcf037709e84efe06e7a727094d0ba51b381217b7c1315e85d47",
+    "extra-qa.xml": "6496dbab50426d8cad9e85a311bc578a37f5d81c67bb85738e663a64ac433446",
+    "frontend-tests.log": "511ff73718f2a8fa3b1f4b98a81a97c94e815ad1544b55ca492592b0b188c7f2",
+    "frontend-build.log": "9418f522bc3d227833be4b7f569a6df50cc4f0454d60863d261067b29102ed0e",
+    "period-parity.log": "4393dbb0d4d12e4ec430ed44eac17d27649e36d89ea1aaec3e81da815fd0f49b",
+    "http-e2e.log": "b3ff4a3108c8c0670eef02d6605b8251cd9bfc8b1bade869655fd707c6a85060",
+    "browser-export-before-restart.csv": "41d9f4117bbbff858c87b7648e316fb5bbba93be2ed95d2ed55e3b13dda23b9f"
+  }
+}
