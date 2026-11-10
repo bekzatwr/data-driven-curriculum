@@ -7,6 +7,7 @@ import { Brand } from '../components/Logo';
 import { Badge, Button, DemoBadge, ErrorState, LoadingBlock, StatusBadge } from '../components/ui';
 import { fmtDate, fmtDateTimeUtc5, fmtNum, fmtPct, fmtPp, fmtShare, fmtSigned, isNum, plural } from '../lib/format';
 import { COMPARISON_STATUS } from '../lib/status';
+import { readOnlyReason, useFeatures } from '../lib/features';
 import { getRecentPlans } from '../lib/storage';
 import { useAsync } from '../lib/useAsync';
 import { useApp } from '../state/app';
@@ -20,6 +21,8 @@ import { useDataset } from '../state/dataset';
 export function BriefPage() {
   const { datasetId, dataset, filters } = useDataset();
   const { lastPlanId } = useApp();
+  const features = useFeatures();
+  const saveAllowed = !features.off('plan_save');
   const books = filters.textbooks;
   const bookA = books[0]?.id ?? null;
   const bookB = books[1]?.id ?? null;
@@ -115,7 +118,9 @@ export function BriefPage() {
           <h2>3. План учебных часов</h2>
           {!planId ? (
             <p className="muted">
-              Сохранённого плана для этого набора нет. Составьте и сохраните план на шаге «План часов» — он появится в справке.
+              {saveAllowed
+                ? 'Сохранённого плана для этого набора нет. Составьте и сохраните план на шаге «План часов» — он появится в справке.'
+                : `${readOnlyReason(features.readOnly)} Поэтому справка здесь без раздела плана; расчёт плана можно посмотреть на шаге «План часов».`}
             </p>
           ) : plan.error != null ? (
             <ErrorState error={plan.error} onRetry={plan.reload} compact />
