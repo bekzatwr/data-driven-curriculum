@@ -44,6 +44,33 @@ class TeachersApiTests(unittest.TestCase):
         fields = schema['components']['schemas']['TeacherMetrics']
         self.assertIn('n_paired_students', fields['required'])
         self.assertIn('paired_student_share', fields['required'])
+        self.assertIn('mean_pre_paired_pct', fields['required'])
+        self.assertIn('mean_post_paired_pct', fields['required'])
+
+    def test_valid_csv_keeps_paired_means_separate_from_all_post_mean(self):
+        topics, records = demo_records()
+        paired = [record for record in records if record['student_id'] == 'S001'
+                  and record['topic_id'] == 'fractions']
+        paired = [{**record, 'score': 40 if record['stage'] == 'pre' else 60} for record in paired]
+        unpaired = next(record for record in records if record['student_id'] == 'S002'
+                        and record['topic_id'] == 'fractions' and record['stage'] == 'post')
+        sample = [*paired, {**unpaired, 'score': 100}]
+        response = self.client.post('/api/datasets/import?dry_run=false',
+            data={'metadata': json.dumps(METADATA)}, files={
+                'results_file': ('results.csv', _csv(RESULT_FIELDS, sample)),
+                'curriculum_file': ('curriculum.csv', _csv(TOPIC_FIELDS, topics)),
+            })
+        self.assertEqual(response.status_code, 201, response.text)
+        response = self.client.get(f"/api/datasets/{response.json()['dataset_id']}/teachers",
+                                   params={'class_ids': '7A'})
+        self.assertEqual(response.status_code, 200, response.text)
+        teacher = response.json()['teachers'][0]
+        self.assertEqual(teacher['n_post'], 2)
+        self.assertEqual(teacher['n_pairs'], 1)
+        self.assertEqual(teacher['mean_post_pct'], 80)
+        self.assertEqual(teacher['mean_pre_paired_pct'], 40)
+        self.assertEqual(teacher['mean_post_paired_pct'], 60)
+        self.assertEqual(teacher['mean_gain_pp'], 20)
 
     def test_valid_csv_reports_one_paired_pupil_across_six_topics(self):
         topics, records = demo_records()

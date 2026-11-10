@@ -37,6 +37,8 @@ def compute_teachers(records, topics, filters=None, settings=None):
     with at least one compatible pair; its share uses ``n_post_students`` as
     the denominator. Pairs require the same teacher group
     at both stages in addition to the shared assessment compatibility rules.
+    Paired pre/post means use those same observations as the gain, whereas
+    ``mean_post_pct`` also includes final results without a pair.
     Hours per class always use the complete curriculum, even after filtering.
     """
     settings = normalize_settings(settings)
@@ -95,6 +97,8 @@ def compute_teachers(records, topics, filters=None, settings=None):
             "n_pairs": len(pairs),
             "n_paired_students": paired_students,
             "paired_student_share": paired_students / post_students if post_students else None,
+            "mean_pre_paired_pct": mean(percentage(pre) for pre, _ in pairs) if pairs and not mixed else None,
+            "mean_post_paired_pct": mean(percentage(post) for _, post in pairs) if pairs and not mixed else None,
             "mean_gain_pp": mean(percentage(post) - percentage(pre) for pre, post in pairs) if pairs and not mixed else None,
             "pair_coverage": len(pairs) / len(posts) if posts else None,
             "upcoming_hours": len(class_ids) * hours_per_class,

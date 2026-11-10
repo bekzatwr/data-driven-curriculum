@@ -35,6 +35,9 @@ class TeacherMetricsTests(unittest.TestCase):
             self.assertEqual(teacher["n_paired_students"], 30)
             self.assertEqual(teacher["paired_student_share"], 1)
             self.assertEqual(teacher["pair_coverage"], 1)
+            self.assertEqual(teacher["mean_post_paired_pct"], teacher["mean_post_pct"])
+            self.assertAlmostEqual(teacher["mean_post_paired_pct"] - teacher["mean_pre_paired_pct"],
+                                   teacher["mean_gain_pp"])
             self.assertFalse(teacher["is_missing_teacher"])
         self.assertAlmostEqual(result["teachers"][0]["mean_post_pct"], 434 / 6)
         self.assertAlmostEqual(result["teachers"][0]["mean_gain_pp"], 73 / 6)
@@ -98,6 +101,8 @@ class TeacherMetricsTests(unittest.TestCase):
         self.assertEqual(first["upcoming_hours"], 24)
         self.assertEqual(first["n_post"], 0)
         self.assertIsNone(first["mean_post_pct"])
+        self.assertIsNone(first["mean_pre_paired_pct"])
+        self.assertIsNone(first["mean_post_paired_pct"])
         self.assertIsNone(first["pair_coverage"])
         self.assertEqual(first["n_paired_students"], 0)
         self.assertIsNone(first["paired_student_share"])
@@ -107,6 +112,27 @@ class TeacherMetricsTests(unittest.TestCase):
         self.assertEqual(second["n_paired_students"], 0)
         self.assertEqual(second["paired_student_share"], 0)
         self.assertIsNone(second["mean_gain_pp"])
+        self.assertIsNone(second["mean_pre_paired_pct"])
+        self.assertIsNone(second["mean_post_paired_pct"])
+
+    def test_paired_means_exclude_unmatched_pre_and_high_post(self):
+        records = [row("paired", 40, stage="pre"), row("paired", 60),
+                   row("post-only", 100), row("pre-only", 100, stage="pre")]
+        teacher = compute_teachers(records, TOPICS)["teachers"][0]
+        self.assertEqual(teacher["n_post"], 2)
+        self.assertEqual(teacher["n_pairs"], 1)
+        self.assertEqual(teacher["n_paired_students"], 1)
+        self.assertEqual(teacher["mean_post_pct"], 80)
+        self.assertEqual(teacher["mean_pre_paired_pct"], 40)
+        self.assertEqual(teacher["mean_post_paired_pct"], 60)
+        self.assertEqual(teacher["mean_gain_pp"], 20)
+        self.assertEqual(teacher["mean_post_paired_pct"] - teacher["mean_pre_paired_pct"], teacher["mean_gain_pp"])
+
+    def test_zero_paired_means_are_numbers_and_not_null(self):
+        teacher = compute_teachers([row("zero", 0, stage="pre"), row("zero", 0)], TOPICS)["teachers"][0]
+        self.assertEqual(teacher["mean_pre_paired_pct"], 0)
+        self.assertEqual(teacher["mean_post_paired_pct"], 0)
+        self.assertEqual(teacher["mean_gain_pp"], 0)
 
     def test_many_topic_pairs_of_one_pupil_do_not_inflate_paired_students(self):
         topics = [{"topic_id": f"t{i}", "current_hours": 4} for i in range(6)]
@@ -160,6 +186,8 @@ class TeacherMetricsTests(unittest.TestCase):
                    row("b", 2, maximum=10, stage="pre"), row("b", 5, maximum=10)]
         teacher = compute_teachers(records, TOPICS)["teachers"][0]
         self.assertEqual(teacher["mean_post_pct"], 45)
+        self.assertEqual(teacher["mean_pre_paired_pct"], 50)
+        self.assertEqual(teacher["mean_post_paired_pct"], 45)
         self.assertEqual(teacher["mean_gain_pp"], -5)
         self.assertEqual(teacher["n_pairs"], 2)
         self.assertEqual(teacher["n_paired_students"], 2)
@@ -179,10 +207,14 @@ class TeacherMetricsTests(unittest.TestCase):
         self.assertEqual(teacher["mixed_topic_ids"], ["t1"])
         self.assertEqual(teacher["n_pairs"], 2)
         self.assertIsNone(teacher["mean_post_pct"])
+        self.assertIsNone(teacher["mean_pre_paired_pct"])
+        self.assertIsNone(teacher["mean_post_paired_pct"])
         self.assertIsNone(teacher["mean_gain_pp"])
         filtered = compute_teachers(records, TOPICS, {"test_version": "v2"})["teachers"][0]
         self.assertEqual(filtered["mean_post_pct"], 80)
         self.assertEqual(filtered["mean_gain_pp"], 60)
+        self.assertEqual(filtered["mean_pre_paired_pct"], 20)
+        self.assertEqual(filtered["mean_post_paired_pct"], 80)
         self.assertEqual(filtered["n_paired_students"], 1)
         self.assertEqual(filtered["paired_student_share"], 1)
         self.assertEqual(filtered["mixed_topic_ids"], [])

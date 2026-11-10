@@ -1186,6 +1186,28 @@
             ],
             "title": "Mean Post Pct"
           },
+          "mean_pre_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Pre Paired Pct"
+          },
+          "mean_post_paired_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Paired Pct"
+          },
           "mean_gain_pp": {
             "anyOf": [
               {
@@ -1255,6 +1277,8 @@
           "n_post",
           "n_post_students",
           "mean_post_pct",
+          "mean_pre_paired_pct",
+          "mean_post_paired_pct",
           "mean_gain_pp",
           "n_pairs",
           "n_paired_students",
