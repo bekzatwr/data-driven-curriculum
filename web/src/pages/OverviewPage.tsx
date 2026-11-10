@@ -12,7 +12,6 @@ import {
   Grid3X3,
   Percent,
   Scale,
-  Sparkles,
   Table2,
   Users,
 } from 'lucide-react';
@@ -159,18 +158,12 @@ function Insight({ data, onSelectTopic }: { data: Overview; onSelectTopic: (id: 
   const below = worst && (worst.mean_post_pct as number) < thr;
   return (
     <section className={`insight fade-up ${n > 0 ? 'bad' : 'ok'}`}>
-      <span className="insight-icon">
-        <Sparkles size={18} />
-      </span>
       <div className="insight-body">
         <div className="insight-kicker">Главный вывод</div>
         <div className="insight-title">
           {n > 0 ? (
             <>
-              <span className="grad-text">
-                {n} {plural(n, ['тема', 'темы', 'тем'])} из {total}
-              </span>{' '}
-              — {plural(n, ['проблемная', 'проблемные', 'проблемные'])}
+              {n} {plural(n, ['тема', 'темы', 'тем'])} из {total} — {plural(n, ['проблемная', 'проблемные', 'проблемные'])}
             </>
           ) : (
             'Проблемных тем нет'
@@ -301,7 +294,7 @@ function OverviewBody({
 
         <div className={`kpi ${isNum(m.mean_post_pct) ? 'has-ring' : ''}`}>
           {isNum(m.mean_post_pct) && (
-            <Ring value={m.mean_post_pct} marker={s.threshold_pct} tone={m.mean_post_pct < s.threshold_pct ? 'critical' : 'accent'}>
+            <Ring value={m.mean_post_pct} marker={s.threshold_pct} tone={m.mean_post_pct < s.threshold_pct ? 'critical' : 'ink'}>
               <Percent size={14} />
             </Ring>
           )}
