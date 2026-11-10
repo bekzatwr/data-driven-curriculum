@@ -4,7 +4,7 @@
 
 **Конфигурация облака подготовлена; публичный запуск — NO-GO.** Docker и серверный P0 проходят локальную приёмку. Реального опубликованного URL нет в материалах этой проверки; HTTPS, кабинет Render и актуальный мобильный UI не проверены. Платные ресурсы, Supabase и production deployment не создавались.
 
-Ветка: `deployment/bekzat-cloud-readiness`, база — PR #6 (`feature/bekzat-p1-infrastructure:cfce13d`). Инфраструктурный кандидат: **`040fac8234a237ec93dc02e1ad38fd02d61bb691`**. Он включает свежий frontend Дамира **`c1e6e0177ffbddc2d3d151651471f41e84df26a2`** через обычный merge. Последующие изменения этой проверки — отчёт и документация. Кандидат не является разрешённым публичным релизом: после исправлений UI зафиксировать новый SHA и повторить необходимые проверки.
+Ветка: `deployment/bekzat-cloud-readiness`, база — PR #6 (`feature/bekzat-p1-infrastructure:cfce13d`). Fullstack-кандидат: **`8bc88ed74aec717c67266e8b6e96199a3c75a7b5`**; release gates и backend проверены на `040fac8`, после него Python-код не менялся. [Cloud PR #8](https://github.com/bekzatwr/data-driven-curriculum/pull/8). Он включает свежий frontend Дамира **`03395ef5db68ac9fab379f622ddf6fbe09112327`** через обычный merge. Последующие изменения этой проверки — отчёт и документация. Кандидат не является разрешённым публичным релизом: после исправлений UI зафиксировать новый SHA и повторить необходимые проверки.
 
 ## 1. Аудит без дублирования инфраструктуры
 
@@ -12,10 +12,10 @@
 | --- | --- | --- | --- |
 | main | `3ebe857` | Не изменялся | Отдельный planner; fullstack ещё не объединён |
 | [PR #3](https://github.com/bekzatwr/data-driven-curriculum/pull/3) | `b25891c` | 3 workflows successful | Draft, открыт, submitted reviews отсутствуют |
-| [PR #4](https://github.com/bekzatwr/data-driven-curriculum/pull/4) | `c1e6e01` | 3 workflows successful | Открыт, submitted reviews отсутствуют |
+| [PR #4](https://github.com/bekzatwr/data-driven-curriculum/pull/4) | `03395ef` | 3 workflows successful | Открыт, submitted reviews отсутствуют |
 | [PR #6](https://github.com/bekzatwr/data-driven-curriculum/pull/6) | `cfce13d` | 4 workflows successful / 8 jobs | Draft, открыт, submitted reviews отсутствуют |
 
-Backend, FastAPI, SQLite, Docker stages, mount guard, health, SPA, PublicDemoGuard, seed и backup уже реализованы в PR #6 и переиспользованы. Конфликтов при подключении трёх новых frontend-коммитов после `68f5a56` нет. `web/` точно совпадает с `c1e6e01`; `backend/app`, `planner`, `analytics`, `collab` не изменены относительно PR #6. Бизнес-алгоритмы и API-контракты сохранены.
+Backend, FastAPI, SQLite, Docker stages, mount guard, health, SPA, PublicDemoGuard, seed и backup уже реализованы в PR #6 и переиспользованы. Конфликтов при подключении новых frontend-коммитов после `68f5a56`, включая смену дизайна и mobile overflow fix `03395ef` нет. `web/` точно совпадает с `03395ef`; `backend/app`, `planner`, `analytics`, `collab` не изменены относительно PR #6. Бизнес-алгоритмы и API-контракты сохранены.
 
 Добавлено только необходимое для cloud readiness:
 
@@ -45,7 +45,7 @@ Free не поддерживает persistent disk; локальная SQLite т
 
 Один worker, один instance; данные, WAL и SHM — внутри `/app/data`. Диск доступен только работающему instance, не build/pre-deploy/one-off job. Deploy с диском имеет краткий простой; горизонтального масштабирования с ним нет. [Ограничения дисков](https://render.com/docs/disks).
 
-В локальном Docker с лимитами **512 MiB / 0.5 CPU** startup и подготовка synthetic report прошли; замер сразу после seed — **49.93 MiB**. Это не нагрузочное испытание Render и не обещание расхода при максимальных 10 000 строках.
+На промежуточной сборке frontend `c1e6e01` с тем же backend в локальном Docker с лимитами **512 MiB / 0.5 CPU** startup и подготовка synthetic report прошли; замер сразу после seed — **49.93 MiB**. Это не нагрузочное испытание Render и не обещание расхода при максимальных 10 000 строках.
 
 ## 3. Supabase: feasibility audit
 
@@ -82,7 +82,7 @@ Supabase Free: 500 MB database, 5 GB egress, пауза после недели 
 
 `python deploy/seed_demo_report.py` — существующая операторская команда внутри работающего контейнера. Она использует встроенные синтетические CSV и обычные алгоритмы Тони/Айданы, не принимает внешние файлы, не отключает HTTP-защиту и повторно использует тот же snapshot. Публичный пользователь не получает shell или backup endpoint.
 
-Локальная Docker-репетиция импортировала два synthetic CSV: 120 учеников, 1 440 строк, 720 pre/post пар. Сравнение: **8 п.п.**, план `7A`: **24 часа**. Report ID репетиции: `bceb2e67-cb9e-4407-9a58-abf7da4ba756` (временная тестовая БД уже удалена). Долговременный локальный QA volume содержит отдельный report `9a1436aa-0d9e-4095-8254-c4fca3b9a364`; это локальный артефакт, не облачная ссылка.
+Локальная Docker-репетиция импортировала два synthetic CSV: 120 учеников, 1 440 строк, 720 pre/post пар. Сравнение: **8 п.п.**, план `7A`: **24 часа**. Report ID репетиции: `c1ac4b9c-d460-4e42-b20c-93d5592d4fd2` (временная тестовая БД уже удалена). Дополнительный локальный QA-контейнер остановлен после проверки; его volume сохранён и содержит отдельный report `9a1436aa-0d9e-4095-8254-c4fca3b9a364`; это локальный артефакт, не облачная ссылка.
 
 ## 5. Environment variables
 
@@ -117,7 +117,7 @@ AI keys и другие secret values не требуются. Их нельзя
 1. **Аккаунт.** Владелец входит в свой Render workspace с правом создавать Web Service и управлять billing. Достаточен Hobby + оплачиваемый compute; отдельный Pro workspace для одного демо не требуется. Сверить стоимость/лимиты в кабинете. Доступ к кабинету в этой проверке отклонён, существующие ресурсы и платежный профиль не подтверждены.
 2. **GitHub.** В Render подключить свой GitHub и предоставить доступ только к нужному репозиторию. OAuth/permissions и billing владелец подтверждает в интерфейсе; токены не присылать в чат.
 3. **Репозиторий.** Выбрать `bekzatwr/data-driven-curriculum`. Использовать один Docker Web Service/Blueprint с `deploy/render.yaml`; не создавать параллельно второй сервис или базу. Если ресурс уже существует, сначала сверить его настройки.
-4. **Commit.** После team review взять точный полный SHA принятой cloud-сборки. Подготовленный код этой проверки — `040fac8234a237ec93dc02e1ad38fd02d61bb691`; текущий кандидат ещё не разрешён к публикации. У последующих UI-исправлений SHA будет другой. Сверить CI именно выбранного SHA; использовать Manual Deploy → Deploy a specific commit. `autoDeployTrigger=off` оставить выключенным. [Ручной deploy по SHA](https://render.com/docs/deploys).
+4. **Commit.** После team review взять точный полный SHA принятой cloud-сборки. Подготовленный fullstack-код этой проверки — `8bc88ed74aec717c67266e8b6e96199a3c75a7b5`; текущий кандидат ещё не разрешён к публикации. У последующих UI-исправлений SHA будет другой. Сверить CI именно выбранного SHA; использовать Manual Deploy → Deploy a specific commit. `autoDeployTrigger=off` оставить выключенным. [Ручной deploy по SHA](https://render.com/docs/deploys).
 5. **Docker.** Context `.`, Dockerfile `./Dockerfile`, `APP_TARGET=fullstack`, `FRONTEND_DIR=web`, пустой `VITE_API_BASE_URL`. Не задавать npm в Start Command: Node используется только на build stage, runtime — FastAPI. Build должен закончиться `tsc -b && vite build` и fullstack stage.
 6. **Env и health.** Перенести несекретные значения таблицы выше, health path `/api/health`, region Frankfurt, один instance `0.5c-512mb`. Сохранить AI off и обе public/read-only защиты. На первом запуске проверить health 200 и отсутствие ошибок mount/write permissions. Не отключать guard при ошибке прав диска.
 7. **Persistent disk.** Только после разрешения бюджета прикрепить 1 GB к `/app/data`. Убедиться, что `DATABASE_PATH` находится под mount, включая WAL/SHM. Не импортировать существующую школьную БД и не настраивать seed в build/pre-deploy. [Disk runtime rules](https://render.com/docs/disks).
@@ -154,8 +154,8 @@ python -m backend.app.db.backup --source /app/data/backups/release-20261111-1800
 | Release precheck после финальной правки | 18 passed, 0 failed, 0 skipped; 7.56 s |
 | Исходные planner unittest | 7 passed; 1.177 s |
 | OpenAPI + analytics contracts | Оба экспорта выполнены; `git diff --exit-code -- contracts` = 0 |
-| Backend + actual React Docker build | Успешно, новый frontend `c1e6e01` |
-| Frontend TypeScript | `npm run typecheck` в Node 22 Docker: exit 0; build также включает `tsc -b` |
+| Backend + actual React Docker build | Успешно, новый frontend `03395ef` |
+| Frontend TypeScript | Node 22: отдельный typecheck прошёл на `c1e6e01`; финальный Docker build `03395ef` прошёл `tsc -b`. Standalone typecheck текущего HEAD также запускается в PR #8 |
 | Docker HTTP smoke / server E2E | **16 групп passed**, 0 failed; [JSON evidence](bekzat-cloud-deployment-check.local.json) |
 | Persistence / restore | Restart, replacement и новый volume после backup: данные/аналитика/comparison/планы/CSV/comments совпадают |
 | Публичный режим | 403 для всех изменяющих операций, SQL dump до/после совпадает, real preview/report/CSV доступны |
@@ -163,12 +163,14 @@ python -m backend.app.db.backup --source /app/data/backups/release-20261111-1800
 | Render YAML | Официальная JSON Schema: 0 ошибок; autoDeploy off, disk 1 GB `/app/data` |
 | Compose | Root, fullstack и local override успешно разобраны |
 | Frontend test / lint | Не запускались: npm scripts отсутствуют; handoff checker exit 2 с этими двумя блокерами |
-| Browser на текущем `c1e6e01` | Не выполнен: доступ к локальному URL отклонён |
+| Browser на текущем `03395ef` | Не выполнен: доступ к локальному URL отклонён |
 | Настоящий HTTPS / другой ноутбук / физические телефоны | Не проверены: разрешённый публичный deployment отсутствует |
 
 Первый Windows pytest завершился **99 passed / 219 setup errors**, потому что недоступен старый `%TEMP%/pytest-of-user`. Диагностический `-x` подтвердил WinError 5. Повторный полный запуск использовал новый `--basetemp` внутри проекта и прошёл; права системных каталогов и ожидаемые результаты тестов не изменялись. Предупреждение Starlette о httpx относится к существующим dev dependencies.
 
-Docker evidence получен на исходниках merge `f05df67` с тогда незакоммиченными release-check изменениями (`source_dirty=true` честно сохранён). Последующая правка затрагивает только скрытие невалидного URL и regression test; runtime backend и React image не менялись. Полный финальный pytest `040fac8` прошёл (319). CI текущего HEAD фиксируется в PR после push; не переносить зелёный статус предыдущего SHA на новый.
+Финальная Docker-репетиция `ddc-check-7492eb8820` выполнена на чистом commit `8bc88ed` (`source_dirty=false`) с frontend `03395ef`. Все 16 групп прошли повторно после обновления Дамира. Полный локальный pytest прошёл на неизменённом Python-коде `040fac8` (319).
+
+Промежуточный CI checkpoint `9e7da61` прошёл 8/8 jobs: [backend + Docker](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42817247796), [frontend](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42817247748), [analytics](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42817247709), [planner](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42817247661); pytest 319 passed за 30.37 s. Это предыдущая сборка `c1e6e01`. **CI текущего HEAD и окончательные ссылки фиксируются в [PR #8](https://github.com/bekzatwr/data-driven-curriculum/pull/8)**; перед публикацией сверять конкретный SHA, не переносить старый зелёный статус на новый.
 
 ## 8. Мобильная и внешняя приёмка после разрешённого deploy
 
@@ -185,9 +187,9 @@ Docker evidence получен на исходниках merge `f05df67` с то
 ## 9. Блокеры, ответственные и решение до дедлайна
 
 - **Владелец Render / Бекзат:** войти в кабинет, сверить существующие ресурсы/права/тариф, разрешить бюджет и deploy после P0 review; затем проверить реальный HTTPS, диск, SSH backup и restart.
-- **Дамир:** public capabilities (`plan_save`, `comments_write`, `ai_explain`), корректные disabled состояния и сообщения; npm test/lint; timeout + Retry; приёмка нового дизайна на шести ширинах. По исходникам элементы save/comments/AI пока не полностью учитывают серверную политику. Backend их надёжно блокирует.
+- **Дамир:** public capabilities (`plan_save`, `comments_write`, `ai_explain`), корректные disabled состояния и сообщения; npm test/lint; timeout + Retry; приёмка нового дизайна на шести ширинах. По исходникам элементы save/comments/AI пока не полностью учитывают серверную политику. Backend их надёжно блокирует. Декоративный HeroPreview содержит статические числа и должен явно обозначаться как пример; рабочие экраны используют реальные API-расчёты.
 - **Дамир + Тони:** AI-контекст frontend всё ещё использует старый запрос; AI оставить выключенным. Teachers/period остаются прототипами и не должны выдавать себя за готовые API. Не включать P1-функции для закрытия P0.
-- **Айдана / Тони / команда:** review P0/PR #6 и cloud PR, подтверждение интеграции. Наличие зелёного CI не является approve.
+- **Айдана / Тони / команда:** review P0/PR #6 и cloud PR, подтверждение интеграции. Наличие зелёного CI не является approve. PR #8 открыт отдельно к P1-ветке, PR #7 — только README к main.
 - **Бекзат + Дамир:** завершить финальную browser/device приёмку и полный сценарий локального writable стенда на утверждённом SHA; 11 ноября до 18:00 заморозить функции, до 22:00 закончить проверку и материалы.
 
 **GO — локальное серверное демо. GO — передача cloud-ветки на интеграционный review. NO-GO — публичный запуск:** нет проверенного HTTPS, review, разрешённого ресурса и свежей browser/mobile приёмки; UI-блокеры остаются. С другого устройства через интернет сейчас открыть подтверждённый сайт нельзя: готовой внешней ссылки в этой проверке нет.
@@ -201,6 +203,6 @@ Docker evidence получен на исходниках merge `f05df67` с то
 | Public demo | Synthetic seed/report, запрет записи и AI | Read-only UX на актуальном frontend | Capabilities UI | Дамир |
 | Supabase audit | Миграция не нужна к хакатону | Ничего для текущего MVP | Нет | Бекзат |
 | Backup/rollback | Online backup и новый restore volume проверены | Off-service копия и репетиция на Render | Требуется кабинет/SSH | Бекзат + владелец |
-| Тесты и контракты | Pytest, planner, Docker 16 групп, schema и contracts | CI финального SHA и frontend test/lint | Нет npm scripts | Бекзат / Дамир |
+| Тесты и контракты | Pytest, planner, Docker 16 групп, schema и contracts | Проверка CI выбранного релиза; frontend test/lint | Нет npm scripts | Бекзат / Дамир |
 | HTTPS/mobile | Runbook, read-only precheck, матрица и baseline | Реальный URL, устройства, reload/timeout/export | Deploy не выполнен, browser доступ отклонён | Бекзат + Дамир |
 | Публичный запуск | Подготовлена отдельная ветка для review | Review → разрешение → deploy → приёмка | NO-GO до закрытия условий | Капитан + команда |

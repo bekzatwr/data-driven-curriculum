@@ -21,7 +21,7 @@
 
 > [!IMPORTANT]
 > **10 ноября 2026 · cloud readiness на review.**
-> `deployment/bekzat-cloud-readiness` объединяет сервер `b25891c`, безопасный public mode и настоящий React Дамира из PR #4 (`c1e6e01`).
+> `deployment/bekzat-cloud-readiness` объединяет сервер `b25891c`, безопасный public mode и настоящий React Дамира из PR #4 (`03395ef`).
 > Сайт пока не опубликован. AI выключен; учительская нагрузка и план на период — прототипы интерфейса, серверная реализация ожидает владельцев.
 > [Актуальная готовность облака](docs/BEKZAT_CLOUD_READINESS.md) · [README для главной страницы: PR #7](https://github.com/bekzatwr/data-driven-curriculum/pull/7).
 > [Полный отчёт Бекзата](docs/BEKZAT_P1_STATUS.md) · [P1-контракт и handoff](docs/BEKZAT_P1_API.md). `main` и чужие ветки не меняются.
@@ -51,7 +51,7 @@
 
 ![Отчёт из React Дамира после импорта, ручной правки и перезапуска API](docs/assets/p1-report-desktop.png)
 
-Скриншот предыдущей сборки frontend `68f5a56`, не текущего дизайна `c1e6e01`. Локальный сценарий на синтетических CSV: сумма 24 часа, две ручные правки; snapshot и комментарий пережили перезапуск. [Экран 360 px](docs/assets/p1-report-mobile.png) · [Результаты проверок](docs/BEKZAT_P1_STATUS.md).
+Скриншот предыдущей сборки frontend `68f5a56`, не текущего дизайна `03395ef`. Локальный сценарий на синтетических CSV: сумма 24 часа, две ручные правки; snapshot и комментарий пережили перезапуск. [Экран 360 px](docs/assets/p1-report-mobile.png) · [Результаты проверок](docs/BEKZAT_P1_STATUS.md).
 
 </details>
 

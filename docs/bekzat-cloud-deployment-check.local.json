@@ -4,17 +4,17 @@
   "full_p0_verified": false,
   "synthetic_data_only": true,
   "frontend": "actual web/ build; browser QA reported separately",
-  "frontend_tree": "816645e88e86343f100c8a4731ecc8359c476727",
-  "source_commit": "f05df67a6a40fb1be2a0959537096761e2bfa063",
-  "source_dirty": true,
+  "frontend_tree": "5df386a4b0ddb3eb393d15aade7cf3ae5d427fc8",
+  "source_commit": "8bc88ed74aec717c67266e8b6e96199a3c75a7b5",
+  "source_dirty": false,
   "comments_persistence_verified": true,
   "ai_provider_calls": 0,
   "public_read_only_verified": true,
-  "public_report_id": "bceb2e67-cb9e-4407-9a58-abf7da4ba756",
+  "public_report_id": "c1ac4b9c-d460-4e42-b20c-93d5592d4fd2",
   "analytics_available": true,
   "comparison_available": true,
-  "dataset_id": "ab4886ef-83b5-4ff2-8d4c-035ab95e94d4",
-  "plan_id": "98946ffe-ad03-4f9f-8dc5-0d8843e10848",
+  "dataset_id": "80f6f651-8dcd-4c8a-819a-7d96ce6ccc24",
+  "plan_id": "4f3a0c8b-c16d-4dad-9c9c-55deb86215bf",
   "checks": [
     "backend and actual Damir React fullstack Docker builds",
     "startup refuses missing persistent mount",
@@ -35,5 +35,5 @@
   ],
   "comparison_difference_gain_pp": 8.0,
   "plan_total_hours": 24,
-  "backup_sha256": "6c8a6fc7e67945516efa84739c08b9ab2fcd7833c4d32a27275fc140eae32c2e"
+  "backup_sha256": "774421bba07392ace87ddaf50bc57fc3da4a3e5dab6070ec61621efaca98ac1d"
 }

@@ -1,6 +1,6 @@
 # Публикация Data Driven Curriculum
 
-Подготовка от 10 ноября 2026. Ветка `deployment/bekzat-cloud-readiness`, основана на `integration/p0-server:b25891c`, включает настоящий React из PR #4 (`c1e6e01`). **Deploy не выполнен. Нужны review и устранение UI-блокеров публичного режима.** [Текущий cloud audit и 12 шагов публикации](../docs/BEKZAT_CLOUD_READINESS.md) · [Исторические проверки](../docs/PUBLIC_DEPLOYMENT_READINESS.md) · [Frontend handoff](../docs/MOBILE_ACCEPTANCE.md).
+Подготовка от 10 ноября 2026. Ветка `deployment/bekzat-cloud-readiness`, основана на `integration/p0-server:b25891c`, включает настоящий React из PR #4 (`03395ef`). **Deploy не выполнен. Нужны review и устранение UI-блокеров публичного режима.** [Текущий cloud audit и 12 шагов публикации](../docs/BEKZAT_CLOUD_READINESS.md) · [Исторические проверки](../docs/PUBLIC_DEPLOYMENT_READINESS.md) · [Frontend handoff](../docs/MOBILE_ACCEPTANCE.md).
 
 ## Архитектура и стоимость
 
@@ -51,7 +51,7 @@ Render передаёт env и как Docker build args. В Dockerfile объя�
 
 ## Локальная приёмка настоящего frontend
 
-1. React и lockfile уже опубликованы и включены из `c1e6e01`. Build/typecheck есть; test/lint scripts пока ожидаются от Дамира. Исходники UI не изменялись Бекзатом.
+1. React и lockfile уже опубликованы и включены из `03395ef`. Build/typecheck есть; test/lint scripts пока ожидаются от Дамира. Исходники UI не изменялись Бекзатом.
 2. Проверить исходники: `python scripts/check_frontend_handoff.py --directory web`. Код 2 означает блокер; команда сама не выполняет frontend tests.
 3. В `web` выполнить `npm ci`, `npm test -- --run`, `npm run typecheck`, `npm run lint`, `npm run build`. Дамир должен обеспечить совместимый одноразовый test script (без watch). Секреты и абсолютные localhost URL недопустимы.
 4. Скопировать `deploy/.env.example` в `deploy/.env`. Этот файл не коммитить. Сохранить `APP_TARGET=fullstack` и `REQUIRE_P0=true`.
