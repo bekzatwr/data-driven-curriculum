@@ -1519,3 +1519,68 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* ===================== Упрощённые экраны (отзыв Айданы) ===================== */
+/* Сумма часов шире, два остальных показателя — в одну строку. */
+.kpi-strip.three.wide-first {
+  grid-template-columns: 1.4fr repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 520px) {
+  .kpi-strip.three.wide-first {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Сворачиваемые блоки: обсуждения, настройки алгоритма. */
+details.fold > summary.fold-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 18px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  border-radius: inherit;
+}
+details.card-pad.fold > summary.fold-summary {
+  padding: 0;
+}
+details.fold > summary.fold-summary::-webkit-details-marker {
+  display: none;
+}
+details.fold > summary.fold-summary::after {
+  content: '';
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translateY(-3px);
+  transition: transform 0.2s ease;
+}
+details.fold[open] > summary.fold-summary::after {
+  transform: rotate(-135deg) translateX(-2px);
+}
+details.fold > summary.fold-summary:hover {
+  color: var(--accent-text, var(--accent));
+}
+details.fold > summary.fold-summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+details.fold[open] > summary .tiny.muted {
+  display: none;
+}
+
+/* Карточка учебника: три числа в строку и прирост под ними. */
+.book-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.book-stats .stat.wide {
+  grid-column: 1 / -1;
+}
+.cmp-chart .chart {
+  max-width: 600px;
+  margin: 0 auto;
+}

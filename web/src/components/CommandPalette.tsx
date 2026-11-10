@@ -88,7 +88,7 @@ export function CommandPalette({ open, onClose, onToggleTheme }: { open: boolean
         { id: 'nav-plan', group: 'Переходы', label: 'План часов', icon: <ClipboardList size={16} />, hint: 'шаг 4', keywords: 'часы планировщик период', run: () => go(`${base}/plan`) },
       );
       if (teachersVisible) {
-        list.push({ id: 'nav-teachers', group: 'Переходы', label: 'Учителя и нагрузка', icon: <GraduationCap size={16} />, keywords: 'учитель нагрузка ученики на учителя школа', run: () => go(`${base}/teachers`) });
+        list.push({ id: 'nav-teachers', group: 'Переходы', label: 'Нагрузка учителей', icon: <GraduationCap size={16} />, keywords: 'учитель нагрузка ученики на учителя школа', run: () => go(`${base}/teachers`) });
       }
     }
     list.push({ id: 'nav-reports', group: 'Переходы', label: 'Отчёты', icon: <FileText size={16} />, hint: 'шаг 5', keywords: 'план сохранённый', run: () => go('/reports') });

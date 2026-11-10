@@ -104,7 +104,7 @@ function HeatRow({
   const cell = (m: TopicMetrics | undefined, classId: string, ci: number) => {
     const empty = !m || !isNum(m.mean_post_pct);
     const few = m?.status === 'insufficient_data';
-    const label = `${topic.topic_name}, ${classId}: ${m ? fmtPct(m.mean_post_pct) : 'Нет данных'}${m ? `, ${TOPIC_STATUS[m.status]?.label}` : ''}`;
+    const label = `${topic.topic_name}, ${classId}: ${m ? fmtPct(m.mean_post_pct) : 'Нет данных'}${m ? `, ${TOPIC_STATUS[m.status]?.label}, n=${fmtNum(m.n_post)}` : ''}`;
     return (
       <button
         type="button"
@@ -127,10 +127,8 @@ function HeatRow({
         ) : (
           <>
             <span className="v">{fmtOne(m!.mean_post_pct)}</span>
-            <span className="n">
-              n={fmtNum(m!.n_post)}
-              {few ? ' · мало' : ''}
-            </span>
+            {/* Размер выборки — во всплывающей подсказке; в ячейке только предупреждение о малой выборке. */}
+            {few && <span className="n">мало данных</span>}
             {m!.problem_topic && (
               <span className="flag" aria-hidden title="Проблемная тема">
                 ▲

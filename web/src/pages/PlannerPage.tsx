@@ -10,6 +10,7 @@ import {
   RotateCcw,
   Save,
   Settings2,
+  SlidersHorizontal,
   Sparkles,
   Undo2,
   Users,
@@ -175,6 +176,8 @@ function PlanEditor({ classId }: { classId: string }) {
   const saveAllowed = !features.off('plan_save');
   const periodAllowed = features.on('period_planner_api');
   const [mode, setMode] = useState<PlanMode>('shift');
+  // Мин/макс/важность/блокировка — расширенная настройка; по умолчанию таблица короткая.
+  const [showLimits, setShowLimits] = useState(false);
   const settingsFor = useCallback(
     (m: PlanMode): PlanSettings => (m === 'period' ? { ...settings, mode: 'period' } : settings),
     [settings],
@@ -358,6 +361,9 @@ function PlanEditor({ classId }: { classId: string }) {
   if (!preview) return null;
 
   const sumOk = sumDiff === 0;
+  // Ошибки в ограничениях нельзя прятать: тогда колонки открыты принудительно.
+  const limitsForced = Object.keys(constraintErrors).length > 0;
+  const limitsVisible = showLimits || limitsForced;
 
   return (
     <div className="stack">
@@ -373,8 +379,8 @@ function PlanEditor({ classId }: { classId: string }) {
         </div>
         <span className="small muted" style={{ flex: 1, minWidth: 240 }}>
           {mode === 'period'
-            ? `Сервер распределяет все ${preview.total_hours} ч заново: минимум каждой теме, остаток — по приоритету трудных и важных тем. Лимита ±N нет, блокировки и min/max соблюдаются.`
-            : 'Небольшие переносы часов между темами по правилу rules_v1 с лимитом изменения на тему.'}
+            ? `Все ${preview.total_hours} ч распределяются заново: минимум каждой теме, остальное — трудным и важным темам. Границы и блокировки соблюдаются.`
+            : `Небольшие переносы часов между темами — не больше ±${settings.max_change} ч на тему.`}
         </span>
       </div>}
       {!saveAllowed && (
@@ -384,7 +390,7 @@ function PlanEditor({ classId }: { classId: string }) {
       )}
 
       {/* ---------- Сводка ---------- */}
-      <div className="kpi-strip wide-first fade-up">
+      <div className="kpi-strip three wide-first fade-up">
         <div className={`kpi ${sumOk ? '' : 'tone-critical'}`}>
           <div className="row">
             <span className="kpi-label">Сумма часов / лимит</span>
@@ -424,12 +430,10 @@ function PlanEditor({ classId }: { classId: string }) {
             {changedCount}
             <span className="unit"> из {items.length}</span>
           </div>
-          <div className="kpi-sub">перенесено {hoursLabel(moved)}</div>
-        </div>
-        <div className="kpi">
-          <div className="kpi-label">Ручные правки</div>
-          <div className="kpi-value">{manualCount}</div>
-          <div className="kpi-sub">{manualCount ? 'отклонение от рекомендации сохранится в плане' : 'вариант совпадает с рекомендацией'}</div>
+          <div className="kpi-sub">
+            перенесено {hoursLabel(moved)}
+            {manualCount ? ` · ручных правок: ${manualCount}` : ''}
+          </div>
         </div>
         <div className={`kpi ${errorCount ? 'tone-critical' : ''}`}>
           <div className="kpi-label">Проверки ограничений</div>
@@ -444,7 +448,7 @@ function PlanEditor({ classId }: { classId: string }) {
               </span>
             )}
           </div>
-          <div className="kpi-sub">сумма · границы · блокировки · ±{maxChange} ч</div>
+          <div className="kpi-sub">сумма, границы и блокировки</div>
         </div>
       </div>
 
@@ -476,8 +480,18 @@ function PlanEditor({ classId }: { classId: string }) {
             <h2>
               <Sparkles size={18} /> Предложение для класса {preview.class_id}
             </h2>
-            <Badge tone="outline">алгоритм {preview.algorithm_version}</Badge>
             <span className="spacer" />
+            <Button
+              size="sm"
+              variant={limitsVisible ? 'default' : 'ghost'}
+              icon={<SlidersHorizontal size={14} />}
+              onClick={() => setShowLimits((v) => !v)}
+              aria-pressed={limitsVisible}
+              disabled={limitsForced}
+              title={limitsForced ? 'Есть ошибки в ограничениях — колонки открыты' : 'Минимум, максимум, важность и блокировка тем'}
+            >
+              Ограничения тем
+            </Button>
             <InfoPopover align="right" title="Как строится предложение">
               <ul>
                 <li>
@@ -499,14 +513,18 @@ function PlanEditor({ classId }: { classId: string }) {
                 <tr>
                   <th>Тема</th>
                   <th className="r">Средний балл</th>
-                  <th className="r">Текущие</th>
-                  <th className="c">Мин</th>
-                  <th className="c">Макс</th>
-                  <th className="c">Важность</th>
-                  <th className="c">Блок</th>
-                  <th className="c">Предложено, ч</th>
+                  <th className="r">Было, ч</th>
+                  {limitsVisible && (
+                    <>
+                      <th className="c">Мин</th>
+                      <th className="c">Макс</th>
+                      <th className="c">Важность</th>
+                      <th className="c">Блок</th>
+                    </>
+                  )}
+                  <th className="c">Станет, ч</th>
                   <th className="c">Изменение</th>
-                  <th>Объяснение</th>
+                  <th>Почему</th>
                 </tr>
               </thead>
               <tbody>
@@ -529,10 +547,9 @@ function PlanEditor({ classId }: { classId: string }) {
                             {it.is_locked && <Lock size={13} className="muted" aria-label="заблокирована" />}
                             {it.topic_name}
                           </span>
+                          {versionChoices[it.topic_id] && (
                           <span className="s">
-                            {it.topic_id}
-                            {it.test_version ? ` · ${it.test_version}` : ''}
-                            {versionChoices[it.topic_id] && (
+                            {(
                               <select
                                 className="select"
                                 style={{ height: 24, width: 'auto', fontSize: 11, marginLeft: 6, padding: '0 22px 0 6px', backgroundPosition: 'right 6px center' }}
@@ -557,16 +574,18 @@ function PlanEditor({ classId }: { classId: string }) {
                               </select>
                             )}
                           </span>
+                          )}
                         </div>
                       </td>
                       <td className="r num">
-                        <span className="strong">{fmtPct(it.mean_post_pct)}</span>
-                        <div className="tiny muted">
-                          n={fmtNum(it.n_post)}
-                          {!it.automatic_eligible && !it.is_locked ? ' · без авто' : ''}
-                        </div>
+                        <span className="strong" title={`n=${fmtNum(it.n_post)}`}>
+                          {fmtPct(it.mean_post_pct)}
+                        </span>
+                        {!it.automatic_eligible && !it.is_locked && <div className="tiny muted">мало данных</div>}
                       </td>
                       <td className="r num strong">{it.current_hours}</td>
+                      {limitsVisible && (
+                      <>
                       <td className="c">
                         <input
                           className={`mini-input ${base && c.min_hours !== base.min_hours ? 'edited' : ''}`}
@@ -605,6 +624,8 @@ function PlanEditor({ classId }: { classId: string }) {
                       <td className="c">
                         <Switch checked={c.is_locked} onChange={(v) => setConstraint(it.topic_id, { is_locked: v })} label={`Блокировка: ${it.topic_name}`} />
                       </td>
+                      </>
+                      )}
                       <td className="c">
                         <div className="stack-sm" style={{ alignItems: 'center', gap: 4 }}>
                           <HoursStepper
@@ -650,7 +671,7 @@ function PlanEditor({ classId }: { classId: string }) {
                   </td>
                   <td />
                   <td className="r num strong">{items.reduce((s, it) => s + it.current_hours, 0)}</td>
-                  <td colSpan={4} />
+                  {limitsVisible && <td colSpan={4} />}
                   <td className="c num strong" style={{ color: sumOk ? 'var(--good-text)' : 'var(--critical-text)' }}>
                     {sum} / {total}
                   </td>
@@ -665,53 +686,73 @@ function PlanEditor({ classId }: { classId: string }) {
         </section>
       </Refreshing>
 
-      <div className="grid-2" style={{ alignItems: 'start' }}>
-        <section className="card">
-          <div className="card-head">
-            <h3>
-              <ArrowRight size={16} /> {isPeriod ? 'Как распределены часы' : 'Переносы по рекомендации'}
-            </h3>
-            <span className="spacer" />
-            <Badge>{isPeriod ? items.length : preview.transfers.length}</Badge>
-          </div>
-          <div className="card-body">
-            {isPeriod ? (
-              <div className="transfers">
-                {[...items]
-                  .sort((a, b) => a.topic_order - b.topic_order)
-                  .map((it) => (
-                    <div className="transfer" key={it.topic_id}>
-                      <span className="strong">{it.topic_name}</span>
-                      <span className="tiny muted">
-                        {it.reason || (it.is_locked ? 'заблокирована' : `было ${it.current_hours} ч`)}
-                      </span>
-                      <span className="h">{hoursLabel(it.proposed_hours)}</span>
+      <div className={isPeriod ? undefined : 'grid-2'} style={{ alignItems: 'start' }}>
+        {!isPeriod && (
+          <section className="card">
+            <div className="card-head">
+              <h3>
+                <ArrowRight size={16} /> Откуда и куда переносятся часы
+              </h3>
+              <span className="spacer" />
+              <Badge>{preview.transfers.length}</Badge>
+            </div>
+            <div className="card-body">
+              {preview.transfers.length === 0 ? (
+                <EmptyState title="Переносов нет">Свободных часов в рамках ограничений нет; требуется решение методиста.</EmptyState>
+              ) : (
+                <div className="transfers">
+                  {preview.transfers.map((t, i) => (
+                    <div className="transfer" key={i}>
+                      <span className="from">{topicName(t.from_topic_id)}</span>
+                      <ArrowRight size={15} className="muted" />
+                      <span className="to">{topicName(t.to_topic_id)}</span>
+                      <span className="h">{hoursLabel(t.hours)}</span>
                     </div>
                   ))}
-              </div>
-            ) : preview.transfers.length === 0 ? (
-              <EmptyState title="Переносов нет">Свободных часов в рамках ограничений нет; требуется решение методиста.</EmptyState>
-            ) : (
-              <div className="transfers">
-                {preview.transfers.map((t, i) => (
-                  <div className="transfer" key={i}>
-                    <span className="from">{topicName(t.from_topic_id)}</span>
-                    <ArrowRight size={15} className="muted" />
-                    <span className="to">{topicName(t.to_topic_id)}</span>
-                    <span className="h">{hoursLabel(t.hours)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         <section className="card">
-          <div className="card-head">
-            <h3>
-              <Settings2 size={16} /> Параметры алгоритма
-            </h3>
-            <span className="spacer" />
+          <div className="card-body">
+            <div className="field">
+              <label className="label" htmlFor="p-comment">
+                Комментарий к плану
+              </label>
+              <textarea
+                id="p-comment"
+                className="textarea"
+                maxLength={2000}
+                placeholder="Например: согласовано с учителем, усилить дроби перед контрольной"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <details className="card fold no-print">
+        <summary className="fold-summary">
+          <Settings2 size={16} /> Настройки алгоритма
+          <span className="tiny muted">
+            цель {settings.target_pct}%, порог донора {settings.donor_pct}%, лимит ±{settings.max_change} ч
+          </span>
+        </summary>
+        <div className="card-body">
+          <div className="grid-2" style={{ gap: 12 }}>
+            <NumField label="Цель, %" value={settings.target_pct} onChange={(v) => setSettings({ ...settings, target_pct: v })} hint="ниже — получатель часов" />
+            <NumField label="Порог донора, %" value={settings.donor_pct} onChange={(v) => setSettings({ ...settings, donor_pct: v })} hint="от него — можно снять часы" />
+            <NumField label="Мин. учеников" value={settings.min_students} onChange={(v) => setSettings({ ...settings, min_students: v })} hint="меньше — без авто-рекомендации" />
+            <NumField label="Лимит изменения, ±ч" value={settings.max_change} onChange={(v) => setSettings({ ...settings, max_change: v })} hint="на одну тему" />
+          </div>
+          <div className="row-wrap" style={{ marginTop: 10 }}>
+            <p className="tiny muted" style={{ flex: 1, minWidth: 220, margin: 0 }}>
+              У аналитики порог внимания 60%, у планировщика цель {preview.settings.target_pct}% — это разные параметры. Изменения отмечают расчёт как
+              устаревший.
+            </p>
             <Button
               size="sm"
               variant="ghost"
@@ -723,38 +764,8 @@ function PlanEditor({ classId }: { classId: string }) {
               По умолчанию
             </Button>
           </div>
-          <div className="card-body">
-            <div className="grid-2" style={{ gap: 12 }}>
-              <NumField label="Цель, %" value={settings.target_pct} onChange={(v) => setSettings({ ...settings, target_pct: v })} hint="ниже — получатель часов" />
-              <NumField label="Порог донора, %" value={settings.donor_pct} onChange={(v) => setSettings({ ...settings, donor_pct: v })} hint="от него — можно снять часы" />
-              <NumField label="Мин. учеников" value={settings.min_students} onChange={(v) => setSettings({ ...settings, min_students: v })} hint="меньше — без авто-рекомендации" />
-              <NumField label="Лимит изменения, ±ч" value={settings.max_change} onChange={(v) => setSettings({ ...settings, max_change: v })} hint="на одну тему" />
-            </div>
-            <p className="tiny muted" style={{ marginTop: 10 }}>
-              У аналитики порог внимания {60}%, у планировщика цель {preview.settings.target_pct}% — это разные параметры. Изменения отмечают расчёт как устаревший.
-            </p>
-          </div>
-        </section>
-      </div>
-
-      <section className="card">
-        <div className="card-body">
-          <div className="field">
-            <label className="label" htmlFor="p-comment">
-              Комментарий к плану
-            </label>
-            <textarea
-              id="p-comment"
-              className="textarea"
-              maxLength={2000}
-              placeholder="Например: согласовано с учителем, усилить дроби перед контрольной"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-          </div>
         </div>
-      </section>
-
+      </details>
 
       {saveError != null && (
         <Banner tone="critical" title="Сервер отклонил план">

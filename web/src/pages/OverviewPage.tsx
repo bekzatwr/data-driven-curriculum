@@ -11,7 +11,6 @@ import {
   Grid3X3,
   Percent,
   Scale,
-  ScrollText,
   Table2,
   Users,
 } from 'lucide-react';
@@ -38,7 +37,7 @@ import {
   StatusIcon,
   WarningsList,
 } from '../components/ui';
-import { fmtDate, fmtNum, fmtOne, fmtPct, fmtPp, fmtShare, isNum, plural } from '../lib/format';
+import { fmtDate, fmtNum, fmtOne, fmtPct, fmtPp, fmtShare, isNum } from '../lib/format';
 import { STATUS_ORDER, TOPIC_STATUS } from '../lib/status';
 import { useAsync } from '../lib/useAsync';
 import { useDataset } from '../state/dataset';
@@ -98,9 +97,6 @@ export function OverviewPage() {
           </p>
         </div>
         <div className="row-wrap no-print">
-          <Button icon={<ScrollText size={16} />} onClick={() => navigate(`/datasets/${encodeURIComponent(datasetId)}/brief`)}>
-            Справка для педсовета
-          </Button>
           <Button icon={<GitCompareArrows size={16} />} onClick={() => navigate(`/datasets/${encodeURIComponent(datasetId)}/comparison`)}>
             Сравнить учебники
           </Button>
@@ -216,7 +212,7 @@ function OverviewBody({
     <div className="stack">
       <WarningsList warnings={[...data.warnings, ...m.warnings]} />
 
-      <div className="kpi-strip fade-up">
+      <div className="kpi-strip three fade-up">
         <div className="kpi">
           <div className="kpi-top">
             <span className="kpi-label">Ученики</span>
@@ -228,22 +224,9 @@ function OverviewBody({
             <CountUp value={m.n_students} format={(v) => fmtNum(Math.round(v))} />
           </div>
           <div className="kpi-sub">
-            с итоговым результатом: {fmtNum(m.n_post_students)} · с парой до/после: {fmtShare(m.paired_student_share)}
-          </div>
-        </div>
-
-        <div className="kpi">
-          <div className="kpi-top">
-            <span className="kpi-label">Итоговые результаты</span>
-            <span className="kpi-icon">
-              <ClipboardList size={15} />
-            </span>
-          </div>
-          <div className="kpi-value">
-            <CountUp value={m.n_post_results} format={(v) => fmtNum(Math.round(v))} />
-          </div>
-          <div className="kpi-sub">
-            пар «ученик–тема» до/после: {fmtNum(m.n_pairs)} · покрытие {fmtShare(m.pair_coverage)}
+            {m.n_post_students === m.n_students
+              ? `${fmtNum(m.n_post_results)} итоговых результатов`
+              : `с итоговым тестом: ${fmtNum(m.n_post_students)}`}
           </div>
         </div>
 
@@ -274,8 +257,9 @@ function OverviewBody({
             )}
           </div>
           <div className="kpi-sub">
-            итоговая выборка, {fmtNum(m.n_post_students)} {plural(m.n_post_students, ['ученик', 'ученика', 'учеников'])}
-            {m.n_complete_students < m.n_post_students ? ` · неполное покрытие тем (${fmtNum(m.n_complete_students)} с полным набором)` : ''}
+            {m.n_complete_students < m.n_post_students
+              ? `все темы есть у ${fmtNum(m.n_complete_students)} из ${fmtNum(m.n_post_students)}`
+              : 'по итоговым тестам'}
           </div>
         </div>
 
@@ -332,7 +316,7 @@ function OverviewBody({
               <HeatLegend threshold={s.threshold_pct} />
               <span className="spacer" />
               <span className="small muted">
-                Классов в карте: {heatClasses} из {classesTotal} · нажмите на тему или ячейку, чтобы открыть детали
+                {heatClasses < classesTotal ? `Классов в карте: ${heatClasses} из ${classesTotal} · ` : ''}нажмите на тему, чтобы открыть детали
               </span>
             </div>
             {data.heatmap.length === 0 ? (

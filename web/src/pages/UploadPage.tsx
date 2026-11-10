@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type DragEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
@@ -9,8 +9,6 @@ import {
   Download,
   FileSpreadsheet,
   FlaskConical,
-  Layers,
-  ListChecks,
   Lock,
   ShieldCheck,
   Sparkles,
@@ -50,6 +48,16 @@ export function UploadPage() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState<unknown>(null);
   const formRef = useRef<HTMLDivElement>(null);
+  // Форма импорта не висит на главной постоянно: открывается по плитке «Свои CSV».
+  const [importOpen, setImportOpen] = useState(false);
+  const [scrollTick, setScrollTick] = useState(0);
+  const openImport = () => {
+    setImportOpen(true);
+    setScrollTick((t) => t + 1);
+  };
+  useEffect(() => {
+    if (scrollTick) formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [scrollTick]);
 
   const importAllowed = capabilities ? capabilities.features.csv_import !== false : true;
 
@@ -81,12 +89,6 @@ export function UploadPage() {
           <div>
             <div className="hero-logo fade-up">
               <LogoMark size={52} />
-            </div>
-            <div>
-              <span className="hero-badge beam fade-up">
-                <span className="pill">P1</span>
-                ИИ-пояснения, обсуждения и план на весь период
-              </span>
             </div>
             <h1 className="fade-up-2">
               Данные о результатах — <span className="grad-text">в решение по учебным часам</span>
@@ -125,14 +127,18 @@ export function UploadPage() {
               {demoLoading ? 'Готовим набор…' : 'Открыть демо'} <ArrowRight size={13} />
             </span>
           </button>
-          <button type="button" className="tile" onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+          <button type="button" className="tile" onClick={openImport} aria-expanded={importOpen}>
             <span className="tile-icon">
               <UploadCloud size={16} />
             </span>
             <span className="tile-title">Свои CSV</span>
-            <span className="tile-desc">results.csv и curriculum.csv — проверка до сохранения, ошибки по строкам</span>
+            <span className="tile-desc">
+              {importAllowed
+                ? 'results.csv и curriculum.csv — проверка до сохранения, ошибки по строкам'
+                : 'В публичном демо загрузка выключена — доступна при локальном запуске'}
+            </span>
             <span className="tile-cta">
-              К импорту <ArrowRight size={13} />
+              {importAllowed ? 'К импорту' : 'Подробнее'} <ArrowRight size={13} />
             </span>
           </button>
           {current ? (
@@ -163,20 +169,6 @@ export function UploadPage() {
           )}
         </div>
 
-        <div className="features fade-up-3" aria-hidden>
-          <span>
-            <ShieldCheck size={14} /> Проверка до сохранения
-          </span>
-          <span>
-            <Layers size={14} /> Теплокарта «тема × класс»
-          </span>
-          <span>
-            <ListChecks size={14} /> Сравнение без «лучшего учебника»
-          </span>
-          <span>
-            <Lock size={14} /> Сумма часов и блокировки соблюдаются
-          </span>
-        </div>
       </section>
 
       {demoError != null && (
@@ -185,10 +177,15 @@ export function UploadPage() {
         </Banner>
       )}
 
-      <div className="grid-2" style={{ gridTemplateColumns: 'minmax(0, 1.55fr) minmax(0, 1fr)', alignItems: 'start' }}>
-        <div ref={formRef} style={{ scrollMarginTop: 90 }}>
-          <ImportForm allowed={importAllowed} limitBytes={capabilities?.limits.csv_files_bytes} onImported={() => datasets.reload()} />
-        </div>
+      <div
+        className={importOpen ? 'grid-2' : undefined}
+        style={importOpen ? { gridTemplateColumns: 'minmax(0, 1.55fr) minmax(0, 1fr)', alignItems: 'start' } : undefined}
+      >
+        {importOpen && (
+          <div ref={formRef} style={{ scrollMarginTop: 90 }}>
+            <ImportForm allowed={importAllowed} limitBytes={capabilities?.limits.csv_files_bytes} onImported={() => datasets.reload()} />
+          </div>
+        )}
 
         <section className="card fade-up-2">
           <div className="card-head">

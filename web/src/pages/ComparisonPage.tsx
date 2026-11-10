@@ -1,12 +1,11 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftRight, BarChart3, BookOpen, ClipboardList, GitCompareArrows, Scale } from 'lucide-react';
+import { ArrowLeftRight, BarChart3, BookOpen, ClipboardList, GitCompareArrows, MessagesSquare } from 'lucide-react';
 import { api } from '../api/client';
 import type { BookGroup, Comparison } from '../api/types';
-import { GainBars, GroupedBars, Legend } from '../components/charts';
+import { GroupedBars, Legend } from '../components/charts';
 import { FilterBar } from '../components/FilterBar';
 import {
-  Badge,
   Banner,
   Button,
   DemoBadge,
@@ -17,7 +16,7 @@ import {
   Refreshing,
   WarningsList,
 } from '../components/ui';
-import { fmtNum, fmtOne, fmtPct, fmtPp, fmtShare, isNum } from '../lib/format';
+import { fmtNum, fmtOne, fmtPct, fmtPp, isNum } from '../lib/format';
 import { COMPARISON_STATUS } from '../lib/status';
 import { useAsync } from '../lib/useAsync';
 import { useDataset } from '../state/dataset';
@@ -62,8 +61,8 @@ export function ComparisonPage() {
           <div className="eyebrow">Шаг 3 · Сравнение учебников</div>
           <h1>Как различаются наблюдаемые результаты</h1>
           <p>
-            Средние до и после считаются на одной парной выборке — одни и те же ученики. Сравнение описательное: оно не доказывает
-            причинного влияния учебника. {dataset.source_type === 'demo' && <DemoBadge />}
+            До и после — одни и те же ученики. Сравнение описательное и не доказывает влияния учебника.{' '}
+            {dataset.source_type === 'demo' && <DemoBadge />}
           </p>
         </div>
         <div className="row-wrap no-print">
@@ -245,7 +244,6 @@ function ComparisonBody({ data, topicTitle, labelA, labelB }: { data: Comparison
             {data.conclusion}
           </div>
           <div className="row-wrap" style={{ marginTop: 8 }}>
-            <Badge tone={st.tone === 'good' ? 'good' : st.tone === 'serious' ? 'serious' : 'neutral'}>{st.label}</Badge>
             <InfoPopover align="right">
               <ul>
                 <li>Прирост = средний после − средний до, на одних и тех же учениках (парная выборка).</li>
@@ -265,89 +263,34 @@ function ComparisonBody({ data, topicTitle, labelA, labelB }: { data: Comparison
         <BookCard group={b} letter="B" label={labelB} color="var(--series-b)" />
       </div>
 
-      <div className="grid-2">
-        <section className="card fade-up-2">
-          <div className="card-head">
-            <h3>
-              <BarChart3 size={16} /> Средний балл до и после · парная выборка
-            </h3>
-          </div>
-          <div className="card-body stack-sm">
-            <Legend
-              items={[
-                { label: `A · ${labelA}`, color: 'var(--series-a)' },
-                { label: `B · ${labelB}`, color: 'var(--series-b)' },
-              ]}
-            />
-            <GroupedBars
-              ariaLabel={`Средний балл до и после: ${labelA} и ${labelB}`}
-              categories={['До', 'После']}
-              series={[
-                { key: 'a', label: labelA, color: 'var(--series-a)' },
-                { key: 'b', label: labelB, color: 'var(--series-b)' },
-              ]}
-              values={[
-                [a.mean_pre_paired_pct, b.mean_pre_paired_pct],
-                [a.mean_post_paired_pct, b.mean_post_paired_pct],
-              ]}
-            />
-          </div>
-        </section>
-        <section className="card fade-up-3">
-          <div className="card-head">
-            <h3>
-              <Scale size={16} /> Средний прирост, п.п.
-            </h3>
-          </div>
-          <div className="card-body stack-sm">
-            <GainBars
-              ariaLabel="Средний прирост по учебникам"
-              rows={[
-                { label: `A · ${labelA}`, value: a.mean_gain_pp, color: 'var(--series-a)' },
-                { label: `B · ${labelB}`, value: b.mean_gain_pp, color: 'var(--series-b)' },
-              ]}
-            />
-            <div className="table-wrap">
-              <table className="table table-compact">
-                <thead>
-                  <tr>
-                    <th>Показатель</th>
-                    <th className="r">A</th>
-                    <th className="r">B</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Ученики с парой</td>
-                    <td className="r num">{fmtNum(a.n_pairs)}</td>
-                    <td className="r num">{fmtNum(b.n_pairs)}</td>
-                  </tr>
-                  <tr>
-                    <td>Классов</td>
-                    <td className="r num">{fmtNum(a.n_classes)}</td>
-                    <td className="r num">{fmtNum(b.n_classes)}</td>
-                  </tr>
-                  <tr>
-                    <td>До (парная)</td>
-                    <td className="r num">{fmtPct(a.mean_pre_paired_pct)}</td>
-                    <td className="r num">{fmtPct(b.mean_pre_paired_pct)}</td>
-                  </tr>
-                  <tr>
-                    <td>После (парная)</td>
-                    <td className="r num">{fmtPct(a.mean_post_paired_pct)}</td>
-                    <td className="r num">{fmtPct(b.mean_post_paired_pct)}</td>
-                  </tr>
-                  <tr>
-                    <td className="strong">Прирост</td>
-                    <td className="r num strong">{fmtPp(a.mean_gain_pp)}</td>
-                    <td className="r num strong">{fmtPp(b.mean_gain_pp)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      </div>
+      <section className="card fade-up-2">
+        <div className="card-head">
+          <h3>
+            <BarChart3 size={16} /> Средний балл до и после
+          </h3>
+          <span className="spacer" />
+          <Legend
+            items={[
+              { label: `A · ${labelA}`, color: 'var(--series-a)' },
+              { label: `B · ${labelB}`, color: 'var(--series-b)' },
+            ]}
+          />
+        </div>
+        <div className="card-body cmp-chart">
+          <GroupedBars
+            ariaLabel={`Средний балл до и после: ${labelA} и ${labelB}`}
+            categories={['До', 'После']}
+            series={[
+              { key: 'a', label: labelA, color: 'var(--series-a)' },
+              { key: 'b', label: labelB, color: 'var(--series-b)' },
+            ]}
+            values={[
+              [a.mean_pre_paired_pct, b.mean_pre_paired_pct],
+              [a.mean_post_paired_pct, b.mean_post_paired_pct],
+            ]}
+          />
+        </div>
+      </section>
 
       <WarningsList warnings={data.warnings} tone="info" />
 
@@ -365,9 +308,12 @@ function ComparisonBody({ data, topicTitle, labelA, labelB }: { data: Comparison
         })}
       />
 
-      <section className="card card-pad">
-        <div className="row-wrap" style={{ marginBottom: 12 }}>
-          <span className="section-title">Отзывы учителей об учебниках</span>
+      <details className="card card-pad fold no-print">
+        <summary className="fold-summary">
+          <MessagesSquare size={16} /> Отзывы учителей об учебниках
+          <span className="tiny muted">— открыть обсуждение</span>
+        </summary>
+        <div className="row-wrap" style={{ margin: '12px 0' }}>
           <span className="spacer" />
           <div className="segmented" role="tablist" aria-label="Учебник">
             <button role="tab" aria-selected={book === 'a'} className={book === 'a' ? 'on' : ''} onClick={() => setBook('a')}>
@@ -385,7 +331,7 @@ function ComparisonBody({ data, topicTitle, labelA, labelB }: { data: Comparison
           title={`Обсуждение: ${book === 'a' ? labelA : labelB}`}
           placeholder="Чем удобен или неудобен учебник по этой теме? Задания, объяснения, методика…"
         />
-      </section>
+      </details>
     </div>
   );
 }
@@ -400,7 +346,7 @@ function BookCard({ group, letter, label, color }: { group: BookGroup; letter: s
             {label}
           </div>
           <div className="tiny muted">
-            {fmtNum(group.n_classes)} кл. · {fmtNum(group.n_teachers)} учит. · покрытие пар {fmtShare(group.pair_coverage)}
+            {fmtNum(group.n_classes)} кл. · {fmtNum(group.n_teachers)} учит.
           </div>
         </div>
         <span className="spacer" />
@@ -412,23 +358,17 @@ function BookCard({ group, letter, label, color }: { group: BookGroup; letter: s
           <div className="v">{fmtNum(group.n_pairs)}</div>
         </div>
         <div className="stat">
-          <div className="k">Классов</div>
-          <div className="v">{fmtNum(group.n_classes)}</div>
-        </div>
-        <div className="stat">
-          <div className="k">До · парная</div>
+          <div className="k">До</div>
           <div className="v">{fmtPct(group.mean_pre_paired_pct)}</div>
         </div>
         <div className="stat">
-          <div className="k">После · парная</div>
+          <div className="k">После</div>
           <div className="v">{fmtPct(group.mean_post_paired_pct)}</div>
         </div>
         <div className="stat wide" style={{ background: 'color-mix(in srgb, var(--accent) 8%, var(--surface))' }}>
           <div className="k">Средний прирост</div>
           <div className="v big">{fmtPp(group.mean_gain_pp)}</div>
-          <div className="tiny muted">
-            Итоговый по всем post: {fmtPct(group.mean_post_pct)} · {fmtNum(group.n_post)} результатов
-          </div>
+          <div className="tiny muted">итог по всем ученикам группы: {fmtPct(group.mean_post_pct)}</div>
         </div>
       </div>
     </section>

@@ -21,6 +21,7 @@ import type {
   PlanRequest,
   SavedPlan,
   SaveRequest,
+  TeachersResponse,
   TopicDetail,
 } from './types';
 import { compactSelectors, parseRetryAfter } from './helpers';
@@ -250,17 +251,12 @@ export const api = {
   results: (id: string, offset: number, limit = 1000, signal?: AbortSignal) =>
     request<RecordsPage>(`/api/datasets/${enc(id)}/results`, { signal, query: { offset, limit } }).then((r) => r.data),
 
-  /** Все записи набора (до 10 000 строк) — для расчёта нагрузки учителей на клиенте. */
-  async allResults(id: string, signal?: AbortSignal) {
-    const first = await api.results(id, 0, 1000, signal);
-    const items = [...first.items];
-    for (let offset = first.items.length; offset < first.total; offset += 1000) {
-      const page = await api.results(id, offset, 1000, signal);
-      items.push(...page.items);
-      if (!page.items.length) break;
-    }
-    return items;
-  },
+  /** Нагрузка учителей считается на сервере (модуль Тони) по всем записям набора. */
+  teachers: (id: string, f: AnalyticsFilters, signal?: AbortSignal) =>
+    request<TeachersResponse>(`/api/datasets/${enc(id)}/teachers`, {
+      signal,
+      query: { class_ids: f.class_ids, textbook_ids: f.textbook_ids, test_version: f.test_version },
+    }).then((r) => r.data),
 
   comments: (id: string, target?: { type?: CommentTarget; id?: string }, signal?: AbortSignal) =>
     request<CommentList>(`/api/datasets/${enc(id)}/comments`, {
