@@ -120,6 +120,17 @@ class TextbookComparisonTests(unittest.TestCase):
             compare(rows_a + rows_b)
         self.assertEqual(caught.exception.code, "OVERLAPPING_STUDENTS")
 
+    def test_teacher_ids_are_scoped_by_school_in_paired_population(self):
+        first_school = group("A", teacher="T1")
+        second_school = [{**row, "student_id": "second-" + row["student_id"],
+                          "school_id": "second-school", "class_id": "second-A"}
+                         for row in first_school]
+        result = compare(first_school + second_school + group("B"))
+        self.assertEqual(result["group_a"]["n_teachers"], 2)
+        self.assertEqual(result["group_a"]["n_classes"], 2)
+        self.assertEqual(result["group_a"]["n_pairs"], 20)
+        self.assertFalse(any(w.startswith("A:") and "одним учителем" in w for w in result["warnings"]))
+
     def test_same_book_and_duplicate_result_rejected(self):
         with self.assertRaises(AnalyticsError) as caught:
             compare_textbooks(group("A"), "fractions", "A", "A")

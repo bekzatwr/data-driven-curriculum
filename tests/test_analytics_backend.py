@@ -104,6 +104,31 @@ class BackendAnalyticsIntegrationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 201, response.text)
         self.assert_analytics_and_saved_plan(response.json()["dataset_id"], is_demo=True)
 
+    def test_imported_same_teacher_ids_in_different_schools_stay_distinct(self):
+        results, curriculum, metadata = demo_files()
+        rows = list(csv.DictReader(io.StringIO(results.decode('utf-8'))))
+        for row in rows:
+            if row['class_id'] == '7B':
+                row['school_id'] = 'SECOND-SCHOOL'
+                row['teacher_id'] = 'T1'
+        content = io.StringIO(newline='')
+        writer = csv.DictWriter(content, fieldnames=rows[0].keys())
+        writer.writeheader()
+        writer.writerows(rows)
+        imported = self.client.post('/api/datasets/import?dry_run=false', data={'metadata': metadata}, files={
+            'results_file': ('results.csv', content.getvalue().encode('utf-8')),
+            'curriculum_file': ('curriculum.csv', curriculum),
+        })
+        self.assertEqual(imported.status_code, 201, imported.text)
+        base = f"/api/datasets/{imported.json()['dataset_id']}"
+        compared = self.client.get(base + '/comparison', params={
+            'topic_id': 'equations', 'textbook_a': 'Учебник A', 'textbook_b': 'Учебник B'})
+        self.assertEqual(compared.status_code, 200, compared.text)
+        self.assertEqual(compared.json()['group_a']['n_teachers'], 2)
+        self.assertEqual(compared.json()['difference_gain_pp'], 8)
+        teachers = self.client.get(base + '/teachers').json()['teachers']
+        self.assertEqual(len([row for row in teachers if row['teacher_id'] == 'T1']), 2)
+
     def test_integrated_factory_does_not_duplicate_analytics_routes(self):
         with warnings.catch_warnings(record=True) as captured:
             warnings.simplefilter("always")

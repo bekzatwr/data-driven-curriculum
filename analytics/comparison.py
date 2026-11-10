@@ -23,7 +23,7 @@ def _group(rows, textbook_id):
     single = len(scales) == 1
     # The class/teacher counts describe the same paired population as the gains.
     paired_post = [right for _, right in pairs]
-    teachers = {row.get("teacher_id") for row in paired_post if row.get("teacher_id")}
+    teachers = {(row["school_id"], row["teacher_id"]) for row in paired_post if row.get("teacher_id")}
     classes = {(row["school_id"], row["class_id"]) for row in paired_post}
     n_post = len({row["student_id"] for row in post})
     group = {
