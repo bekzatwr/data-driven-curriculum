@@ -20,11 +20,13 @@
 </p>
 
 > [!IMPORTANT]
+> **Deployment передан Дамиру.** Платформу и публикацию выбирает и выполняет Дамир. Бекзат отвечает за backend, SQLite, API и серверную интеграцию. [Короткий handoff](docs/DAMIR_DEPLOYMENT_HANDOFF.md) · [Аудит совместимости](docs/DEPLOYMENT_HANDOFF_AUDIT.md). Render остаётся необязательным примером.
+>
 > **PRE-INTEGRATION: разработка Дамира и Тони продолжается.** [Текущий статус и план объединения](docs/PRE_INTEGRATION_STATUS.md). PR #9 не включён в эту сборку; period Айданы опубликован в PR #10 и проверен отдельно. Release Candidate не объявлен. Сначала завершение модулей и review команды.
 >
 > **10 ноября 2026 · cloud readiness на review.**
 > `deployment/bekzat-cloud-readiness` объединяет сервер `b25891c`, безопасный public mode и настоящий React Дамира из PR #4 (`03395ef`).
-> Сайт пока не опубликован. AI выключен; Teachers API ожидает Тони, period planner опубликован в PR #10 и ещё не подключён к этой сборке.
+> Сайт пока не опубликован. AI выключен; Teachers API Тони и period planner Айданы опубликованы отдельно; к этой подготовительной сборке они ещё не подключены.
 > [Актуальная готовность облака](docs/BEKZAT_CLOUD_READINESS.md) · [README для главной страницы: PR #7](https://github.com/bekzatwr/data-driven-curriculum/pull/7).
 > [Полный отчёт Бекзата](docs/BEKZAT_P1_STATUS.md) · [P1-контракт и handoff](docs/BEKZAT_P1_API.md). `main` и чужие ветки не меняются.
 
