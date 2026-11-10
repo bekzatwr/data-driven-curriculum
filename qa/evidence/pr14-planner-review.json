@@ -1,0 +1,640 @@
+{
+  "recorded_at_utc": "2026-11-10T16:32:52.946371+00:00",
+  "reviewed_pr": 14,
+  "reviewed_head": "aaa78e1bc0ba5606d2239aa60839458f5f10c3b8",
+  "data": "synthetic only; backup of 3 previous QA snapshots plus 2 new browser saves",
+  "tests": {
+    "upstream_pytest": {
+      "passed": 436,
+      "failed": 0,
+      "skipped": 0,
+      "subtests_not_added": 102,
+      "includes_existing_7_qa_acceptance_tests": true
+    },
+    "additional_qa": {
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0
+    },
+    "frontend": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0
+    },
+    "period_parity_cases_passed": 200,
+    "build": "PASS",
+    "docker_rerun": false,
+    "transport_probe_rerun": false
+  },
+  "browser": {
+    "scope": "focused planner review; not full CSV/mobile E2E",
+    "previous_report_opened": true,
+    "ui_equals_server_proposed_hours": true,
+    "initial_ui": [
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: Р”СЂРѕР±Рё",
+        "value": "8"
+      },
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: РЈСЂР°РІРЅРµРЅРёСЏ",
+        "value": "6"
+      },
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: РџСЂРѕРїРѕСЂС†РёРё",
+        "value": "4"
+      },
+      {
+        "disabled": true,
+        "label": "Р§Р°СЃС‹: Р“РµРѕРјРµС‚СЂРёСЏ",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: РЎС‚Р°С‚РёСЃС‚РёРєР°",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "label": "Р§Р°СЃС‹: РџРѕРІС‚РѕСЂРµРЅРёРµ",
+        "value": "1"
+      }
+    ],
+    "actual_preview_request": {
+      "class_id": "7A",
+      "settings": {
+        "target_pct": 70,
+        "donor_pct": 80,
+        "min_students": 10,
+        "max_change": 2,
+        "mode": "period"
+      }
+    },
+    "server_preview_hours": {
+      "fractions": 8,
+      "equations": 6,
+      "proportions": 4,
+      "geometry": 3,
+      "statistics": 2,
+      "revision": 1
+    },
+    "actual_saves": [
+      {
+        "request": {
+          "class_id": "7A",
+          "settings": {
+            "target_pct": 70,
+            "donor_pct": 80,
+            "min_students": 10,
+            "max_change": 2
+          },
+          "hours_by_topic": {
+            "fractions": 7,
+            "equations": 6,
+            "proportions": 5,
+            "geometry": 3,
+            "statistics": 2,
+            "revision": 1
+          },
+          "comment": "PR14 aaa78e1 review: manual P0 7/6/5/3/2/1"
+        },
+        "status": 201,
+        "response": {
+          "plan_id": "32a48c69-05a4-458b-8df0-4cec2e664aa9",
+          "algorithm_version": "rules_v1",
+          "settings": {
+            "mode": "rules_v1",
+            "target_pct": 70.0,
+            "donor_pct": 80.0,
+            "min_students": 10,
+            "max_change": 2
+          },
+          "manually_modified": true,
+          "total_hours": 24,
+          "items": [
+            {
+              "topic_id": "fractions",
+              "topic_name": "Дроби",
+              "topic_order": 1,
+              "current_hours": 6,
+              "min_hours": 3,
+              "max_hours": 8,
+              "importance": 3,
+              "is_locked": false,
+              "mean_post_pct": 48.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 7,
+              "delta": 1,
+              "reason": "Ручное решение методиста: 6 → 7 ч.; рекомендация 8 ч. Ограничения проверены.",
+              "recommended_hours": 8,
+              "recommendation_reason": "Дроби: 48.0%, 30 учеников; цель 70%, порог донора 80%. 6 → 8 ч.; связанные темы: revision, statistics. Границы 3–8 и лимит ±2 соблюдены.",
+              "manually_modified": true
+            },
+            {
+              "topic_id": "equations",
+              "topic_name": "Уравнения",
+              "topic_order": 2,
+              "current_hours": 5,
+              "min_hours": 3,
+              "max_hours": 8,
+              "importance": 3,
+              "is_locked": false,
+              "mean_post_pct": 68.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 6,
+              "delta": 1,
+              "reason": "Ручное решение методиста: 5 → 6 ч.; рекомендация 5 ч. Ограничения проверены.",
+              "recommended_hours": 5,
+              "recommendation_reason": "Перенос не требуется или ограничен доступными часами",
+              "manually_modified": true
+            },
+            {
+              "topic_id": "proportions",
+              "topic_name": "Пропорции",
+              "topic_order": 3,
+              "current_hours": 4,
+              "min_hours": 2,
+              "max_hours": 6,
+              "importance": 2,
+              "is_locked": false,
+              "mean_post_pct": 64.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 5,
+              "delta": 1,
+              "reason": "Пропорции: 64.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 5 ч.; связанные темы: statistics. Границы 2–6 и лимит ±2 соблюдены.",
+              "recommended_hours": 5,
+              "recommendation_reason": "Пропорции: 64.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 5 ч.; связанные темы: statistics. Границы 2–6 и лимит ±2 соблюдены.",
+              "manually_modified": false
+            },
+            {
+              "topic_id": "geometry",
+              "topic_name": "Геометрия",
+              "topic_order": 4,
+              "current_hours": 3,
+              "min_hours": 2,
+              "max_hours": 5,
+              "importance": 2,
+              "is_locked": true,
+              "mean_post_pct": 74.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": false,
+              "proposed_hours": 3,
+              "delta": 0,
+              "reason": "Тема заблокирована",
+              "recommended_hours": 3,
+              "recommendation_reason": "Тема заблокирована",
+              "manually_modified": false
+            },
+            {
+              "topic_id": "statistics",
+              "topic_name": "Статистика",
+              "topic_order": 5,
+              "current_hours": 4,
+              "min_hours": 2,
+              "max_hours": 5,
+              "importance": 1,
+              "is_locked": false,
+              "mean_post_pct": 88.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 2,
+              "delta": -2,
+              "reason": "Статистика: 88.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 2 ч.; связанные темы: fractions, proportions. Границы 2–5 и лимит ±2 соблюдены.",
+              "recommended_hours": 2,
+              "recommendation_reason": "Статистика: 88.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 2 ч.; связанные темы: fractions, proportions. Границы 2–5 и лимит ±2 соблюдены.",
+              "manually_modified": false
+            },
+            {
+              "topic_id": "revision",
+              "topic_name": "Повторение",
+              "topic_order": 6,
+              "current_hours": 2,
+              "min_hours": 1,
+              "max_hours": 4,
+              "importance": 1,
+              "is_locked": false,
+              "mean_post_pct": 92.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 1,
+              "delta": -1,
+              "reason": "Повторение: 92.0%, 30 учеников; цель 70%, порог донора 80%. 2 → 1 ч.; связанные темы: fractions. Границы 1–4 и лимит ±2 соблюдены.",
+              "recommended_hours": 1,
+              "recommendation_reason": "Повторение: 92.0%, 30 учеников; цель 70%, порог донора 80%. 2 → 1 ч.; связанные темы: fractions. Границы 1–4 и лимит ±2 соблюдены.",
+              "manually_modified": false
+            }
+          ]
+        }
+      },
+      {
+        "request": {
+          "class_id": "7A",
+          "settings": {
+            "target_pct": 70,
+            "donor_pct": 80,
+            "min_students": 10,
+            "max_change": 2,
+            "mode": "period"
+          },
+          "hours_by_topic": {
+            "fractions": 6,
+            "equations": 8,
+            "proportions": 4,
+            "geometry": 3,
+            "statistics": 2,
+            "revision": 1
+          },
+          "comment": "PR14 aaa78e1 review: typed period manual 6/8/4/3/2/1, equations +3, sum 24"
+        },
+        "status": 201,
+        "response": {
+          "plan_id": "bb8ae49e-9993-4e10-9cac-3f4c293165a7",
+          "algorithm_version": "period_v1",
+          "settings": {
+            "mode": "period",
+            "target_pct": 70.0,
+            "donor_pct": 80.0,
+            "min_students": 10,
+            "max_change": 2
+          },
+          "manually_modified": true,
+          "total_hours": 24,
+          "items": [
+            {
+              "topic_id": "fractions",
+              "topic_name": "Дроби",
+              "topic_order": 1,
+              "current_hours": 6,
+              "min_hours": 3,
+              "max_hours": 8,
+              "importance": 3,
+              "is_locked": false,
+              "mean_post_pct": 48.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 6,
+              "delta": 0,
+              "reason": "Ручное решение методиста: 6 → 6 ч.; рекомендация 8 ч. Ограничения проверены.",
+              "recommended_hours": 8,
+              "recommendation_reason": "Минимум 3 ч + 5 ч по приоритету (важность 3; 48% при цели 70% — дефицит 22 п.п.). Было 6 ч → 8 ч.",
+              "manually_modified": true
+            },
+            {
+              "topic_id": "equations",
+              "topic_name": "Уравнения",
+              "topic_order": 2,
+              "current_hours": 5,
+              "min_hours": 3,
+              "max_hours": 8,
+              "importance": 3,
+              "is_locked": false,
+              "mean_post_pct": 68.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 8,
+              "delta": 3,
+              "reason": "Ручное решение методиста: 5 → 8 ч.; рекомендация 6 ч. Ограничения проверены.",
+              "recommended_hours": 6,
+              "recommendation_reason": "Минимум 3 ч + 3 ч по приоритету (важность 3; 68% при цели 70% — дефицит 2 п.п.). Было 5 ч → 6 ч.",
+              "manually_modified": true
+            },
+            {
+              "topic_id": "proportions",
+              "topic_name": "Пропорции",
+              "topic_order": 3,
+              "current_hours": 4,
+              "min_hours": 2,
+              "max_hours": 6,
+              "importance": 2,
+              "is_locked": false,
+              "mean_post_pct": 64.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 4,
+              "delta": 0,
+              "reason": "Минимум 2 ч + 2 ч по приоритету (важность 2; 64% при цели 70% — дефицит 6 п.п.). Было 4 ч → 4 ч.",
+              "recommended_hours": 4,
+              "recommendation_reason": "Минимум 2 ч + 2 ч по приоритету (важность 2; 64% при цели 70% — дефицит 6 п.п.). Было 4 ч → 4 ч.",
+              "manually_modified": false
+            },
+            {
+              "topic_id": "geometry",
+              "topic_name": "Геометрия",
+              "topic_order": 4,
+              "current_hours": 3,
+              "min_hours": 2,
+              "max_hours": 5,
+              "importance": 2,
+              "is_locked": true,
+              "mean_post_pct": 74.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": false,
+              "proposed_hours": 3,
+              "delta": 0,
+              "reason": "Тема заблокирована: остаётся 3 ч.",
+              "recommended_hours": 3,
+              "recommendation_reason": "Тема заблокирована: остаётся 3 ч.",
+              "manually_modified": false
+            },
+            {
+              "topic_id": "statistics",
+              "topic_name": "Статистика",
+              "topic_order": 5,
+              "current_hours": 4,
+              "min_hours": 2,
+              "max_hours": 5,
+              "importance": 1,
+              "is_locked": false,
+              "mean_post_pct": 88.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 2,
+              "delta": -2,
+              "reason": "Минимум 2 ч + 0 ч по приоритету (важность 1; 88% — освоена, половинный вес). Было 4 ч → 2 ч.",
+              "recommended_hours": 2,
+              "recommendation_reason": "Минимум 2 ч + 0 ч по приоритету (важность 1; 88% — освоена, половинный вес). Было 4 ч → 2 ч.",
+              "manually_modified": false
+            },
+            {
+              "topic_id": "revision",
+              "topic_name": "Повторение",
+              "topic_order": 6,
+              "current_hours": 2,
+              "min_hours": 1,
+              "max_hours": 4,
+              "importance": 1,
+              "is_locked": false,
+              "mean_post_pct": 92.0,
+              "n_post": 30,
+              "test_version": "v1",
+              "max_score": 100.0,
+              "automatic_eligible": true,
+              "proposed_hours": 1,
+              "delta": -1,
+              "reason": "Минимум 1 ч + 0 ч по приоритету (важность 1; 92% — освоена, половинный вес). Было 2 ч → 1 ч.",
+              "recommended_hours": 1,
+              "recommendation_reason": "Минимум 1 ч + 0 ч по приоритету (важность 1; 92% — освоена, половинный вес). Было 2 ч → 1 ч.",
+              "manually_modified": false
+            }
+          ]
+        }
+      }
+    ],
+    "plus_button_disabled_at_7_despite_max_8": true,
+    "typed_8_and_enter_saved_with_plus_three": true,
+    "wrong_sum_min_max_prevent_save": true,
+    "locked_geometry_disabled": true,
+    "browser_csv_download_bytes_match_api": true,
+    "new_period_report_reopened_after_restart": true
+  },
+  "restart": {
+    "passed": true,
+    "unchanged_plans": 5,
+    "preintegration_plans": 3,
+    "new_browser_plans": 2,
+    "json_equal": true,
+    "csv_sha256_equal": true,
+    "sqlite_integrity": "ok",
+    "foreign_keys": [],
+    "old_pid": 47040,
+    "new_pid": 39000
+  },
+  "csv_hashes_unchanged": {
+    "15c7899c-020e-4476-b161-a91787fbf5f1": "41d9f4117bbbff858c87b7648e316fb5bbba93be2ed95d2ed55e3b13dda23b9f",
+    "7131eda2-9d95-4d07-b908-3e21662c69c4": "1f62f3f1c109aca64c0fc3c1198b1736eb0b06325f3569f40dd47eb3cf74d838",
+    "f547cde5-457a-4fe0-8a93-15e1a23d10e6": "a7cf4feab4e7a0090815e7d5b6345fc5bc143e55e81cbc88df3001d3c2167a75",
+    "32a48c69-05a4-458b-8df0-4cec2e664aa9": "bfcd46c4567ab85ea3a4a100eec336785c2d7fa01484914100367d3eb8a8aafc",
+    "bb8ae49e-9993-4e10-9cac-3f4c293165a7": "9ed92dcc2b9e2e6ac00a36647095c4e9270a644541cf9b7c025639240ffa144c"
+  },
+  "independent_http_e2e": {
+    "passed": true,
+    "browser_e2e": false,
+    "synthetic_data_only": true,
+    "source_commit": "aaa78e1bc0ba5606d2239aa60839458f5f10c3b8",
+    "source_dirty": true,
+    "dataset_id": "b734c56b-f659-4342-8752-2b6ba7eb9e2e",
+    "rules_plan_id": "cf175fc0-d71f-463d-96a0-a8675c08fed6",
+    "period_plan_id": "f697556f-9cf2-4d40-8b67-cd65f245f4fb",
+    "students": 120,
+    "comparison_gain_pp": 8,
+    "teachers": 4,
+    "hours": 24,
+    "checks": [
+      "CSV dry-run/import/dedup",
+      "overview/topics/comparison/Teachers",
+      "rules_v1 and period_v1 preview/manual/save/JSON/CSV",
+      "comments and AI offline",
+      "400/404/422/500/503",
+      "real SQLite rollback/integrity/FKs",
+      "stopped server connection failure and retry after restart",
+      "SPA HTML for saved plan"
+    ],
+    "ai_provider_calls": 0
+  },
+  "pr14_status": {
+    "headRefOid": "aaa78e1bc0ba5606d2239aa60839458f5f10c3b8",
+    "isDraft": true,
+    "mergeable": "MERGEABLE",
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:59:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849995749/job/129947726379",
+        "name": "backend",
+        "startedAt": "2026-11-10T15:58:49Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:59:06Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849808818/job/129947043942",
+        "name": "backend",
+        "startedAt": "2026-11-10T15:57:41Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:59:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849995964/job/129947726270",
+        "name": "web",
+        "startedAt": "2026-11-10T15:58:49Z",
+        "status": "COMPLETED",
+        "workflowName": "Frontend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:58:04Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849808458/job/129947043244",
+        "name": "web",
+        "startedAt": "2026-11-10T15:57:41Z",
+        "status": "COMPLETED",
+        "workflowName": "Frontend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:59:07Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849998596/job/129947739749",
+        "name": "planner",
+        "startedAt": "2026-11-10T15:58:50Z",
+        "status": "COMPLETED",
+        "workflowName": "Planner checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:57:53Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849808564/job/129947042840",
+        "name": "planner",
+        "startedAt": "2026-11-10T15:57:41Z",
+        "status": "COMPLETED",
+        "workflowName": "Planner checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:59:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849996518/job/129947727386",
+        "name": "analytics (ubuntu-latest)",
+        "startedAt": "2026-11-10T15:58:49Z",
+        "status": "COMPLETED",
+        "workflowName": "Toni analytics"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:58:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849808289/job/129947045895",
+        "name": "analytics (ubuntu-latest)",
+        "startedAt": "2026-11-10T15:57:41Z",
+        "status": "COMPLETED",
+        "workflowName": "Toni analytics"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:59:47Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849996518/job/129947727063",
+        "name": "analytics (windows-latest)",
+        "startedAt": "2026-11-10T15:58:49Z",
+        "status": "COMPLETED",
+        "workflowName": "Toni analytics"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:58:45Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849808289/job/129947045145",
+        "name": "analytics (windows-latest)",
+        "startedAt": "2026-11-10T15:57:41Z",
+        "status": "COMPLETED",
+        "workflowName": "Toni analytics"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:59:22Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849995749/job/129947726292",
+        "name": "container",
+        "startedAt": "2026-11-10T15:58:49Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:58:04Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849808818/job/129947044488",
+        "name": "container",
+        "startedAt": "2026-11-10T15:57:41Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:59:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849995964/job/129947725952",
+        "name": "collab",
+        "startedAt": "2026-11-10T15:58:49Z",
+        "status": "COMPLETED",
+        "workflowName": "Frontend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:58:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849808458/job/129947042796",
+        "name": "collab",
+        "startedAt": "2026-11-10T15:57:41Z",
+        "status": "COMPLETED",
+        "workflowName": "Frontend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:59:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849995749/job/129947725726",
+        "name": "deployment-rehearsal",
+        "startedAt": "2026-11-10T15:58:49Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T15:58:35Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42849808818/job/129947045474",
+        "name": "deployment-rehearsal",
+        "startedAt": "2026-11-10T15:57:41Z",
+        "status": "COMPLETED",
+        "workflowName": "Backend checks"
+      }
+    ],
+    "url": "https://github.com/bekzatwr/data-driven-curriculum/pull/14"
+  },
+  "logs_sha256": {
+    "full-tests.log": "073ae35f7cda7ce257d282d20db328ae59bce6b04360ae9d74f188b2a401476f",
+    "full-tests.xml": "3307f63bad812a522f10086adf670cf856d2a460ff82c1f5febceb250b58edcf",
+    "planner-extra.log": "f30c2980aeb8f1a181c39e074fb74bb16446796eaf07d02cca6f56834b369fa2",
+    "planner-extra.xml": "801da1f2977508dc2abe669129f6cbde910b2a06591095fe0769e7542fff18f1",
+    "frontend-tests.log": "efd45755abb7c7bddf13daa67360291f38b0eddf726c3401ed0ac47ba28fc4c6",
+    "frontend-build.log": "7d2e1235f846a279d456f7616cb5867cbef68a48b472c5e57484f0f4dfc4d14a",
+    "period-parity.log": "4393dbb0d4d12e4ec430ed44eac17d27649e36d89ea1aaec3e81da815fd0f49b",
+    "http-e2e.log": "61e3bd4a0a498799805648bfb5597be4a19e12024066bc177a701438c4514800"
+  }
+}
