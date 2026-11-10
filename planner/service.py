@@ -26,7 +26,7 @@ def preview(store, dataset_id, request):
                 raise PlanError(f'{tid}: выбранная версия не содержит итоговых результатов')
         scales = {(r['test_version'], r['max_score']) for r in rows}
         single = len(scales) == 1
-        metrics.append({'topic_id': tid, 'mean_post_pct': mean(100*r['score']/r['max_score'] for r in rows) if single else None,
+        metrics.append({'topic_id': tid, 'mean_post_pct': mean(100 * (r['score'] / r['max_score']) for r in rows) if single else None,
                         'n_post': len({r['student_id'] for r in rows}), 'single_version': single,
                         'test_version': rows[0]['test_version'] if single else None,
                         'max_score': rows[0]['max_score'] if single else None})
@@ -36,7 +36,7 @@ def preview(store, dataset_id, request):
             'source': dataset, 'is_demo': dataset['source_type'] == 'demo', 'metrics': metrics}
 
 
-def save_plan(source, snapshots, dataset_id, request):
+def save_plan(source, snapshots, dataset_id, request, *, response_factory=None):
     result = preview(source, dataset_id, request)
     recommended = {i['topic_id']: i['proposed_hours'] for i in result['items']}
     hours = request.hours_by_topic if request.hours_by_topic is not None else recommended
@@ -52,4 +52,4 @@ def save_plan(source, snapshots, dataset_id, request):
     result['manually_modified'] = hours != recommended
     result['comment'] = request.comment
     result['recommendation_transfers'] = result.pop('transfers')
-    return snapshots.save(result)
+    return snapshots.save(result, response_factory=response_factory)

@@ -28,7 +28,8 @@ def preview_route(dataset_id: str, payload: PlanRequest, request: Request):
 @router.post('/datasets/{dataset_id}/plans', status_code=201, response_model=SavedPlan, response_model_exclude_unset=True)
 def save_route(dataset_id: str, payload: SaveRequest, request: Request):
     try:
-        return save_plan(request.app.state.store, request.app.state.plan_snapshots, dataset_id, payload)
+        return save_plan(request.app.state.store, request.app.state.plan_snapshots, dataset_id, payload,
+                         response_factory=lambda snapshot: JSONResponse(status_code=201, content=snapshot))
     except (PlanError, ValidationError) as exc:
         return error(str(exc))
 
