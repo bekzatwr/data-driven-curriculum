@@ -2,7 +2,7 @@
 
 **За весь deployment отвечает Дамир:** выбор платформы, её конфигурация, сборка frontend, HTTPS, публикация, эксплуатация, backups и rollback. **Бекзат отвечает за backend, SQLite, API и серверную интеграцию.** Новое распределение заменяет прежнее назначение Бекзата ответственным за облако.
 
-Проверено 10 ноября 2026. Рабочая основа этого документа — `64cba3f`; актуальная изученная ветка Дамира — `fix/damir-final-integration:a8f6452`. Конфигурации совместимы и оставлены без изменений. [Аудит и результаты](DEPLOYMENT_HANDOFF_AUDIT.md). Способ хостинга не выбран за Дамира, deploy не выполнялся.
+Актуальная изолированная интеграция: `integration/final-e2e-stabilization`, проверенный SHA `2e4bb964b974292a669f85fe1072e0153e9c62d7`, frontend Дамира `de7c585`, Teachers Тони `b25cfaf`, period Айданы `62ad936`. [Результаты и оставшиеся блокеры](FINAL_E2E_BUGFIX_REPORT.md). Серверный HTTP/SQLite/Docker сценарий проверен; browser/mobile недоступны в этой среде, открыт дефект frontend body-timeout. Это handoff для review, не разрешение на deployment. Конфигурации сохранены; платформа остаётся выбором Дамира.
 
 ## 1. Запуск backend — выбрать подходящий вариант
 
@@ -82,7 +82,7 @@ Seed создаёт только встроенный synthetic dataset и на�
 | Comments | `GET/POST /api/datasets/{id}/comments` |
 | AI status | `GET /api/ai/status`: configured=false; AI-вызовы выключены |
 
-В public read-only разрешены чтение, demo lookup и preview. Import, import dry-run, save, comments POST, AI POST и dataset restore возвращают 403. Teachers API отсутствует в проверенной общей базе и в `a8f6452`; Тони уже опубликовал `GET /api/datasets/{id}/teachers` в отдельной `analytics/toni:59ba47b`, его подключение и серверный review остаются за Бекзатом вместе с Тони. Period уже опубликован в PR #10 и подключён Дамиром в `dd3d043`; это установлено по исходникам/CI, а не новый общий E2E в этой задаче. В собственной проверенной базе `64cba3f` period ещё отсутствует: не выбирать её автоматически как окончательный release.
+В public read-only разрешены чтение, demo lookup и preview. Import, import dry-run, save, comments POST, AI POST и dataset restore возвращают 403. Teachers API подключён: `GET /api/datasets/{id}/teachers`, фильтры `class_ids`, `textbook_ids`, `test_version`. Настоящий frontend `de7c585` использует этот endpoint. Period опубликован и подключён: `settings.mode="period"`, snapshot `algorithm_version="period_v1"`; без mode используется `rules_v1`. JSON/CSV обоих режимов проверены после restart и восстановления. Примеры: `contracts/integrated-analytics-teachers.response.json`, `contracts/period-plan-preview.response.json`, `contracts/period-plan-saved.response.json`.
 
 ## 5. Что нужно Дамиру для публикации
 

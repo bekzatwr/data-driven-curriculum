@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml?query=branch%3Afeature%2Fbekzat-p1-infrastructure"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml/badge.svg?branch=feature%2Fbekzat-p1-infrastructure" alt="Bekzat integration CI"></a>
+  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml?query=branch%3Aintegration%2Ffinal-e2e-stabilization"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml/badge.svg?branch=integration%2Ffinal-e2e-stabilization" alt="Bekzat integration CI"></a>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/SQLite-persistent-003B57?logo=sqlite&logoColor=white" alt="SQLite persistent storage">
@@ -20,15 +20,11 @@
 </p>
 
 > [!IMPORTANT]
-> **Deployment передан Дамиру.** Платформу и публикацию выбирает и выполняет Дамир. Бекзат отвечает за backend, SQLite, API и серверную интеграцию. [Короткий handoff](docs/DAMIR_DEPLOYMENT_HANDOFF.md) · [Аудит совместимости](docs/DEPLOYMENT_HANDOFF_AUDIT.md). Render остаётся необязательным примером.
+> **Изолированная финальная интеграция — на review.** Ветка `integration/final-e2e-stabilization` включает backend, аналитику и Teachers Тони, оба режима планировщика Айданы, Comments и настоящий React Дамира (`de7c585`). [Полный отчёт E2E и bugfix](docs/FINAL_E2E_BUGFIX_REPORT.md) · [Аудит PR #1–#13](docs/final-e2e-pr-audit.json).
 >
-> **PRE-INTEGRATION: разработка Дамира и Тони продолжается.** [Текущий статус и план объединения](docs/PRE_INTEGRATION_STATUS.md). PR #9 не включён в эту сборку; period Айданы опубликован в PR #10 и проверен отдельно. Release Candidate не объявлен. Сначала завершение модулей и review команды.
+> **Публичный запуск пока NO-GO.** Серверный сценарий, SQLite и Docker проверены отдельно от интерфейса. Browser/mobile E2E этой сборки не выполнен из-за недоступности браузерного инструмента; найден незакрытый дефект frontend timeout при зависшем теле ответа. Успешный CI не заменяет эти проверки и review команды.
 >
-> **10 ноября 2026 · cloud readiness на review.**
-> `deployment/bekzat-cloud-readiness` объединяет сервер `b25891c`, безопасный public mode и настоящий React Дамира из PR #4 (`03395ef`).
-> Сайт пока не опубликован. AI выключен; Teachers API Тони и period planner Айданы опубликованы отдельно; к этой подготовительной сборке они ещё не подключены.
-> [Актуальная готовность облака](docs/BEKZAT_CLOUD_READINESS.md) · [README для главной страницы: PR #7](https://github.com/bekzatwr/data-driven-curriculum/pull/7).
-> [Полный отчёт Бекзата](docs/BEKZAT_P1_STATUS.md) · [P1-контракт и handoff](docs/BEKZAT_P1_API.md). `main` и чужие ветки не меняются.
+> **Deployment выполняет Дамир.** Бекзат отвечает за backend, SQLite, API и серверную интеграцию. [Handoff и env](docs/DAMIR_DEPLOYMENT_HANDOFF.md). Render — необязательный пример; main не изменён, production deploy этой версии не выполнялся.
 
 <a id="status"></a>
 
@@ -42,8 +38,8 @@
 | Планировщик Айданы | Сумма часов, min/max, locked, ±2 часа, ручные правки | Подключён |
 | Backend Бекзата | Атомарное сохранение, SQLite, JSON/CSV, backup/restore | Подключён |
 | Публичный режим | Просмотр и расчёт; импорт/restore/save запрещены сервером | Подготовлен |
-| React Дамира | Настоящий интерфейс из PR #4, исходники без изменений | Подключён в этой ветке |
-| Комментарии | Цели, SQLite, атомарная запись, квоты и антиспам | Подготовлены к review |
+| React Дамира | PR #9 de7c585, серверные Teachers и period; исходники автора сохранены | Подключён в этой ветке |
+| Комментарии | Цели, SQLite, атомарная запись, квоты и антиспам | Проверены сервером; UI ждёт приёмки |
 | AI backend | Серверные агрегаты, deadline, квоты, offline/mock | По умолчанию выключен |
 | Нагрузка учителей | Серверный API Тони, демо 4/120/30/24; [API и проверка](docs/TONI_P1.md) | Подключена в интерфейсе |
 | План на период | Серверный period_v1 Айданы, ручные правки, отчёт | Подключён в интерфейсе |
@@ -69,7 +65,7 @@
 Нужны Git и Docker Desktop. Для приватного показа с импортом и сохранением:
 
 ```bash
-git clone --branch deployment/bekzat-cloud-readiness https://github.com/bekzatwr/data-driven-curriculum.git
+git clone --branch integration/final-e2e-stabilization https://github.com/bekzatwr/data-driven-curriculum.git
 cd data-driven-curriculum
 docker compose -f deploy/compose.yaml -f deploy/compose.local.yaml up --build --detach --wait
 ```
@@ -213,6 +209,7 @@ python scripts/check_frontend_handoff.py
 
 | Документ | Для чего |
 | :--- | :--- |
+| [Финальная интеграция: E2E, исправления и блокеры](docs/FINAL_E2E_BUGFIX_REPORT.md) | Актуальный проверенный состав и handoff |
 | [Cloud readiness: Render, Supabase, 12 шагов публикации](docs/BEKZAT_CLOUD_READINESS.md) | Текущая инфраструктура и NO-GO публичного запуска |
 | [Отчёт Бекзата: сделано / блокеры / тесты / Git](docs/BEKZAT_P1_STATUS.md) | Честная готовность P0 + P1 |
 | [P1 API и изменения контракта](docs/BEKZAT_P1_API.md) | Дамиру и reviewers |

@@ -1,0 +1,51 @@
+{
+  "source_commit": "2e4bb964b974292a669f85fe1072e0153e9c62d7",
+  "pytest": {
+    "passed": 436,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 207.27,
+    "subtests_passed_separately": 102,
+    "warning": "Starlette/httpx TestClient deprecation"
+  },
+  "frontend_unit": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typecheck": "passed",
+  "frontend_build": "passed",
+  "lint": "not configured",
+  "contracts": "regenerated without diff",
+  "docker_groups": {
+    "passed": 19,
+    "failed": 0
+  },
+  "http_groups": {
+    "passed": 8,
+    "failed": 0
+  },
+  "frontend_transport": {
+    "passed": 9,
+    "failed": 1,
+    "known_failure": "response-body deadline; owner Damir"
+  },
+  "browser_e2e": "blocked by unavailable browser surface",
+  "mobile_widths": {
+    "360": "not tested",
+    "390": "not tested",
+    "430": "not tested",
+    "768": "not tested",
+    "1366": "not tested",
+    "1920": "not tested"
+  },
+  "real_devices_tested": false,
+  "external_https_tested": false,
+  "provider_network_calls": 0,
+  "npm_audit": {
+    "moderate": 2,
+    "high": 0,
+    "critical": 0
+  },
+  "counting": "Subtests, subsets, repeated runs and check groups are not added to pytest totals."
+}
