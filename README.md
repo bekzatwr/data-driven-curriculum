@@ -1,93 +1,138 @@
-# Data Driven Curriculum
+<p align="center"><img src="docs/assets/readme-banner.svg" alt="Data Driven Curriculum — учебные решения на основе данных" width="100%"></p>
 
-EdTech-платформа для методистов: анализ результатов тестирования по темам, выявление сложных разделов, сравнение учебников и рекомендации по распределению учебных часов.
+<p align="center">
+<a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml?query=branch%3Afeature%2Fbekzat-p1-infrastructure"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml/badge.svg?branch=feature%2Fbekzat-p1-infrastructure" alt="CI интеграционной сборки"></a>
+<img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React">
+<img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+<img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
+<img src="https://img.shields.io/badge/SQLite-persistent-003B57?logo=sqlite&logoColor=white" alt="SQLite">
+</p>
 
-Статус: реализован серверный модуль Айданы — планировщик часов, проверка ручных правок, сохранение снимков, JSON отчёта и CSV. Полный интерфейс и остальные модули интегрируются командой.
+<p align="center"><b>От результатов тестирования — к обоснованному учебному плану.</b><br>Платформа для методистов: проблемные темы, сравнение учебников и распределение часов.</p>
 
-### Запуск модуля Айданы
+<p align="center"><a href="#product">Возможности</a> · <a href="#start">Запуск</a> · <a href="#status">Готовность</a> · <a href="#team">Команда</a> · <a href="#docs">Документация</a></p>
+
+> [!IMPORTANT]
+> **Интеграционная сборка находится на review.** Полный React + FastAPI опубликован в ветке [`feature/bekzat-p1-infrastructure`](https://github.com/bekzatwr/data-driven-curriculum/tree/feature/bekzat-p1-infrastructure), [PR #6](https://github.com/bekzatwr/data-driven-curriculum/pull/6).
+> `main` пока содержит отдельный модуль планировщика. Для полного сайта используйте команду ниже с нужной веткой. Публичного HTTPS-стенда пока нет.
+
+<a id="product"></a>
+
+## Возможности платформы
+
+```mermaid
+flowchart LR
+    A[Два CSV] --> B[Проверка и импорт]
+    B --> C[Аналитика тем]
+    C --> D[Сравнение учебников]
+    D --> E[Расчёт и правка часов]
+    E --> F[Сохранённый план]
+    F --> G[Отчёт и CSV]
+```
+
+| Возможность | Результат для методиста |
+| :--- | :--- |
+| **Проверка CSV** | Построчные ошибки до импорта и единый формат результатов |
+| **Аналитика** | Обзор классов, проблемные темы, тепловая карта и парные pre/post результаты |
+| **Сравнение учебников** | Разница приростов с фильтрами и ограничениями сопоставимости |
+| **Планировщик** | Сохранение суммы часов, min/max, locked и изменения не более ±2 часов |
+| **Ручная правка** | Сервер проверяет каждую правку перед атомарным сохранением |
+| **Отчёт** | Неизменяемый snapshot, повторное открытие и CSV-экспорт |
+| **Хранение** | SQLite на постоянном диске, согласованный backup и проверяемое восстановление |
+
+Сравнение описывает наблюдаемые различия групп и не доказывает причинное влияние учебника. Рекомендации остаются предложениями для методиста.
+
+<details>
+<summary><b>Посмотреть настоящий интерфейс и сохранённый отчёт</b></summary>
+
+![Сохранённый отчёт React на синтетическом наборе](https://raw.githubusercontent.com/bekzatwr/data-driven-curriculum/cfce13d24b68b70a8bbec7e196f70886d254cfe7/docs/assets/p1-report-desktop.png)
+
+Проверенная сборка PR #6: 24 часа, ручные правки, данные после перезапуска. Дизайн развивается в ветке Дамира. [Протокол браузерной приёмки](https://github.com/bekzatwr/data-driven-curriculum/blob/feature/bekzat-p1-infrastructure/docs/MOBILE_ACCEPTANCE.md).
+
+</details>
+
+<a id="start"></a>
+
+## Запустить полный сайт
+
+Нужны Git и Docker Desktop. Команда запускает приватный локальный стенд с импортом и сохранением:
+
+```bash
+git clone --branch feature/bekzat-p1-infrastructure https://github.com/bekzatwr/data-driven-curriculum.git
+cd data-driven-curriculum
+docker compose -f deploy/compose.yaml -f deploy/compose.local.yaml up --build --detach --wait
+```
+
+Открыть **[http://127.0.0.1:8080](http://127.0.0.1:8080)**. [Swagger](http://127.0.0.1:8080/docs) · [Health](http://127.0.0.1:8080/api/health). Один контейнер отдаёт интерфейс и API; база хранится в отдельном volume.
+
+Используйте только [синтетические CSV](https://github.com/bekzatwr/data-driven-curriculum/tree/feature/bekzat-p1-infrastructure/examples/toni-demo): **120 учеников · 4 класса · 6 тем · 1 440 строк**. План `7A` сохраняет **24 часа**, сравнение по `equations` показывает разницу приростов **8 п.п.**
+
+Остановка с сохранением данных:
+
+```bash
+docker compose -f deploy/compose.yaml -f deploy/compose.local.yaml down
+```
+
+Не добавляйте `-v`: этот флаг удаляет volume. [Полное руководство deployment](https://github.com/bekzatwr/data-driven-curriculum/blob/feature/bekzat-p1-infrastructure/deploy/README.md).
+
+<details>
+<summary><b>Отдельная демонстрация планировщика из main</b></summary>
 
 ```bash
 python -m pip install -r requirements-planner.txt
 python -m uvicorn planner.app:create_demo_app --factory --reload
 ```
 
-Открыть http://127.0.0.1:8000/docs. Вызвать `POST /api/datasets/demo`, затем использовать `dataset_id=aidana-demo` и `class_id=7A` для расчёта и сохранения. Это отдельная демонстрация планировщика на искусственных данных.
+Открыть [Swagger](http://127.0.0.1:8000/docs), вызвать `POST /api/datasets/demo`, использовать `dataset_id=aidana-demo` и `class_id=7A`. [Контракт Айданы](docs/AIDANA.md) · [Материалы защиты](docs/AIDANA_DEFENSE.md).
 
-[Контракт, подключение к серверу и проверки](docs/AIDANA.md) · [Материалы выступления](docs/AIDANA_DEFENSE.md)
+</details>
 
-## Техническое задание
+<a id="status"></a>
 
-[Скачать подробное ТЗ команды в Word](TZ_Damir_Bekzat_Toni_Aidana.docx)
+## Готовность и публикация
 
-## Команда
+| Часть проекта | Текущее состояние |
+| :--- | :--- |
+| Backend, аналитика и planner | Серверная интеграция в [PR #3](https://github.com/bekzatwr/data-driven-curriculum/pull/3) |
+| Настоящий React | Развивается в [PR #4 Дамира](https://github.com/bekzatwr/data-driven-curriculum/pull/4); проверенная версия включена в PR #6 |
+| Comments, offline AI, Docker, persistence | Подготовлены в [PR #6 Бекзата](https://github.com/bekzatwr/data-driven-curriculum/pull/6) |
+| Публичная политика | Синтетические данные; `PUBLIC_DEMO=true`, `READ_ONLY_DEMO=true`, `AI_ENABLED=false` |
+| Импорт, save, новые комментарии | Работают приватно; публичная запись запрещена сервером |
+| Учительская нагрузка и план на период | Клиентские прототипы, ожидаются серверные модули владельцев |
+| Облако и HTTPS | Подготовка к review; публичная публикация ещё не выполнена |
 
-| Участник | Ответственность | Плановая нагрузка |
-| --- | --- | --- |
-| Дамир | Весь фронтенд: все страницы, формы, графики, фильтры, подключение интерфейса к API, печать отчёта | 18 ч |
-| Бекзат | Сервер, база данных, импорт CSV, проверка данных, развёртывание и инструкция запуска | 18 ч |
-| Тони | Аналитика тем, сравнение учебников, API аналитики, демоданные и проверка формул | 18 ч |
-| Айдана | Серверный планировщик часов, сохранение планов, данные отчёта и CSV-экспорт, сквозная проверка и материалы защиты | 18 ч |
+План хостинга: **React + FastAPI в одном Docker-сервисе**, один worker, SQLite + WAL в `/app/data` на persistent disk. Render Free без постоянного диска не подходит для сохранения этой базы. Платные ресурсы и публикация требуют отдельного разрешения владельца.
 
-Весь клиентский код приложения пишет Дамир. Тони и Айдана отдают рассчитанные данные через API; страницы сравнения, плана и отчёта также реализует Дамир.
+Фактические тесты и ограничения среды — в [отчёте Бекзата](https://github.com/bekzatwr/data-driven-curriculum/blob/feature/bekzat-p1-infrastructure/docs/BEKZAT_P1_STATUS.md). CI не заменяет командное review и проверку настоящего HTTPS после deployment.
 
-## Работа в ветках
+<a id="team"></a>
 
-| Участник | Рабочая ветка |
-| --- | --- |
-| Дамир | `frontend/damir` |
-| Бекзат | `backend/bekzat` |
-| Тони | `analytics/toni` |
-| Айдана | `planner/aidana` |
+## Команда и ветки
 
-Каждый выполняет свои задачи, включая дополнительный модуль, в своей ветке. Весь фронтенд остаётся у Дамира.
+| Участник | Ответственность | Ветка |
+| :--- | :--- | :--- |
+| **Дамир** | Весь frontend, React, формы, графики, мобильный интерфейс | `frontend/damir` |
+| **Бекзат** | Backend, API, SQLite, импорт, интеграция, инфраструктура | `backend/bekzat` |
+| **Тони** | Аналитика тем, фильтры, сравнение учебников, формулы | `analytics/toni` |
+| **Айдана** | Планировщик, ограничения, snapshot, отчёт | `planner/aidana` |
 
-1. Перед началом задачи получить изменения из GitHub и обновить рабочую ветку из `origin/main`.
-2. Сделать изменения и проверить свой модуль. Коммитить только связанные с задачей файлы.
-3. Отправить рабочую ветку и открыть Pull Request в `main`: что изменено и как проверено.
-4. Получить проверку хотя бы одного другого участника и устранить замечания. Конфликты решает автор ветки.
-5. После успешной проверки Бекзат объединяет PR; команда обновляет свои ветки из `main`.
+Каждый работает в своей ветке. Изменения поступают через PR с описанием и проверками; объединение — после успешного CI и review другого участника. Прямые изменения `main` и force push не используются. Интеграция ведётся в отдельных ветках с сохранением работы участников.
 
-Прямые коммиты и force push в `main` не использовать. Это правило команды; техническая защита ветки отдельно не настроена.
+<a id="docs"></a>
 
-Пример для Дамира после клонирования:
+## Документация
 
-```bash
-git fetch origin
-git switch frontend/damir
-git merge origin/main
-# После выполнения и проверки задачи:
-git add <нужные-файлы>
-git commit -m "Describe the completed task"
-git push -u origin frontend/damir
-```
+| Материал | Назначение |
+| :--- | :--- |
+| [ТЗ команды в Word](TZ_Damir_Bekzat_Toni_Aidana.docx) | Задачи и критерии приёмки |
+| [Отчёт Бекзата](https://github.com/bekzatwr/data-driven-curriculum/blob/feature/bekzat-p1-infrastructure/docs/BEKZAT_P1_STATUS.md) | Проверки и блокеры |
+| [P0 API для frontend](https://github.com/bekzatwr/data-driven-curriculum/blob/feature/bekzat-p1-infrastructure/docs/FRONTEND_API.md) | Endpoints и JSON |
+| [P1 API](https://github.com/bekzatwr/data-driven-curriculum/blob/feature/bekzat-p1-infrastructure/docs/BEKZAT_P1_API.md) | Comments, capabilities, AI, лимиты |
+| [Публикация и backup/restore](https://github.com/bekzatwr/data-driven-curriculum/blob/feature/bekzat-p1-infrastructure/deploy/README.md) | Действия владельца и env |
+| [Мобильная приёмка](https://github.com/bekzatwr/data-driven-curriculum/blob/feature/bekzat-p1-infrastructure/docs/MOBILE_ACCEPTANCE.md) | Результаты и handoff Дамиру |
+| [Методология аналитики](https://github.com/bekzatwr/data-driven-curriculum/blob/analytics/toni/docs/TONI.md) | Расчёты и ограничения выводов |
+| [Планировщик Айданы](docs/AIDANA.md) | Правила часов и контракт |
 
-Остальные используют свою ветку из таблицы. Если при `merge` возникают конфликты, сначала исправить их и завершить слияние.
+Дополнительная идея из ТЗ — оценка эффекта плана по повторному тесту тех же учеников. Она остаётся следующей задачей после готовности основного MVP.
 
-## MVP
-
-- Импорт результатов и учебного плана из CSV.
-- Аналитика результатов по темам и классам.
-- Сравнение учебников с отображением ограничений сопоставимости.
-- Перераспределение предстоящих часов с сохранением общей суммы, границ и блокировок.
-- Сохранение плана, отчёт и CSV-экспорт.
-
-Предлагаемый стек: React + TypeScript, Python + FastAPI, SQLite. Команда фиксирует конкретные версии при начале реализации.
-
-## Дополнительная идея P1 — проверка эффекта плана
-
-После занятий методист загружает повторный тест и сравнивает результаты тех же учеников по темам, которым изменили часы. В таблице видны фактические часы, баллы до и после, изменение в процентных пунктах и покрытие повторным тестированием. Наблюдаемая динамика не доказывает причинное влияние дополнительных часов.
-
-Это дополнительный модуль после готовности MVP: ориентировочно 8 человеко-часов, по 2 часа на каждого. Дамир делает весь интерфейс, Бекзат — хранение и проверку структуры данных, Тони — расчёты, Айдана — API проверки и сохранение снимка. Основной бюджет MVP остаётся по 18 часов; с этой функцией ориентир — по 20 часов. Подробности и критерии приёмки находятся в разделах 16–17 ТЗ. Функция пока описана в ТЗ и не реализована.
-
-## Сроки
-
-Дедлайн: **11 ноября 2026 года, 23:59, UTC+5**. Внутренняя сдача: **22:00**.
-
-- 9 ноября: согласовать форматы данных, API и примеры JSON.
-- 10 ноября: объединить основные модули.
-- 11 ноября до 18:00: завершить функции и исправить критические ошибки.
-- 11 ноября до 22:00: проверить материалы и отправить проект.
-
-## Данные и выводы
-
-Демонстрационный набор должен быть искусственным и явно обозначенным. Сравнение показывает наблюдаемые различия групп и не доказывает причинное влияние учебника. Рекомендации по часам являются объяснимыми предложениями для методиста.
+<p align="center"><sub>Заморозка функций: 11 ноября, 18:00 · внутренняя сдача: 22:00<br>Дедлайн: <b>11 ноября 2026, 23:59 UTC+5</b> · только синтетические данные</sub></p>
