@@ -1,3 +1,5 @@
+> Следующий этап: [BEKZAT_CLOUD_READINESS.md](BEKZAT_CLOUD_READINESS.md), проверенный frontend и текущий cloud PR. Ниже сохранён протокол предыдущей сборки.
+
 # Готовность публичного демостенда · 10 ноября 2026
 
 **GO для локального демо. Публичный deploy пока не разрешён.** Настоящий React Дамира опубликован и включён в `feature/bekzat-p1-infrastructure`; прежний блокер отсутствия frontend снят. Актуальная приёмка и границы ответственности — [BEKZAT_P1_STATUS.md](BEKZAT_P1_STATUS.md), рабочие интерфейсы — [BEKZAT_P1_API.md](BEKZAT_P1_API.md).

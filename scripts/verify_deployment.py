@@ -22,6 +22,7 @@ from uuid import uuid4
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from backend.app.demo import demo_files
+from scripts.check_release import check_release, compare_observations
 
 
 def main():
@@ -249,6 +250,8 @@ def main():
         public_csv = http(public_base, prepared['csv_url'], raw=True)[1]
         assert public_report['is_demo'] is True and public_report['total_hours'] == 24
         assert public_csv.startswith(b'\xef\xbb\xbf')
+        release_before = check_release(public_base, plan_id=prepared['plan_id'])
+        assert release_before['technical_precheck_passed'], release_before
         assert http(public_base, '/api/plans/..%2f..%2fdata%2fcurriculum.sqlite3/export.csv')[0] == 404
         public_features = http(public_base, '/api/capabilities')[1]['features']
         assert all(public_features[k] is False for k in ('csv_import', 'package_restore', 'plan_save'))
@@ -260,6 +263,13 @@ def main():
         assert http(public_base, prepared['csv_url'], raw=True)[1] == public_csv
         assert command("docker", "exec", public_name, "python", "-c", dump_code).stdout.strip() == before
         checks.append("public HTTP cannot import/restore/save; demo/preview/report/export do not mutate SQLite; restart preserves report")
+        release_after = check_release(public_base, plan_id=prepared['plan_id'])
+        # Docker may allocate a new loopback port on restart; verify_deployment owns
+        # both addresses for this same container. Public HTTPS baselines stay strict.
+        release_before['base_url'] = public_base
+        compare_observations(release_after, release_before)
+        assert release_after['saved_report_matches_baseline'], release_after
+        checks.append("release precheck: actual React asset, SPA report link, offline AI and JSON/CSV baseline after restart")
         # The restored limiter shares the same SQLite. Spoofed XFF cannot bypass it.
         for _ in range(9):
             assert http(restored_base, comment_path, "POST", {
@@ -276,7 +286,10 @@ def main():
         assert blocked[0] == 429 and int(blocked[2]["Retry-After"]) > 0
         checks.append("Docker HTTP comment rate limit and spoofed forwarding-header rejection")
         report = {"infrastructure_passed": True, "server_p0_verified": True, "full_p0_verified": False, "synthetic_data_only": True,
-            "frontend": "actual unmodified web/ from PR4 at 68f5a56; browser QA reported separately",
+            "frontend": "actual web/ build; browser QA reported separately",
+                  "frontend_tree": command("git", "rev-parse", "HEAD:web").stdout.strip(),
+                  "source_commit": command("git", "rev-parse", "HEAD").stdout.strip(),
+                  "source_dirty": bool(command("git", "status", "--porcelain").stdout.strip()),
                   "comments_persistence_verified": True, "ai_provider_calls": 0,
                   "public_read_only_verified": True, "public_report_id": prepared['plan_id'],
                   "analytics_available": features["analytics"], "comparison_available": features["textbook_comparison"],

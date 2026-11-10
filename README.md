@@ -20,9 +20,12 @@
 </p>
 
 > [!IMPORTANT]
-> **10 ноября 2026 · P0 + серверная инфраструктура P1 на review.**
-> `feature/bekzat-p1-infrastructure` объединяет сервер `b25891c`, безопасный public mode и настоящий React Дамира из PR #4 (`68f5a56`).
+> **PRE-INTEGRATION: разработка Дамира и Тони продолжается.** [Текущий статус и план объединения](docs/PRE_INTEGRATION_STATUS.md). PR #9 не включён в эту проверку; Release Candidate не объявлен. Сначала завершение модулей и review команды.
+>
+> **10 ноября 2026 · cloud readiness на review.**
+> `deployment/bekzat-cloud-readiness` объединяет сервер `b25891c`, безопасный public mode и настоящий React Дамира из PR #4 (`03395ef`).
 > Сайт пока не опубликован. AI выключен; учительская нагрузка и план на период — прототипы интерфейса, серверная реализация ожидает владельцев.
+> [Актуальная готовность облака](docs/BEKZAT_CLOUD_READINESS.md) · [README для главной страницы: PR #7](https://github.com/bekzatwr/data-driven-curriculum/pull/7).
 > [Полный отчёт Бекзата](docs/BEKZAT_P1_STATUS.md) · [P1-контракт и handoff](docs/BEKZAT_P1_API.md). `main` и чужие ветки не меняются.
 
 <a id="status"></a>
@@ -43,14 +46,14 @@
 | Учителя / period planner | Сейчас клиентские прототипы | Ожидаются API Тони / Айданы |
 | HTTPS-публикация | Один Docker-сервис, постоянный диск, ручной deploy | **Не выполнена** |
 
-Фактические браузерные проверки, шесть ширин и ограничения среды — в [матрице приёмки](docs/MOBILE_ACCEPTANCE.md). Эмуляция не заменяет проверку физических Android/iPhone.
+Исторические браузерные проверки предыдущей сборки, шесть ширин и ограничения среды — в [матрице приёмки](docs/MOBILE_ACCEPTANCE.md). Эмуляция не заменяет проверку физических Android/iPhone.
 
 <details>
 <summary><b>Посмотреть настоящий сохранённый отчёт</b></summary>
 
 ![Отчёт из React Дамира после импорта, ручной правки и перезапуска API](docs/assets/p1-report-desktop.png)
 
-Локальный сценарий на синтетических CSV. Сумма 24 часа, две ручные правки; snapshot и комментарий пережили перезапуск. [Экран 360 px](docs/assets/p1-report-mobile.png) · [Результаты проверок](docs/BEKZAT_P1_STATUS.md).
+Скриншот предыдущей сборки frontend `68f5a56`, не текущего дизайна `03395ef`. Локальный сценарий на синтетических CSV: сумма 24 часа, две ручные правки; snapshot и комментарий пережили перезапуск. [Экран 360 px](docs/assets/p1-report-mobile.png) · [Результаты проверок](docs/BEKZAT_P1_STATUS.md).
 
 </details>
 
@@ -61,7 +64,7 @@
 Нужны Git и Docker Desktop. Для приватного показа с импортом и сохранением:
 
 ```bash
-git clone --branch feature/bekzat-p1-infrastructure https://github.com/bekzatwr/data-driven-curriculum.git
+git clone --branch deployment/bekzat-cloud-readiness https://github.com/bekzatwr/data-driven-curriculum.git
 cd data-driven-curriculum
 docker compose -f deploy/compose.yaml -f deploy/compose.local.yaml up --build --detach --wait
 ```
@@ -173,7 +176,7 @@ flowchart LR
 
 ## Проверки и границы готовности
 
-[Актуальный отчёт](docs/PUBLIC_DEPLOYMENT_READINESS.md) содержит результаты pytest, контрактов и Docker-репетиции, включая публичный запрет записи и restart/restore.
+[Актуальный отчёт](docs/BEKZAT_CLOUD_READINESS.md) содержит результаты pytest, контрактов и Docker-репетиции, включая публичный запрет записи и restart/restore.
 
 ```bash
 python scripts/start.py --dev --install-only
@@ -205,6 +208,7 @@ python scripts/check_frontend_handoff.py
 
 | Документ | Для чего |
 | :--- | :--- |
+| [Cloud readiness: Render, Supabase, 12 шагов публикации](docs/BEKZAT_CLOUD_READINESS.md) | Текущая инфраструктура и NO-GO публичного запуска |
 | [Отчёт Бекзата: сделано / блокеры / тесты / Git](docs/BEKZAT_P1_STATUS.md) | Честная готовность P0 + P1 |
 | [P1 API и изменения контракта](docs/BEKZAT_P1_API.md) | Дамиру и reviewers |
 | [Публикация, env, backup/restore](deploy/README.md) | Пошаговая инструкция владельцу Render |

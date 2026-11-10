@@ -1,6 +1,6 @@
 # Публикация Data Driven Curriculum
 
-Подготовка от 10 ноября 2026. Ветка `feature/bekzat-p1-infrastructure`, основана на `integration/p0-server:b25891c`, включает настоящий React из PR #4 (`68f5a56`). **Deploy не выполнен. Нужны review и устранение UI-блокеров публичного режима.** [Фактические проверки](../docs/PUBLIC_DEPLOYMENT_READINESS.md) · [Frontend handoff](../docs/MOBILE_ACCEPTANCE.md).
+Подготовка от 10 ноября 2026. Ветка `deployment/bekzat-cloud-readiness`, основана на `integration/p0-server:b25891c`, включает настоящий React из PR #4 (`03395ef`). **Deploy не выполнен. Нужны review и устранение UI-блокеров публичного режима.** [Текущий cloud audit и 12 шагов публикации](../docs/BEKZAT_CLOUD_READINESS.md) · [Исторические проверки](../docs/PUBLIC_DEPLOYMENT_READINESS.md) · [Frontend handoff](../docs/MOBILE_ACCEPTANCE.md).
 
 ## Архитектура и стоимость
 
@@ -51,7 +51,7 @@ Render передаёт env и как Docker build args. В Dockerfile объя�
 
 ## Локальная приёмка настоящего frontend
 
-1. React и lockfile уже опубликованы и включены из `68f5a56`. Build/typecheck есть; test/lint scripts пока ожидаются от Дамира. Исходники UI не изменялись Бекзатом.
+1. React и lockfile уже опубликованы и включены из `03395ef`. Build/typecheck есть; test/lint scripts пока ожидаются от Дамира. Исходники UI не изменялись Бекзатом.
 2. Проверить исходники: `python scripts/check_frontend_handoff.py --directory web`. Код 2 означает блокер; команда сама не выполняет frontend tests.
 3. В `web` выполнить `npm ci`, `npm test -- --run`, `npm run typecheck`, `npm run lint`, `npm run build`. Дамир должен обеспечить совместимый одноразовый test script (без watch). Секреты и абсолютные localhost URL недопустимы.
 4. Скопировать `deploy/.env.example` в `deploy/.env`. Этот файл не коммитить. Сохранить `APP_TARGET=fullstack` и `REQUIRE_P0=true`.
@@ -81,7 +81,7 @@ Remove-Item Env:HOST_PORT
 
 1. Получить готовый frontend, успешные проверки и review команды/Айданы; зафиксировать проверенный commit. В этой задаче merge в main не выполняется.
 2. Отдельно разрешить создание платного сервиса и публичный deployment. Проверить тариф, workspace и billing limits. **Создание Blueprint запускает первый deploy даже при auto-deploy off.**
-3. В Render подключить GitHub, выбрать репозиторий и ветку с проверенным commit. Создать Blueprint с путём `deploy/render.yaml` либо Docker Web Service с теми же настройками. Текущая подготовленная ветка — `feature/bekzat-p1-infrastructure`; не выбирать устаревший backend/bekzat.
+3. В Render подключить GitHub, выбрать репозиторий и ветку с проверенным commit. Создать Blueprint с путём `deploy/render.yaml` либо Docker Web Service с теми же настройками. Текущая подготовленная ветка — `deployment/bekzat-cloud-readiness`; не выбирать устаревший backend/bekzat.
 4. Frankfurt, один instance `0.5c-512mb`, disk 1 GB, mount `/app/data`, health `/api/health`, Dockerfile `./Dockerfile`, context `.`, auto-deploy off. Сверить env по таблице. Не добавлять disk-dependent pre-deploy command: диск доступен только работающему сервису.
 5. Проверить build log: настоящий npm build, fullstack stage, никаких секретов. Runtime должен пройти mount/writeability/P0/public-policy checks и запуститься непривилегированным пользователем. При ошибке прав диска исправлять права средствами платформы, не отключать persistent guard.
 6. В Shell работающего сервиса выполнить `python deploy/seed_demo_report.py`, сохранить ссылки отчёта. Не запускать отдельный job для доступа к диску.

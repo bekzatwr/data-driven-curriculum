@@ -3,7 +3,7 @@ on:
   push:
     branches: [main, backend/bekzat, analytics/toni, 'integration/**', 'deployment/**', 'feature/bekzat-*']
   pull_request:
-    branches: [main, integration/p0-server]
+    branches: [main, integration/p0-server, feature/bekzat-p1-infrastructure, deployment/bekzat-cloud-readiness]
 permissions:
   contents: read
 jobs:
