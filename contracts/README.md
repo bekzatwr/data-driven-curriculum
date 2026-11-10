@@ -1,5 +1,9 @@
 # Контракты backend
 
+**P0, 10 ноября:** живая `openapi.json` включает четыре маршрута Айданы с моделями `PlanPreview` и `SavedPlan`, ошибками и CSV media type. `integrated-plan-preview.response.json` и `integrated-plan-saved.response.json` получены из общего приложения; ID заменены placeholders. Исходные `plan-*.json` Айданы сохранены и относятся к её изолированному демо.
+
+`analytics-p0.proposed.openapi.json` — отдельный проект интерфейса для review Тони, НЕ описание реализованных маршрутов. Он не добавляется в live OpenAPI. Подробные границы и фильтры — `docs/P0_INTEGRATION.md`.
+
 `openapi.json` — схема реально реализованных маршрутов Бекзата; актуальная живая версия доступна на `/openapi.json`. `*.response.json` получены вызовами приложения на синтетическом демо. `__DATASET_ID__` и `__CREATED_AT__` — заменители изменяющихся значений; в рабочем приложении брать их из ответа API.
 
 - `demo-import.response.json`: успешный `POST /api/datasets/demo`, HTTP 201.

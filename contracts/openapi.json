@@ -1138,6 +1138,274 @@
           }
         }
       }
+    },
+    "/api/datasets/{dataset_id}/plans/preview": {
+      "post": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Preview Route",
+        "operationId": "preview_route_api_datasets__dataset_id__plans_preview_post",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanPreview"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/datasets/{dataset_id}/plans": {
+      "post": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Save Route",
+        "operationId": "save_route_api_datasets__dataset_id__plans_post",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedPlan"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/plans/{plan_id}": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Get Route",
+        "operationId": "get_route_api_plans__plan_id__get",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedPlan"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/plans/{plan_id}/export.csv": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "summary": "Export Route",
+        "operationId": "export_route_api_plans__plan_id__export_csv_get",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved snapshot as UTF-8 CSV with BOM",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1179,6 +1447,30 @@
           "results_per_page"
         ],
         "title": "ApiLimits"
+      },
+      "AppliedFilters": {
+        "properties": {
+          "class_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Class Ids"
+          },
+          "test_versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Test Versions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "class_ids",
+          "test_versions"
+        ],
+        "title": "AppliedFilters"
       },
       "Body_import_dataset_api_datasets_import_post": {
         "properties": {
@@ -1872,6 +2164,125 @@
         ],
         "title": "Metadata"
       },
+      "Metric": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "n_post": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "N Post"
+          },
+          "single_version": {
+            "type": "boolean",
+            "title": "Single Version"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_id",
+          "mean_post_pct",
+          "n_post",
+          "single_version",
+          "test_version",
+          "max_score"
+        ],
+        "title": "Metric"
+      },
+      "Override": {
+        "properties": {
+          "min_hours": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Hours"
+          },
+          "max_hours": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Hours"
+          },
+          "importance": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 3.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importance"
+          },
+          "is_locked": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Override"
+      },
       "PackageData": {
         "properties": {
           "metadata": {
@@ -2029,6 +2440,335 @@
         ],
         "title": "PackageTopic"
       },
+      "PlanErrorResponse": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Details"
+          },
+          "total_errors": {
+            "type": "integer",
+            "title": "Total Errors",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "details"
+        ],
+        "title": "PlanErrorResponse"
+      },
+      "PlanItem": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name"
+          },
+          "topic_order": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Topic Order"
+          },
+          "current_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Current Hours"
+          },
+          "min_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Min Hours"
+          },
+          "max_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Max Hours"
+          },
+          "importance": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Importance"
+          },
+          "is_locked": {
+            "type": "boolean",
+            "title": "Is Locked"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "n_post": {
+            "type": "integer",
+            "title": "N Post"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "automatic_eligible": {
+            "type": "boolean",
+            "title": "Automatic Eligible"
+          },
+          "proposed_hours": {
+            "type": "integer",
+            "title": "Proposed Hours"
+          },
+          "delta": {
+            "type": "integer",
+            "title": "Delta"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topic_id",
+          "topic_name",
+          "topic_order",
+          "current_hours",
+          "min_hours",
+          "max_hours",
+          "importance",
+          "is_locked",
+          "mean_post_pct",
+          "n_post",
+          "test_version",
+          "max_score",
+          "automatic_eligible",
+          "proposed_hours",
+          "delta",
+          "reason"
+        ],
+        "title": "PlanItem"
+      },
+      "PlanPreview": {
+        "properties": {
+          "total_hours": {
+            "type": "integer",
+            "title": "Total Hours"
+          },
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/AppliedFilters"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PlanSource"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/Metric"
+            },
+            "type": "array",
+            "title": "Metrics"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/Settings"
+          },
+          "algorithm_version": {
+            "type": "string",
+            "title": "Algorithm Version"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PlanItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "transfers": {
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            },
+            "type": "array",
+            "title": "Transfers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_hours",
+          "dataset_id",
+          "class_id",
+          "applied_filters",
+          "source",
+          "is_demo",
+          "metrics",
+          "warnings",
+          "settings",
+          "algorithm_version",
+          "items",
+          "transfers"
+        ],
+        "title": "PlanPreview"
+      },
+      "PlanRequest": {
+        "properties": {
+          "class_id": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Class Id"
+          },
+          "test_versions": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "propertyNames": {
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Test Versions"
+          },
+          "constraints": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Override"
+            },
+            "propertyNames": {
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Constraints"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/Settings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "class_id"
+        ],
+        "title": "PlanRequest"
+      },
+      "PlanSource": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "upload",
+              "demo"
+            ],
+            "title": "Source Type"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/SourceMetadata"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Counts"
+          },
+          "content_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Hash"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_type",
+          "metadata",
+          "counts"
+        ],
+        "title": "PlanSource"
+      },
       "QualityNotice": {
         "properties": {
           "code": {
@@ -2161,6 +2901,375 @@
           "tested_at"
         ],
         "title": "Result"
+      },
+      "SaveRequest": {
+        "properties": {
+          "class_id": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Class Id"
+          },
+          "test_versions": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "propertyNames": {
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Test Versions"
+          },
+          "constraints": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Override"
+            },
+            "propertyNames": {
+              "maxLength": 120,
+              "minLength": 1
+            },
+            "type": "object",
+            "title": "Constraints"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/Settings"
+          },
+          "hours_by_topic": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer",
+                  "maximum": 10000.0,
+                  "minimum": 0.0
+                },
+                "propertyNames": {
+                  "maxLength": 120,
+                  "minLength": 1
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hours By Topic"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Comment",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "class_id"
+        ],
+        "title": "SaveRequest"
+      },
+      "SavedItem": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Topic Id"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name"
+          },
+          "topic_order": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Topic Order"
+          },
+          "current_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Current Hours"
+          },
+          "min_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Min Hours"
+          },
+          "max_hours": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Max Hours"
+          },
+          "importance": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Importance"
+          },
+          "is_locked": {
+            "type": "boolean",
+            "title": "Is Locked"
+          },
+          "mean_post_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Post Pct"
+          },
+          "n_post": {
+            "type": "integer",
+            "title": "N Post"
+          },
+          "test_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Version"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "automatic_eligible": {
+            "type": "boolean",
+            "title": "Automatic Eligible"
+          },
+          "proposed_hours": {
+            "type": "integer",
+            "title": "Proposed Hours"
+          },
+          "delta": {
+            "type": "integer",
+            "title": "Delta"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "recommended_hours": {
+            "type": "integer",
+            "title": "Recommended Hours"
+          },
+          "recommendation_reason": {
+            "type": "string",
+            "title": "Recommendation Reason"
+          },
+          "manually_modified": {
+            "type": "boolean",
+            "title": "Manually Modified"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topic_id",
+          "topic_name",
+          "topic_order",
+          "current_hours",
+          "min_hours",
+          "max_hours",
+          "importance",
+          "is_locked",
+          "mean_post_pct",
+          "n_post",
+          "test_version",
+          "max_score",
+          "automatic_eligible",
+          "proposed_hours",
+          "delta",
+          "reason",
+          "recommended_hours",
+          "recommendation_reason",
+          "manually_modified"
+        ],
+        "title": "SavedItem"
+      },
+      "SavedPlan": {
+        "properties": {
+          "total_hours": {
+            "type": "integer",
+            "title": "Total Hours"
+          },
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "class_id": {
+            "type": "string",
+            "title": "Class Id"
+          },
+          "applied_filters": {
+            "$ref": "#/components/schemas/AppliedFilters"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PlanSource"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/Metric"
+            },
+            "type": "array",
+            "title": "Metrics"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/Settings"
+          },
+          "algorithm_version": {
+            "type": "string",
+            "title": "Algorithm Version"
+          },
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SavedItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "manually_modified": {
+            "type": "boolean",
+            "title": "Manually Modified"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment"
+          },
+          "recommendation_transfers": {
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            },
+            "type": "array",
+            "title": "Recommendation Transfers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_hours",
+          "dataset_id",
+          "class_id",
+          "applied_filters",
+          "source",
+          "is_demo",
+          "metrics",
+          "warnings",
+          "settings",
+          "algorithm_version",
+          "plan_id",
+          "created_at",
+          "items",
+          "manually_modified",
+          "comment",
+          "recommendation_transfers"
+        ],
+        "title": "SavedPlan"
+      },
+      "Settings": {
+        "properties": {
+          "target_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Target Pct",
+            "default": 70
+          },
+          "donor_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Donor Pct",
+            "default": 80
+          },
+          "min_students": {
+            "type": "integer",
+            "minimum": 10.0,
+            "title": "Min Students",
+            "default": 10
+          },
+          "max_change": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Max Change",
+            "default": 2
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Settings"
+      },
+      "SourceMetadata": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "grade": {
+            "type": "integer",
+            "title": "Grade"
+          },
+          "period_start": {
+            "type": "string",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "title": "Period End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "subject",
+          "grade",
+          "period_start",
+          "period_end"
+        ],
+        "title": "SourceMetadata"
       },
       "TestVersion": {
         "properties": {
@@ -2325,6 +3434,29 @@
           "classes_with_results"
         ],
         "title": "TopicQuality"
+      },
+      "Transfer": {
+        "properties": {
+          "from_topic_id": {
+            "type": "string",
+            "title": "From Topic Id"
+          },
+          "to_topic_id": {
+            "type": "string",
+            "title": "To Topic Id"
+          },
+          "hours": {
+            "type": "integer",
+            "title": "Hours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_topic_id",
+          "to_topic_id",
+          "hours"
+        ],
+        "title": "Transfer"
       }
     }
   }

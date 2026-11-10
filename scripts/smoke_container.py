@@ -7,10 +7,12 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
-def request(path, method="GET"):
+def request(path, method="GET", payload=None, raw=False):
     try:
-        with urlopen(Request("http://127.0.0.1:8000" + path, method=method), timeout=5) as response:
-            return response.status, json.load(response)
+        body = json.dumps(payload).encode() if payload is not None else None
+        headers = {'Content-Type': 'application/json'} if body else {}
+        with urlopen(Request("http://127.0.0.1:8000" + path, method=method, data=body, headers=headers), timeout=5) as response:
+            return response.status, response.read() if raw else json.load(response)
     except HTTPError as error:
         return error.code, json.load(error)
 
@@ -52,11 +54,24 @@ def main():
     assert status == 200 and quality["summary"]["pairs"] == 720
     status, package = request(f'/api/datasets/{demo["dataset_id"]}/package')
     assert status == 200 and len(package["data"]["results"]) == 1440
+    plan_path = f'/api/datasets/{demo["dataset_id"]}/plans'
+    status, preview = request(plan_path + '/preview', 'POST', {'class_id': '7A'})
+    assert status == 200 and preview['total_hours'] == 24
+    if args.expect_existing:
+        plan = previous['plan']
+    else:
+        status, plan = request(plan_path, 'POST', {'class_id': '7A'})
+        assert status == 201
+    status, report = request('/api/plans/' + plan['plan_id'])
+    assert status == 200 and report == plan
+    status, exported = request('/api/plans/' + plan['plan_id'] + '/export.csv', raw=True)
+    assert status == 200 and exported.startswith(b'\xef\xbb\xbf')
     result = {"passed": True, "read_only_demo": True, "dataset_id": demo["dataset_id"],
-              "results": 1440, "quality_and_package_checked": True, "persistence_checked": args.expect_existing}
+              "results": 1440, "quality_and_package_checked": True, "persistence_checked": args.expect_existing,
+              "plan": plan, "saved_report_checked": True}
     state_file.parent.mkdir(exist_ok=True)
     state_file.write_text(json.dumps(result), encoding="utf-8")
-    print(json.dumps(result))
+    print(json.dumps({key: value for key, value in result.items() if key != 'plan'}))
 
 
 if __name__ == "__main__":

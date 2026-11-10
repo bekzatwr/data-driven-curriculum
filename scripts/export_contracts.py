@@ -44,6 +44,18 @@ def main():
             example("filters.response.json", client.get(f"/api/datasets/{dataset_id}/filters").json())
             example("results-page.response.json", client.get(f"/api/datasets/{dataset_id}/results?limit=3").json())
             example("quality.response.json", client.get(f"/api/datasets/{dataset_id}/quality").json())
+            plan_path = f"/api/datasets/{dataset_id}/plans"
+            plan_preview = client.post(plan_path + "/preview", json={"class_id": "7A"})
+            assert plan_preview.status_code == 200, plan_preview.text
+            example("integrated-plan-preview.response.json", plan_preview.json())
+            saved_response = client.post(plan_path, json={"class_id": "7A"})
+            assert saved_response.status_code == 201, saved_response.text
+            saved = saved_response.json()
+            saved_id = saved["plan_id"]
+            csv_report = client.get(f"/api/plans/{saved_id}/export.csv")
+            assert csv_report.status_code == 200
+            saved_text = json.dumps(saved, ensure_ascii=False).replace(saved_id, "__PLAN_ID__").replace(saved["created_at"], "__PLAN_CREATED_AT__")
+            example("integrated-plan-saved.response.json", json.loads(saved_text))
             write("capabilities.response.json", client.get("/api/capabilities").json())
             results, curriculum, metadata = demo_files()
             rows = list(csv.DictReader(io.StringIO(results.decode("utf-8"))))

@@ -15,7 +15,13 @@
     "demo_dataset": true,
     "data_quality": true,
     "package_export": true,
-    "package_restore": true
+    "package_restore": true,
+    "plan_preview": true,
+    "plan_save": true,
+    "plan_report": true,
+    "plan_csv": true,
+    "analytics": false,
+    "textbook_comparison": false
   },
   "links": {
     "docs": "/docs",

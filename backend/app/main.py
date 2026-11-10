@@ -17,6 +17,8 @@ from .db import Store
 from .errors import ApiError
 from .schemas import Capabilities
 from .version import VERSION
+from planner.api import router as planner_router
+from planner.storage import SnapshotStore
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +80,8 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
     @asynccontextmanager
     async def lifespan(application):
         await run_in_threadpool(store.initialize)
+        # Keep source data and Aidana's immutable snapshots in the same backup/volume.
+        application.state.plan_snapshots = await run_in_threadpool(SnapshotStore, settings.database_path)
         yield
 
     application = FastAPI(
@@ -137,15 +141,19 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
                        "results_per_page": 1000},
             "features": {"csv_import": not settings.read_only_demo, "import_preview": not settings.read_only_demo,
                          "demo_dataset": True, "data_quality": True, "package_export": True,
-                         "package_restore": not settings.read_only_demo},
+                         "package_restore": not settings.read_only_demo,
+                         "plan_preview": True, "plan_save": True, "plan_report": True, "plan_csv": True,
+                         "analytics": False, "textbook_comparison": False},
             "links": {"docs": "/docs", "openapi": "/openapi.json", "datasets": "/api/datasets",
                       "results_template": "/api/templates/results.csv",
                       "curriculum_template": "/api/templates/curriculum.csv"},
         }
 
     application.include_router(datasets_router)
+    application.include_router(planner_router)
     for router in routers:
-        application.include_router(router)
+        if router is not planner_router:
+            application.include_router(router)
 
     if settings.web_dist:
         dist = Path(settings.web_dist).resolve()
