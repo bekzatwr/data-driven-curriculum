@@ -21,9 +21,15 @@ def _group(rows, textbook_id):
     post = [row for row in rows if row["stage"] == "post"]
     scales = sorted({(row["test_version"], row["max_score"]) for row in rows})
     single = len(scales) == 1
-    # The class/teacher counts describe the same paired population as the gains.
+    # Teachers describe both stages of the paired population. Import permits
+    # different teacher IDs across pre/post; it does not establish staff changes.
     paired_post = [right for _, right in pairs]
-    teachers = {row.get("teacher_id") for row in paired_post if row.get("teacher_id")}
+    teachers = {(row["school_id"], row["teacher_id"]) for pair in pairs for row in pair if row.get("teacher_id")}
+    different_teacher_ids = sum(
+        bool(pre.get("teacher_id") and post.get("teacher_id"))
+        and (pre["school_id"], pre["teacher_id"]) != (post["school_id"], post["teacher_id"])
+        for pre, post in pairs
+    )
     classes = {(row["school_id"], row["class_id"]) for row in paired_post}
     n_post = len({row["student_id"] for row in post})
     group = {
@@ -43,7 +49,12 @@ def _group(rows, textbook_id):
     if len(classes) == 1:
         warnings.append(f"{textbook_id}: парная выборка представлена одним классом; влияние учебника нельзя отделить от особенностей класса.")
     if len(teachers) == 1:
-        warnings.append(f"{textbook_id}: парная выборка представлена одним учителем; влияние учебника нельзя отделить от особенностей учителя.")
+        warnings.append(f"{textbook_id}: в парной выборке указан один известный идентификатор учителя в рамках школы; влияние учебника нельзя отделить от особенностей преподавания.")
+    if different_teacher_ids:
+        warnings.append(
+            f"{textbook_id}: совместимых пар с различающимися указанными идентификаторами учителя на pre/post: {different_teacher_ids}. "
+            "Это не подтверждает фактическую смену преподавателя."
+        )
     if any(not row.get("teacher_id") for row in rows):
         warnings.append(f"{textbook_id}: идентификатор учителя указан не для всех результатов; число известных учителей неполно.")
     if n_post > len(pairs):

@@ -4,7 +4,8 @@ from fastapi import APIRouter, Query, Request
 from .common import AnalyticsError, normalize_settings, select_records
 from .comparison import compare_textbooks
 from .topics import compute_overview, compute_topics
-from .models import Comparison, Error, Overview, TopicDetail
+from .teachers import compute_teachers
+from .models import Comparison, Error, Overview, Teachers, TopicDetail
 
 router = APIRouter(prefix='/api/datasets', tags=['Analytics'],
                    responses={404: {'model': Error, 'description': 'Dataset or topic not found'},
@@ -86,3 +87,34 @@ def comparison(dataset_id: str, request: Request, topic_id: str, textbook_a: str
     settings = normalize_settings(None)
     result = compare_textbooks(records, topic_id, textbook_a, textbook_b, settings)
     return {**_envelope(dataset, filters, settings), **result}
+
+
+@router.get('/{dataset_id}/teachers', response_model=Teachers)
+def teachers(dataset_id: str, request: Request, class_ids: Ids = None,
+             textbook_ids: Ids = None, test_version: str | None = None):
+    dataset, topics, records, _, filters = _load(request, dataset_id, class_ids, textbook_ids, test_version)
+    settings = normalize_settings(None)
+    result = compute_teachers(records, topics, settings=settings)
+    return {**_envelope(dataset, filters, settings), **result, 'definitions': {
+        'scope': 'Наблюдаемая нагрузка по одному предмету, параллели и периоду набора; не полная ставка и не оценка качества учителя.',
+        'teacher_key': 'school_id + teacher_id + is_missing_teacher; пропуск учителя не является отдельным известным учителем.',
+        'upcoming_hours': 'Число наблюдаемых классов учителя × сумма current_hours всех тем. Это оценка, а не расписание.',
+        'students_per_teacher': 'Уникальные ученики школы, включая записи без учителя, / число известных учителей. При неполных ID показатель требует осторожности.',
+        'classes_per_teacher': 'Число наблюдаемых связей известный учитель–класс / число известных учителей.',
+        'hours_per_teacher': 'Число связей известный учитель–класс × hours_per_class / число известных учителей.',
+        'mean_post_pct': 'Среднее процентов по итоговым записям ученик–тема, как в прототипе страницы учителей; отличается от взвешивания учеников в overview.',
+        'mean_pre_paired_pct': 'Средний входной процент только по тем же совместимым парам, что mean_gain_pp; без пар или при смешанных версиях — null.',
+        'mean_post_paired_pct': 'Средний итоговый процент по той же парной выборке; может отличаться от mean_post_pct всех итоговых записей.',
+        'n_post': 'Число итоговых записей ученик–тема; число уникальных учеников с итогом — n_post_students.',
+        'topic_count': 'Количество уникальных тем полного учебного плана; фильтры результатов не уменьшают этот знаменатель.',
+        'post_topic_count': 'Темы учебного плана хотя бы с одним итоговым результатом у группы учителя; это не покрытие каждого ученика.',
+        'n_complete_students': 'Ученики с итогами по каждой теме полного плана у этой группы учителя. Наличие результатов не подтверждает сопоставимость версий.',
+        'complete_student_share': 'n_complete_students / n_post_students, доля от 0 до 1; без итогов или тем — null. Это не доля от школьного списка.',
+        'n_pairs': 'Совместимые пары ученик–тема в одной группе school_id/teacher_id с одинаковым классом, учебником, версией и шкалой. Пары без teacher_id описывают учеников и не подтверждают одного преподавателя.',
+        'n_paired_students': 'Уникальные ученики хотя бы с одной совместимой парой; число тем одного ученика не увеличивает это значение.',
+        'paired_student_share': 'n_paired_students / n_post_students, доля от 0 до 1; без итоговых результатов — null. Малое число учеников с парой отмечается предупреждением.',
+        'mean_gain_pp': 'Среднее индивидуальных приростов по совместимым парам, в п.п.; не причинный эффект работы учителя.',
+        'missing_teacher_rows': 'Количество записей без teacher_id; сгруппированы отдельно по школам и исключены из числа известных учителей.',
+        'teacher_attribution': 'В schools и total: fully_attributed_students — ID учителя есть во всех выбранных записях ученика; partially_attributed_students — только в части; unattributed_students — нигде. Категории не пересекаются и в сумме дают students; оба этапа учитываются. Это полнота заполнения, а не проверка личности учителя.',
+        'fully_attributed_student_share': 'В teacher_attribution: fully_attributed_students / students, доля 0–1, без учеников — null. Фильтры пересчитывают категории; missing_teacher_rows в этом объекте относится к той же школе или total.',
+    }}

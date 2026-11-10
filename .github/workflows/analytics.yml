@@ -8,6 +8,11 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -15,5 +20,9 @@ jobs:
           cache-dependency-path: requirements-*.txt
       - run: python -c "import pathlib, subprocess, sys; subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', 'requirements-dev.txt' if pathlib.Path('requirements-dev.txt').exists() else 'requirements-analytics.txt'])"
       - run: python -m unittest discover -s tests -p "test_analytics*.py" -v
+      - run: python scripts/verify_teachers_parity.py --output data/teachers-ui-parity.json
+      - run: python -m unittest discover -s tests -p "test_ai*.py" -v
+      - run: python -m scripts.audit_ai_methodology --output docs/ai-methodology-offline.json
+      - run: git diff --exit-code -- docs/ai-methodology-offline.json
       - run: python -m scripts.export_analytics_contracts
       - run: git diff --exit-code -- contracts/analytics-*.response.json contracts/analytics.openapi.json

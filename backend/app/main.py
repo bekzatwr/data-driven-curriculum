@@ -171,7 +171,7 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
                          "comments": settings.comments_enabled,
                          "comments_write": settings.comments_enabled and not settings.read_only_demo,
                          "ai_explain": not settings.read_only_demo and collab_ai.status()["configured"],
-                         "teachers_api": False, "period_planner_api": PERIOD_PLANNER_READY},
+                         "teachers_api": True, "period_planner_api": PERIOD_PLANNER_READY},
             "links": {"docs": "/docs", "openapi": "/openapi.json", "datasets": "/api/datasets",
                       "results_template": "/api/templates/results.csv",
                       "curriculum_template": "/api/templates/curriculum.csv"},

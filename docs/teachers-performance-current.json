@@ -1,0 +1,84 @@
+{
+  "python": "3.13.9",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "synthetic_data": true,
+  "requested_budget_seconds": 10.0,
+  "passed": true,
+  "measurement": {
+    "compute": "Pure compute_teachers call; CSV generation and backend validation are outside the timer",
+    "http": "In-process FastAPI TestClient GET, including SQLite reads, response validation and JSON serialization; no real network",
+    "excluded": "Application startup, SQLite fixture insertion, response.json parsing and temporary database cleanup",
+    "budget": "Median of current compute and optional HTTP repetitions, checked per case; historical baseline excluded"
+  },
+  "teacher_source_sha256": "6c27c716105696351f220bd87d9e75bf0f3db5199a98efc314613096e49b610d",
+  "limits": {
+    "max_results": 10000,
+    "max_topics": 100,
+    "max_upload_bytes": 10485760
+  },
+  "cases": [
+    {
+      "name": "20_teachers_1_school_paired",
+      "records": 10000,
+      "topics": 100,
+      "teachers": 20,
+      "schools": 1,
+      "validated_csv_bytes": 676074,
+      "compute_seconds": [
+        0.07796150000012858,
+        0.08896770000046672,
+        0.08580679999977292
+      ],
+      "compute_median_seconds": 0.08580679999977292,
+      "http_seconds": [
+        0.18607309999970312,
+        0.16332930000044144,
+        0.15328319999935047
+      ],
+      "http_median_seconds": 0.16332930000044144,
+      "response_bytes": 24546
+    },
+    {
+      "name": "10000_teachers_1_school",
+      "records": 10000,
+      "topics": 100,
+      "teachers": 10000,
+      "schools": 1,
+      "validated_csv_bytes": 739944,
+      "compute_seconds": [
+        0.457475200000772,
+        0.4946146000002045,
+        0.47059619999981805
+      ],
+      "compute_median_seconds": 0.47059619999981805,
+      "http_seconds": [
+        0.7823772000001554,
+        0.656260800000382,
+        0.7092609999999695
+      ],
+      "http_median_seconds": 0.7092609999999695,
+      "response_bytes": 12464780
+    },
+    {
+      "name": "10000_teachers_10000_schools",
+      "records": 10000,
+      "topics": 100,
+      "teachers": 10000,
+      "schools": 10000,
+      "validated_csv_bytes": 768834,
+      "compute_seconds": [
+        0.5588865999998234,
+        0.4943452999996225,
+        0.6504282999994757
+      ],
+      "compute_median_seconds": 0.5588865999998234,
+      "http_seconds": [
+        0.8668416999998954,
+        0.8657250999995085,
+        0.8398708999993687
+      ],
+      "http_median_seconds": 0.8657250999995085,
+      "response_bytes": 15692232
+    }
+  ]
+}
