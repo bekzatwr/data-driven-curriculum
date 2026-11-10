@@ -1,6 +1,6 @@
 {
   "check": "Original frontend TypeScript computeTeachers versus Python compute_teachers on the canonical synthetic demo",
-  "created_at": "2026-11-10T15:05:31.753536+00:00",
+  "created_at": "2026-11-10T15:10:06.957899+00:00",
   "passed": true,
   "source": {
     "repository": "https://github.com/bekzatwr/data-driven-curriculum",
@@ -10,7 +10,7 @@
     "frontend_raw_sha256": "e592e31a2f6764588da1382c97c86d0b3547ea2df0bd6de9c9b4053652a3acab",
     "frontend_execution": "Unchanged git-show bytes executed by Node with --experimental-strip-types; no translated substitute or cached output",
     "backend_path": "analytics/teachers.py",
-    "backend_sha256": "33e452596d72bf32f31d6889be439976606ef3f8e3c70193e629d098b3f2dbed",
+    "backend_sha256": "6c27c716105696351f220bd87d9e75bf0f3db5199a98efc314613096e49b610d",
     "fixture": "analytics.demo.demo_records()",
     "fixture_sha256": "2c2e8ccacb340ebb20dc498ff92e6186ab6d71347c1c0848fbe0155721cb3343",
     "hash_normalization": "Source hashes replace CRLF and bare CR with LF before SHA-256; executed TypeScript bytes are not normalized. frontend_raw_sha256 hashes the exact executed bytes.",
@@ -255,6 +255,7 @@
     "missing_teacher_rows": 0
   },
   "additional_backend_fields_excluded_from_legacy_comparison": [
+    "schools[].teacher_attribution",
     "teachers[].complete_student_share",
     "teachers[].is_missing_teacher",
     "teachers[].mean_post_paired_pct",
@@ -268,6 +269,7 @@
     "teachers[].post_topic_count",
     "teachers[].topic_count",
     "teachers[].warnings",
+    "total.teacher_attribution",
     "warnings"
   ],
   "intentional_differences_outside_this_demo_parity_check": [

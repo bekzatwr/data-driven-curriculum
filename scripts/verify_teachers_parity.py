@@ -194,8 +194,12 @@ def verify(frontend_ref=DEFAULT_FRONTEND_REF, node="node"):
     backend = legacy_projection(python_result, "backend")
     comparison = compare_legacy(ui, backend)
     teacher_extras = {field for teacher in python_result["teachers"] for field in teacher if field not in TEACHER_FIELDS}
+    school_extras = {field for school in python_result["schools"] for field in school if field not in SCHOOL_FIELDS}
+    total_extras = {field for field in python_result["total"] if field not in SCHOOL_FIELDS}
     excluded_fields = sorted([field for field in python_result if field not in SUMMARY_FIELDS]
-                             + [f"teachers[].{field}" for field in teacher_extras])
+                             + [f"teachers[].{field}" for field in teacher_extras]
+                             + [f"schools[].{field}" for field in school_extras]
+                             + [f"total.{field}" for field in total_extras])
     return {
         "check": "Original frontend TypeScript computeTeachers versus Python compute_teachers on the canonical synthetic demo",
         "created_at": datetime.now(timezone.utc).isoformat(),

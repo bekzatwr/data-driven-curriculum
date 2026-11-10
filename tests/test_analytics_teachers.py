@@ -24,6 +24,9 @@ class TeacherMetricsTests(unittest.TestCase):
         self.assertEqual(result["missing_teacher_rows"], 0)
         self.assertEqual(result["total"], {
             "school_id": "Все школы", "teachers": 4, "students": 120, "classes": 4,
+            "teacher_attribution": {"fully_attributed_students": 120, "partially_attributed_students": 0,
+                                    "unattributed_students": 0, "fully_attributed_student_share": 1,
+                                    "missing_teacher_rows": 0},
             "students_per_teacher": 30, "classes_per_teacher": 1, "hours_per_teacher": 24,
         })
         for teacher in result["teachers"]:
@@ -279,6 +282,9 @@ class TeacherMetricsTests(unittest.TestCase):
         self.assertEqual(result["hours_per_class"], 100)
         self.assertEqual(result["total"], {
             "school_id": "Все школы", "teachers": 10_000, "students": 10_000, "classes": 10_000,
+            "teacher_attribution": {"fully_attributed_students": 10_000, "partially_attributed_students": 0,
+                                    "unattributed_students": 0, "fully_attributed_student_share": 1,
+                                    "missing_teacher_rows": 0},
             "students_per_teacher": 1, "classes_per_teacher": 1, "hours_per_teacher": 100,
         })
         for index, (teacher, school) in enumerate(zip(result["teachers"], result["schools"])):

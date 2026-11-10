@@ -115,4 +115,6 @@ def teachers(dataset_id: str, request: Request, class_ids: Ids = None,
         'paired_student_share': 'n_paired_students / n_post_students, доля от 0 до 1; без итоговых результатов — null. Малое число учеников с парой отмечается предупреждением.',
         'mean_gain_pp': 'Среднее индивидуальных приростов по совместимым парам, в п.п.; не причинный эффект работы учителя.',
         'missing_teacher_rows': 'Количество записей без teacher_id; сгруппированы отдельно по школам и исключены из числа известных учителей.',
+        'teacher_attribution': 'В schools и total: fully_attributed_students — ID учителя есть во всех выбранных записях ученика; partially_attributed_students — только в части; unattributed_students — нигде. Категории не пересекаются и в сумме дают students; оба этапа учитываются. Это полнота заполнения, а не проверка личности учителя.',
+        'fully_attributed_student_share': 'В teacher_attribution: fully_attributed_students / students, доля 0–1, без учеников — null. Фильтры пересчитывают категории; missing_teacher_rows в этом объекте относится к той же школе или total.',
     }}

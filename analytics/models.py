@@ -1,6 +1,6 @@
 """Public response schemas. Values remain unrounded; clients format decimals."""
 from typing import Literal
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Model(BaseModel):
@@ -144,11 +144,20 @@ class TeacherMetrics(Model):
     warnings: list[str]
 
 
+class TeacherAttribution(Model):
+    fully_attributed_students: int = Field(ge=0)
+    partially_attributed_students: int = Field(ge=0)
+    unattributed_students: int = Field(ge=0)
+    fully_attributed_student_share: float | None = Field(ge=0, le=1)
+    missing_teacher_rows: int = Field(ge=0)
+
+
 class SchoolWorkload(Model):
     school_id: str
     teachers: int
     students: int
     classes: int
+    teacher_attribution: TeacherAttribution
     students_per_teacher: float | None
     classes_per_teacher: float | None
     hours_per_teacher: float | None

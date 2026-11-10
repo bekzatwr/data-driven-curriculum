@@ -1065,6 +1065,9 @@
             "type": "integer",
             "title": "Classes"
           },
+          "teacher_attribution": {
+            "$ref": "#/components/schemas/TeacherAttribution"
+          },
           "students_per_teacher": {
             "anyOf": [
               {
@@ -1106,6 +1109,7 @@
           "teachers",
           "students",
           "classes",
+          "teacher_attribution",
           "students_per_teacher",
           "classes_per_teacher",
           "hours_per_teacher"
@@ -1130,6 +1134,53 @@
           "max_score"
         ],
         "title": "Slice"
+      },
+      "TeacherAttribution": {
+        "properties": {
+          "fully_attributed_students": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Fully Attributed Students"
+          },
+          "partially_attributed_students": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Partially Attributed Students"
+          },
+          "unattributed_students": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Unattributed Students"
+          },
+          "fully_attributed_student_share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fully Attributed Student Share"
+          },
+          "missing_teacher_rows": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Missing Teacher Rows"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "fully_attributed_students",
+          "partially_attributed_students",
+          "unattributed_students",
+          "fully_attributed_student_share",
+          "missing_teacher_rows"
+        ],
+        "title": "TeacherAttribution"
       },
       "TeacherMetrics": {
         "properties": {

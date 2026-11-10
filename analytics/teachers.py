@@ -10,6 +10,7 @@ from statistics import mean
 
 from .common import normalize_settings, paired_rows, percentage, select_records
 from .topics import compute_topics
+from .teacher_attribution import summarize_teacher_attribution
 
 
 MISSING_TEACHER_LABEL = "Не указан"
@@ -144,6 +145,7 @@ def compute_teachers(records, topics, filters=None, settings=None):
             "teachers": teacher_count,
             "students": students,
             "classes": len({(row["school_id"], row["class_id"]) for row in rows}),
+            "teacher_attribution": summarize_teacher_attribution(rows),
             "students_per_teacher": students / teacher_count if teacher_count else None,
             "classes_per_teacher": class_links / teacher_count if teacher_count else None,
             "hours_per_teacher": class_links * hours_per_class / teacher_count if teacher_count else None,
