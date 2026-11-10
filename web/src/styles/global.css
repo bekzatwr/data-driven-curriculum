@@ -307,7 +307,8 @@ textarea {
 }
 @media (max-width: 760px) {
   .grid-2 {
-    grid-template-columns: 1fr !important;
+    /* minmax(0, …): длинная шапка карточки не распирает страницу на телефоне */
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 }
 @media (max-width: 520px) {

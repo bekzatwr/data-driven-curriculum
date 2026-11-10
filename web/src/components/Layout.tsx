@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { BarChart3, ChevronRight, ClipboardList, FileText, GitCompareArrows, GraduationCap, Menu, Moon, Search, Sun, Upload } from 'lucide-react';
 import { useApp } from '../state/app';
 import { CommandPalette, isMac } from './CommandPalette';
+import { useSpotlight } from '../lib/useSpotlight';
 import { Brand } from './Logo';
 
 type Theme = 'light' | 'dark';
@@ -13,6 +14,7 @@ export function Layout() {
   const [theme, setTheme] = useState<Theme>(() => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'));
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  useSpotlight();
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -156,7 +158,16 @@ export function Layout() {
       <div className="sidebar-backdrop" onClick={() => setNavOpen(false)} />
 
       <div className="main-col">
+        <div className={`aurora ${path === '/' ? '' : 'subtle'}`} aria-hidden>
+          <span className="blob b1" />
+          <span className="blob b2" />
+          <span className="blob b3" />
+          <span className="grid" />
+        </div>
         <header className="topbar">
+          {activeIndex >= 0 && (
+            <span className="topbar-progress" aria-hidden style={{ ['--p' as string]: (activeIndex + 1) / steps.length }} />
+          )}
           <button type="button" className="btn btn-ghost btn-icon btn-sm menu-btn" aria-label="Открыть меню" onClick={() => setNavOpen(true)}>
             <Menu size={17} />
           </button>

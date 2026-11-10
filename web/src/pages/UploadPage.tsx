@@ -24,6 +24,7 @@ import { fmtBytes, fmtDate, fmtDateTimeUtc5, fmtNum, plural } from '../lib/forma
 import { useAsync } from '../lib/useAsync';
 import { datasetToCurrent, useApp } from '../state/app';
 import { isMac } from '../components/CommandPalette';
+import { HeroPreview } from '../components/HeroPreview';
 import { LogoMark } from '../components/Logo';
 
 const DEFAULT_META: DatasetMetadata = {
@@ -74,22 +75,45 @@ export function UploadPage() {
 
   return (
     <div className="stack" style={{ gap: 24 }}>
-      <section className="hero">
-        <div className="fade-up" style={{ marginBottom: 18 }}>
-          <LogoMark size={48} />
+      <section className="hero wow">
+        <div className="hero-grid">
+          <div>
+            <div className="hero-logo fade-up">
+              <LogoMark size={52} />
+            </div>
+            <div>
+              <span className="hero-badge beam fade-up">
+                <span className="pill">P1</span>
+                ИИ-пояснения, обсуждения и план на весь период
+              </span>
+            </div>
+            <h1 className="fade-up-2">
+              Данные о результатах — <span className="grad-text">в решение по учебным часам</span>
+            </h1>
+            <p className="fade-up-2">
+              Загрузите результаты тестов и учебный план. Система покажет проблемные темы, честно сравнит учебники и предложит
+              объяснимое перераспределение часов без изменения общей суммы.
+            </p>
+            <div className="hero-stats fade-up-3">
+              <div>
+                <b>5 шагов</b>
+                <small>от CSV до отчёта</small>
+              </div>
+              <div>
+                <b>±0 ч</b>
+                <small>общая сумма не меняется</small>
+              </div>
+              <div>
+                <b>100%</b>
+                <small>изменений с объяснением</small>
+              </div>
+            </div>
+          </div>
+          <HeroPreview />
         </div>
-        <span className="hero-badge fade-up">
-          <span className="pill">P0</span>
-          Импорт → аналитика → сравнение → план → отчёт
-        </span>
-        <h1 className="fade-up-2">Данные о результатах — в решение по учебным часам</h1>
-        <p className="fade-up-2">
-          Загрузите результаты тестов и учебный план. Система покажет проблемные темы, честно сравнит учебники и предложит
-          объяснимое перераспределение часов без изменения общей суммы.
-        </p>
 
         <div className="tiles fade-up-3">
-          <button type="button" className="tile primary" onClick={loadDemo} disabled={demoLoading}>
+          <button type="button" className="tile primary beam" onClick={loadDemo} disabled={demoLoading}>
             <span className="tile-icon">{demoLoading ? <span className="spinner" /> : <FlaskConical size={16} />}</span>
             <span className="tile-title">Демоданные за один клик</span>
             <span className="tile-desc">120 искусственных учеников, 4 класса, 6 тем, 2 учебника</span>
