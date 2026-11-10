@@ -1,0 +1,78 @@
+{
+  "benchmark": "integrated_http_pipeline_10000_records",
+  "created_at": "2026-11-10T05:31:14.429849+00:00",
+  "synthetic_data": true,
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "measurement": "Local TestClient HTTP requests; includes validation, SQLite operations and JSON serialization; excludes app startup and CSV generation.",
+  "limits_seconds": {
+    "import": 10.0,
+    "overview": 2.0,
+    "plan_preview": 2.0
+  },
+  "runs": [
+    {
+      "run": 1,
+      "fresh_database": true,
+      "seconds": {
+        "import": 0.687770200020168,
+        "overview": 0.36320880003040656,
+        "plan_preview": 0.059324199974071234
+      },
+      "passed": true,
+      "verified": {
+        "results": 10000,
+        "students": 840,
+        "pairs": 5000,
+        "topics": 6,
+        "heatmap_cells": 24,
+        "plan_students_per_topic": 210,
+        "total_hours": 24
+      }
+    },
+    {
+      "run": 2,
+      "fresh_database": true,
+      "seconds": {
+        "import": 1.0990074999863282,
+        "overview": 0.32387319998815656,
+        "plan_preview": 0.07301950000692159
+      },
+      "passed": true,
+      "verified": {
+        "results": 10000,
+        "students": 840,
+        "pairs": 5000,
+        "topics": 6,
+        "heatmap_cells": 24,
+        "plan_students_per_topic": 210,
+        "total_hours": 24
+      }
+    },
+    {
+      "run": 3,
+      "fresh_database": true,
+      "seconds": {
+        "import": 0.6127917999983765,
+        "overview": 0.3160922999959439,
+        "plan_preview": 0.05321899999398738
+      },
+      "passed": true,
+      "verified": {
+        "results": 10000,
+        "students": 840,
+        "pairs": 5000,
+        "topics": 6,
+        "heatmap_cells": 24,
+        "plan_students_per_topic": 210,
+        "total_hours": 24
+      }
+    }
+  ],
+  "maximum_seconds": {
+    "import": 1.0990074999863282,
+    "overview": 0.36320880003040656,
+    "plan_preview": 0.07301950000692159
+  },
+  "passed": true
+}

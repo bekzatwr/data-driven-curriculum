@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse, Response
 from starlette.concurrency import run_in_threadpool
 
 from ..db import Store
-from ..demo import demo_files
+from analytics.demo import demo_files
 from ..errors import ApiError
 from ..packages import export_package, validate_package
 from ..quality import dataset_quality

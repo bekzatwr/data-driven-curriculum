@@ -1,4 +1,4 @@
-from statistics import mean
+from analytics.topics import compute_topics
 from .models import Constraint
 from .rules import allocate_hours, validate_hours, PlanError
 
@@ -19,17 +19,17 @@ def preview(store, dataset_id, request):
         tid = topic['topic_id']
         override = request.constraints.get(tid)
         constraints.append(Constraint.model_validate({**topic, **(override.model_dump(exclude_none=True) if override else {})}).model_dump())
-        rows = [r for r in records if r['topic_id'] == tid and r['stage'] == 'post']
+        rows = [r for r in records if r['topic_id'] == tid]
         if tid in request.test_versions:
             rows = [r for r in rows if r['test_version'] == request.test_versions[tid]]
-            if not rows:
+            if not any(r['stage'] == 'post' for r in rows):
                 raise PlanError(f'{tid}: выбранная версия не содержит итоговых результатов')
-        scales = {(r['test_version'], r['max_score']) for r in rows}
-        single = len(scales) == 1
-        metrics.append({'topic_id': tid, 'mean_post_pct': mean(100 * (r['score'] / r['max_score']) for r in rows) if single else None,
-                        'n_post': len({r['student_id'] for r in rows}), 'single_version': single,
-                        'test_version': rows[0]['test_version'] if single else None,
-                        'max_score': rows[0]['max_score'] if single else None})
+        # Use exactly the analytics cohort/version rule, including pre-only
+        # observations. Otherwise the overview could prohibit aggregation while
+        # the planner silently proposes hours from a different population.
+        metric = compute_topics(rows, {'topic_ids': [tid]})[0]
+        metrics.append({key: metric[key] for key in (
+            'topic_id', 'mean_post_pct', 'n_post', 'single_version', 'test_version', 'max_score')})
     result = allocate_hours(metrics, constraints, request.settings.model_dump())
     return {**result, 'dataset_id': dataset_id, 'class_id': request.class_id,
             'applied_filters': {'class_ids': [request.class_id], 'test_versions': request.test_versions},

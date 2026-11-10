@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml?query=branch%3Abackend%2Fbekzat"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml/badge.svg?branch=backend%2Fbekzat" alt="Проверки backend/bekzat"></a>
+  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml?query=branch%3Aanalytics%2Ftoni"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml/badge.svg?branch=analytics%2Ftoni" alt="Проверки интеграции analytics/toni"></a>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.13">
   <img src="https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/SQLite-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite">
@@ -26,11 +26,11 @@
 
 > **Статус интеграции P0 · 10 ноября 2026**
 >
-> Backend **v0.2.0** и опубликованный в `main` планировщик **Айданы** объединены в `backend/bekzat` для review в [PR №1](https://github.com/bekzatwr/data-driven-curriculum/pull/1). Общий сервер принимает два CSV, рассчитывает план и сохраняет JSON-отчёт/CSV. Тони опубликовал аналитику и сравнение в черновом [PR №2](https://github.com/bekzatwr/data-driven-curriculum/pull/2): требуется review и подключение к общему серверу. Интерфейс Дамира ещё не опубликован. [Точный статус и интерфейсы интеграции](docs/P0_INTEGRATION.md). Публичный хостинг пока не подключён; P1/P2 заморожены до завершения P0.
+> Ветка `integration/p0-server` объединяет исправленный backend `d83ce28` из [PR №1](https://github.com/bekzatwr/data-driven-curriculum/pull/1) и аналитику Тони `a2a89fa` из [PR №2](https://github.com/bekzatwr/data-driven-curriculum/pull/2). Один сервер включает импорт CSV, аналитику, сравнение учебников, planner и атомарное сохранение JSON/CSV-отчётов. [API для Дамира](docs/FRONTEND_API.md) · [Интеграция](docs/P0_INTEGRATION.md) · [Review и проверки](docs/SERVER_INTEGRATION_REVIEW.md). Ветки участников сохранены. До merge в main нужны review Айданы и согласование команды; frontend и production ещё не подключены.
 
 <a id="overview"></a>
 
-**Подготовка хостинга:** [deployment-инструкция](deploy/README.md) · [протокол готовности](docs/DEPLOYMENT_READINESS.md). Подготовлены общий Docker для React + API, постоянный SQLite volume, Render-конфигурация и бесплатный резерв показа с ноутбука. Production пока не опубликован; нужны реальные frontend/analytics, финальный E2E и командный review.
+**Подготовка хостинга:** [deployment-инструкция](deploy/README.md) · [протокол готовности](docs/DEPLOYMENT_READINESS.md). Подготовлены общий Docker для React + API, постоянный SQLite volume, Render-конфигурация и бесплатный резерв показа с ноутбука. Серверная аналитика подключена; для production остаются frontend, общий браузерный E2E и командный review.
 
 ## 01 / Зачем нужен проект
 
@@ -58,7 +58,7 @@
 | **Резервное копирование** | Копия работающей SQLite с WAL, проверка целостности, восстановление в новый файл | Готово |
 | **Инфраструктура** | Swagger, OpenAPI, API лимитов, Docker, CI и постоянное хранение | Готово |
 | **Интерфейс** | Страницы загрузки, аналитики, сравнения, плана и отчёта | Модуль Дамира |
-| **Аналитика** | Метрики тем, сравнение учебников и проверка сопоставимости | Модуль Тони |
+| **Аналитика** | Метрики тем, парное сравнение учебников, фильтры и проверка сопоставимости | Модуль Тони подключён |
 | **Планировщик и отчёт** | Распределение часов, снимки планов, отчёт и его CSV-экспорт | Модуль Айданы подключён |
 
 <a id="quickstart"></a>
@@ -68,7 +68,7 @@
 Нужны **Git и Python 3.13**. При первом запуске требуется интернет для установки зависимостей.
 
 ```bash
-git clone --branch backend/bekzat https://github.com/bekzatwr/data-driven-curriculum.git
+git clone --branch analytics/toni https://github.com/bekzatwr/data-driven-curriculum.git
 cd data-driven-curriculum
 python scripts/start.py
 ```
@@ -113,8 +113,11 @@ docker compose up --build
 1. Откройте **Swagger** и выполните `POST /api/datasets/demo`.
 2. Скопируйте `dataset_id` из ответа. Повторный вызов вернёт тот же набор.
 3. Запросите `GET /api/datasets/{dataset_id}/filters` — появятся классы, учебники, темы и версии тестов.
-4. Откройте `GET /api/datasets/{dataset_id}/quality` — паспорт полноты данных с **720 парами «ученик + тема»**.
-5. Скачайте `GET /api/datasets/{dataset_id}/package`. В локальном режиме передайте JSON в `POST /api/datasets/restore?dry_run=true`, чтобы проверить перенос без сохранения.
+4. Откройте `GET /api/datasets/{dataset_id}/overview`: 120 учеников, 720 итоговых результатов, таблица тем и тепловая карта.
+5. Откройте `/topics/equations` и `/comparison` с `topic_id=equations`, `textbook_a=Учебник A`, `textbook_b=Учебник B`: наблюдаемая разница приростов — 8 п.п.
+6. Вызовите `POST /api/datasets/{dataset_id}/plans/preview`, затем `/plans`, передав `{"class_id":"7A"}`. Общая сумма останется 24 часа.
+7. Получите сохранённый отчёт через `GET /api/plans/{plan_id}` и `/export.csv`. После перезапуска тот же ID возвращает тот же снимок.
+8. `/quality` показывает полноту; `/package` позволяет перенести исходные данные.
 
 Демоданные искусственные и воспроизводимые. В локальном режиме `dry_run=false` сохраняет проверенный пакет; восстановленное демо получает тип `upload`. [Полный сценарий сдачи модуля →](docs/BEKZAT_DELIVERY.md)
 
@@ -128,12 +131,12 @@ flowchart TB
     CHECK --> DB[("SQLite · Store")]
     DB --> API["FastAPI · API данных"]
     API -.-> UI["Интерфейс · Дамир"]
-    DB -.-> ANALYTICS["Аналитика · Тони"]
+    DB --> ANALYTICS["Аналитика · Тони"]
     DB --> PLAN["Планировщик и отчёт · Айдана"]
     classDef ready fill:#E7F7F0,stroke:#2D9673,color:#122822
     classDef planned fill:#F1EDFF,stroke:#9381C9,color:#30244D,stroke-dasharray:5 5
-    class CSV,CHECK,DB,API,PLAN ready
-    class UI,ANALYTICS planned
+    class CSV,CHECK,DB,API,PLAN,ANALYTICS ready
+    class UI planned
 ```
 
 Сплошные линии показывают реализованный поток данных. Пунктиром обозначены модули для подключения. Роутеры участников подключаются через `create_app(routers=(...))`; готовую сборку интерфейса сервер сможет раздавать через `WEB_DIST_DIR`.
@@ -160,6 +163,8 @@ backend/
 │   ├── review_inputs.py # Структурная проверка входа P1
 │   └── main.py          # Приложение, режимы и подключение роутеров
 └── tests/               # Автоматические проверки
+analytics/               # Метрики, сравнение и единый генератор демо
+planner/                 # Часы, сохранённые планы, отчёт и CSV
 contracts/               # OpenAPI, JSON Schema, примеры и CSV-шаблоны
 docs/                    # Инструкции команды и материалы сдачи
 scripts/                 # Запуск, генерация контрактов и проверки
@@ -172,6 +177,8 @@ compose.yaml             # Контейнер и постоянное храни
 </details>
 
 ## 06 / Контракт данных и API
+
+Аналитика Тони доступна через `GET /api/datasets/{id}/overview`, `/topics/{topic_id}` и `/comparison`. Фильтры `class_ids`/`textbook_ids` передаются повторяемыми query-параметрами. [Контракт, демоданные и методология](docs/TONI.md).
 
 Планировщик Айданы доступен в том же Swagger: `POST /api/datasets/{id}/plans/preview`, `POST /api/datasets/{id}/plans`, `GET /api/plans/{plan_id}`, `GET /api/plans/{plan_id}/export.csv`. Минимальный JSON — `{"class_id":"7A"}`; ID набора и класса брать из ответа сервера. [Контракт и интеграция](docs/AIDANA.md) · [Материалы выступления Айданы](docs/AIDANA_DEFENSE.md).
 
@@ -224,7 +231,7 @@ Swagger: `http://127.0.0.1:8000/docs`. `POST /api/datasets/demo` возвращ�
 
 ## 07 / Проверенное поведение
 
-**113 тестов прошли** на Windows и Linux для backend v0.2.0 от 9 ноября 2026. [Проверенный запуск CI](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42651532754) включает:
+Автоматические проверки общего сервера и аналитики запускаются для `integration/**` и PR в main; результаты доступны в [GitHub Actions](https://github.com/bekzatwr/data-driven-curriculum/actions). Локально в интеграционной ветке: **209 passed, 26 subtests passed** и реальный Docker E2E с restart/restore; [протокол](docs/SERVER_INTEGRATION_REVIEW.md). Проверяются:
 
 - Валидацию, откат ошибочного сохранения, повторные и параллельные импорты.
 - Фильтры, пагинацию, полноту данных и перенос между базами.
@@ -232,7 +239,7 @@ Swagger: `http://127.0.0.1:8000/docs`. `POST /api/datasets/demo` возвращ�
 - Резервное копирование открытой WAL-базы и восстановление данных.
 - Сверку OpenAPI с приложением, сборку Docker и HTTP-проверку после перезапуска.
 
-Импорт **10 000 строк** через TestClient с реальной SQLite занял **1,686 с** на локальной машине при целевом лимите 10 с. Это измерение данного запуска; время зависит от оборудования.
+Для **10 000 строк** предусмотрен тройной замер с новой SQLite на каждом запуске: импорт, обзор и план выбранного класса. Команда: `python scripts/benchmark_pipeline.py`. Цели — менее 10 с для импорта и 2 с для каждого расчёта; фактическое время зависит от оборудования.
 
 <details>
 <summary><b>Запустить проверки самостоятельно</b></summary>
@@ -317,7 +324,9 @@ git push -u origin frontend/damir
 | :--- | :--- |
 | [Техническое задание · Word](TZ_Damir_Bekzat_Toni_Aidana.docx) | Объём MVP, роли, критерии приёмки и P1 |
 | [Руководство backend](docs/BACKEND.md) | Запуск, настройки, CSV, API, Docker и восстановление базы |
-| [Передача команде](docs/HANDOFF.md) | Подключение интерфейса, аналитики и планировщика |
+| [Передача команде](docs/HANDOFF.md) | Подключение интерфейса к общему API |
+| [Аналитика Тони](docs/TONI.md) | Формулы, API, демоданные и проверки |
+| [Выступление Тони](docs/TONI_DEFENSE.md) | Текст о сопоставимости и ограничениях выводов |
 | [Приёмка модуля Бекзата](docs/BEKZAT_DELIVERY.md) | Готовые результаты и сценарий демонстрации |
 | [Дополнение к ТЗ](docs/BACKEND_IDEAS.md) | Паспорт данных, перенос, backup и API возможностей |
 | [Контракты](contracts/) | OpenAPI, JSON Schema, примеры ответов и шаблоны |

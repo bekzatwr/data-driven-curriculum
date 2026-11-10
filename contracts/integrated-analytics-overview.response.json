@@ -1,0 +1,935 @@
+{
+  "dataset_id": "__DATASET_ID__",
+  "is_demo": true,
+  "source": {
+    "id": "__DATASET_ID__",
+    "metadata": {
+      "grade": 7,
+      "name": "Искусственные данные Тони: математика, 7 класс",
+      "period_end": "2026-10-31",
+      "period_start": "2026-09-01",
+      "subject": "Математика"
+    },
+    "counts": {
+      "classes": 4,
+      "pairs": 720,
+      "post": 720,
+      "pre": 720,
+      "results": 1440,
+      "students": 120,
+      "textbooks": 2,
+      "topics": 6
+    },
+    "content_hash": "eae7538e4fbedf94f61f802759c072f2f2522a756bce110345635dcd6cb545a6",
+    "source_type": "demo",
+    "created_at": "__CREATED_AT__"
+  },
+  "applied_filters": {
+    "class_ids": [],
+    "textbook_ids": [],
+    "test_version": null
+  },
+  "settings": {
+    "threshold_pct": 60.0,
+    "mastered_pct": 80.0,
+    "min_students": 10,
+    "problem_share": 0.4,
+    "max_baseline_gap_pp": 10.0
+  },
+  "warnings": [],
+  "metrics": {
+    "n_students": 120,
+    "n_post_students": 120,
+    "n_post_results": 720,
+    "n_pairs": 720,
+    "n_paired_students": 120,
+    "pair_coverage": 1.0,
+    "paired_student_share": 1.0,
+    "mean_post_pct": 71.75,
+    "n_complete_students": 120,
+    "topic_count": 6,
+    "n_problem_topics": 2,
+    "mixed_topic_ids": [],
+    "warnings": []
+  },
+  "topics": [
+    {
+      "topic_id": "fractions",
+      "topic_name": "Дроби",
+      "topic_order": 1,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "mean_post_pct": 48.0,
+      "below_threshold_share": 1.0,
+      "n_post": 120,
+      "n_pairs": 120,
+      "mean_pre_paired_pct": 35.0,
+      "mean_post_paired_pct": 48.0,
+      "mean_gain_pp": 13.0,
+      "pair_coverage": 1.0,
+      "status": "requires_attention",
+      "status_label": "Требует внимания",
+      "problem_topic": true,
+      "single_version": true,
+      "available_slices": [
+        {
+          "test_version": "v1",
+          "max_score": 100.0
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "topic_id": "equations",
+      "topic_name": "Уравнения",
+      "topic_order": 2,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "mean_post_pct": 64.5,
+      "below_threshold_share": 0.2,
+      "n_post": 120,
+      "n_pairs": 120,
+      "mean_pre_paired_pct": 52.5,
+      "mean_post_paired_pct": 64.5,
+      "mean_gain_pp": 12.0,
+      "pair_coverage": 1.0,
+      "status": "needs_practice",
+      "status_label": "Нужно закрепление",
+      "problem_topic": false,
+      "single_version": true,
+      "available_slices": [
+        {
+          "test_version": "v1",
+          "max_score": 100.0
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "topic_id": "proportions",
+      "topic_name": "Пропорции",
+      "topic_order": 3,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "mean_post_pct": 64.0,
+      "below_threshold_share": 0.4,
+      "n_post": 120,
+      "n_pairs": 120,
+      "mean_pre_paired_pct": 56.0,
+      "mean_post_paired_pct": 64.0,
+      "mean_gain_pp": 8.0,
+      "pair_coverage": 1.0,
+      "status": "needs_practice",
+      "status_label": "Нужно закрепление",
+      "problem_topic": true,
+      "single_version": true,
+      "available_slices": [
+        {
+          "test_version": "v1",
+          "max_score": 100.0
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "topic_id": "geometry",
+      "topic_name": "Геометрия",
+      "topic_order": 4,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "mean_post_pct": 74.0,
+      "below_threshold_share": 0.0,
+      "n_post": 120,
+      "n_pairs": 120,
+      "mean_pre_paired_pct": 60.0,
+      "mean_post_paired_pct": 74.0,
+      "mean_gain_pp": 14.0,
+      "pair_coverage": 1.0,
+      "status": "needs_practice",
+      "status_label": "Нужно закрепление",
+      "problem_topic": false,
+      "single_version": true,
+      "available_slices": [
+        {
+          "test_version": "v1",
+          "max_score": 100.0
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "topic_id": "statistics",
+      "topic_name": "Статистика",
+      "topic_order": 5,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "mean_post_pct": 88.0,
+      "below_threshold_share": 0.0,
+      "n_post": 120,
+      "n_pairs": 120,
+      "mean_pre_paired_pct": 78.0,
+      "mean_post_paired_pct": 88.0,
+      "mean_gain_pp": 10.0,
+      "pair_coverage": 1.0,
+      "status": "mastered",
+      "status_label": "Освоено",
+      "problem_topic": false,
+      "single_version": true,
+      "available_slices": [
+        {
+          "test_version": "v1",
+          "max_score": 100.0
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "topic_id": "revision",
+      "topic_name": "Повторение",
+      "topic_order": 6,
+      "test_version": "v1",
+      "max_score": 100.0,
+      "mean_post_pct": 92.0,
+      "below_threshold_share": 0.0,
+      "n_post": 120,
+      "n_pairs": 120,
+      "mean_pre_paired_pct": 80.0,
+      "mean_post_paired_pct": 92.0,
+      "mean_gain_pp": 12.0,
+      "pair_coverage": 1.0,
+      "status": "mastered",
+      "status_label": "Освоено",
+      "problem_topic": false,
+      "single_version": true,
+      "available_slices": [
+        {
+          "test_version": "v1",
+          "max_score": 100.0
+        }
+      ],
+      "warnings": []
+    }
+  ],
+  "heatmap": [
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7A",
+      "metrics": {
+        "topic_id": "fractions",
+        "topic_name": "Дроби",
+        "topic_order": 1,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 48.0,
+        "below_threshold_share": 1.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 35.0,
+        "mean_post_paired_pct": 48.0,
+        "mean_gain_pp": 13.0,
+        "pair_coverage": 1.0,
+        "status": "requires_attention",
+        "status_label": "Требует внимания",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7A",
+      "metrics": {
+        "topic_id": "equations",
+        "topic_name": "Уравнения",
+        "topic_order": 2,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 68.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 52.0,
+        "mean_post_paired_pct": 68.0,
+        "mean_gain_pp": 16.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7A",
+      "metrics": {
+        "topic_id": "proportions",
+        "topic_name": "Пропорции",
+        "topic_order": 3,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 64.0,
+        "below_threshold_share": 0.4,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 56.0,
+        "mean_post_paired_pct": 64.0,
+        "mean_gain_pp": 8.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7A",
+      "metrics": {
+        "topic_id": "geometry",
+        "topic_name": "Геометрия",
+        "topic_order": 4,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 74.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 60.0,
+        "mean_post_paired_pct": 74.0,
+        "mean_gain_pp": 14.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7A",
+      "metrics": {
+        "topic_id": "statistics",
+        "topic_name": "Статистика",
+        "topic_order": 5,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 88.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 78.0,
+        "mean_post_paired_pct": 88.0,
+        "mean_gain_pp": 10.0,
+        "pair_coverage": 1.0,
+        "status": "mastered",
+        "status_label": "Освоено",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7A",
+      "metrics": {
+        "topic_id": "revision",
+        "topic_name": "Повторение",
+        "topic_order": 6,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 92.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 80.0,
+        "mean_post_paired_pct": 92.0,
+        "mean_gain_pp": 12.0,
+        "pair_coverage": 1.0,
+        "status": "mastered",
+        "status_label": "Освоено",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7B",
+      "metrics": {
+        "topic_id": "fractions",
+        "topic_name": "Дроби",
+        "topic_order": 1,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 48.0,
+        "below_threshold_share": 1.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 35.0,
+        "mean_post_paired_pct": 48.0,
+        "mean_gain_pp": 13.0,
+        "pair_coverage": 1.0,
+        "status": "requires_attention",
+        "status_label": "Требует внимания",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7B",
+      "metrics": {
+        "topic_id": "equations",
+        "topic_name": "Уравнения",
+        "topic_order": 2,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 68.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 52.0,
+        "mean_post_paired_pct": 68.0,
+        "mean_gain_pp": 16.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7B",
+      "metrics": {
+        "topic_id": "proportions",
+        "topic_name": "Пропорции",
+        "topic_order": 3,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 64.0,
+        "below_threshold_share": 0.4,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 56.0,
+        "mean_post_paired_pct": 64.0,
+        "mean_gain_pp": 8.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7B",
+      "metrics": {
+        "topic_id": "geometry",
+        "topic_name": "Геометрия",
+        "topic_order": 4,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 74.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 60.0,
+        "mean_post_paired_pct": 74.0,
+        "mean_gain_pp": 14.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7B",
+      "metrics": {
+        "topic_id": "statistics",
+        "topic_name": "Статистика",
+        "topic_order": 5,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 88.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 78.0,
+        "mean_post_paired_pct": 88.0,
+        "mean_gain_pp": 10.0,
+        "pair_coverage": 1.0,
+        "status": "mastered",
+        "status_label": "Освоено",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7B",
+      "metrics": {
+        "topic_id": "revision",
+        "topic_name": "Повторение",
+        "topic_order": 6,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 92.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 80.0,
+        "mean_post_paired_pct": 92.0,
+        "mean_gain_pp": 12.0,
+        "pair_coverage": 1.0,
+        "status": "mastered",
+        "status_label": "Освоено",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7C",
+      "metrics": {
+        "topic_id": "fractions",
+        "topic_name": "Дроби",
+        "topic_order": 1,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 48.0,
+        "below_threshold_share": 1.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 35.0,
+        "mean_post_paired_pct": 48.0,
+        "mean_gain_pp": 13.0,
+        "pair_coverage": 1.0,
+        "status": "requires_attention",
+        "status_label": "Требует внимания",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7C",
+      "metrics": {
+        "topic_id": "equations",
+        "topic_name": "Уравнения",
+        "topic_order": 2,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 61.0,
+        "below_threshold_share": 0.4,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 53.0,
+        "mean_post_paired_pct": 61.0,
+        "mean_gain_pp": 8.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7C",
+      "metrics": {
+        "topic_id": "proportions",
+        "topic_name": "Пропорции",
+        "topic_order": 3,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 64.0,
+        "below_threshold_share": 0.4,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 56.0,
+        "mean_post_paired_pct": 64.0,
+        "mean_gain_pp": 8.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7C",
+      "metrics": {
+        "topic_id": "geometry",
+        "topic_name": "Геометрия",
+        "topic_order": 4,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 74.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 60.0,
+        "mean_post_paired_pct": 74.0,
+        "mean_gain_pp": 14.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7C",
+      "metrics": {
+        "topic_id": "statistics",
+        "topic_name": "Статистика",
+        "topic_order": 5,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 88.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 78.0,
+        "mean_post_paired_pct": 88.0,
+        "mean_gain_pp": 10.0,
+        "pair_coverage": 1.0,
+        "status": "mastered",
+        "status_label": "Освоено",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7C",
+      "metrics": {
+        "topic_id": "revision",
+        "topic_name": "Повторение",
+        "topic_order": 6,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 92.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 80.0,
+        "mean_post_paired_pct": 92.0,
+        "mean_gain_pp": 12.0,
+        "pair_coverage": 1.0,
+        "status": "mastered",
+        "status_label": "Освоено",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7D",
+      "metrics": {
+        "topic_id": "fractions",
+        "topic_name": "Дроби",
+        "topic_order": 1,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 48.0,
+        "below_threshold_share": 1.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 35.0,
+        "mean_post_paired_pct": 48.0,
+        "mean_gain_pp": 13.0,
+        "pair_coverage": 1.0,
+        "status": "requires_attention",
+        "status_label": "Требует внимания",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7D",
+      "metrics": {
+        "topic_id": "equations",
+        "topic_name": "Уравнения",
+        "topic_order": 2,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 61.0,
+        "below_threshold_share": 0.4,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 53.0,
+        "mean_post_paired_pct": 61.0,
+        "mean_gain_pp": 8.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7D",
+      "metrics": {
+        "topic_id": "proportions",
+        "topic_name": "Пропорции",
+        "topic_order": 3,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 64.0,
+        "below_threshold_share": 0.4,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 56.0,
+        "mean_post_paired_pct": 64.0,
+        "mean_gain_pp": 8.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": true,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7D",
+      "metrics": {
+        "topic_id": "geometry",
+        "topic_name": "Геометрия",
+        "topic_order": 4,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 74.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 60.0,
+        "mean_post_paired_pct": 74.0,
+        "mean_gain_pp": 14.0,
+        "pair_coverage": 1.0,
+        "status": "needs_practice",
+        "status_label": "Нужно закрепление",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7D",
+      "metrics": {
+        "topic_id": "statistics",
+        "topic_name": "Статистика",
+        "topic_order": 5,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 88.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 78.0,
+        "mean_post_paired_pct": 88.0,
+        "mean_gain_pp": 10.0,
+        "pair_coverage": 1.0,
+        "status": "mastered",
+        "status_label": "Освоено",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "school_id": "DEMO-SCHOOL",
+      "class_id": "7D",
+      "metrics": {
+        "topic_id": "revision",
+        "topic_name": "Повторение",
+        "topic_order": 6,
+        "test_version": "v1",
+        "max_score": 100.0,
+        "mean_post_pct": 92.0,
+        "below_threshold_share": 0.0,
+        "n_post": 30,
+        "n_pairs": 30,
+        "mean_pre_paired_pct": 80.0,
+        "mean_post_paired_pct": 92.0,
+        "mean_gain_pp": 12.0,
+        "pair_coverage": 1.0,
+        "status": "mastered",
+        "status_label": "Освоено",
+        "problem_topic": false,
+        "single_version": true,
+        "available_slices": [
+          {
+            "test_version": "v1",
+            "max_score": 100.0
+          }
+        ],
+        "warnings": []
+      }
+    }
+  ]
+}

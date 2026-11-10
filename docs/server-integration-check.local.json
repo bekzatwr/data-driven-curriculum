@@ -1,0 +1,27 @@
+{
+  "infrastructure_passed": true,
+  "server_p0_verified": true,
+  "full_p0_verified": false,
+  "synthetic_data_only": true,
+  "frontend": "synthetic build probe; Damir React app unavailable",
+  "analytics_available": true,
+  "comparison_available": true,
+  "dataset_id": "5eaa3266-f657-4f7a-be75-fdfc45118aae",
+  "plan_id": "437ef0ea-3eb3-4bde-9a1f-0e317819329c",
+  "checks": [
+    "backend and fullstack Docker builds (synthetic UI packaging probe)",
+    "startup refuses missing persistent mount",
+    "release startup refuses missing frontend",
+    "release preflight found all integrated analytics routes",
+    "non-root runtime, dynamic PORT, SPA/assets/API routing, CORS allow/deny",
+    "read-only release check rejects the synthetic frontend probe",
+    "real HTTP topic analytics, heatmap, repeated class filters and paired textbook comparison",
+    "two synthetic CSVs -> import -> analytics -> textbook comparison -> planner -> saved JSON/CSV",
+    "identical dataset/analytics/comparison/plan/CSV after restart AND container replacement",
+    "off-volume backup restored to a NEW volume with identical dataset/analytics/comparison/plan/CSV",
+    "Docker HEALTHCHECK on nondefault PORT=8765"
+  ],
+  "comparison_difference_gain_pp": 8.0,
+  "plan_total_hours": 24,
+  "backup_sha256": "b3e9c17005f6e15289350e8b1d58286ec15521d93a79d0beec6b01ba118c9433"
+}

@@ -19,6 +19,8 @@ from .schemas import Capabilities
 from .version import VERSION
 from planner.api import router as planner_router
 from planner.storage import SnapshotStore
+from analytics.api import router as analytics_router
+from analytics.app import register_analytics_errors
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +88,7 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
 
     application = FastAPI(
         title="Data-Driven Curriculum — backend", version=VERSION, lifespan=lifespan,
-        description="Импорт, проверка и хранение учебных данных. Модуль Бекзата.",
+        description="Импорт, аналитика тем, сравнение учебников, планирование часов и сохранённые отчёты.",
     )
     application.state.settings = settings
     application.state.store = store
@@ -143,7 +145,7 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
                          "demo_dataset": True, "data_quality": True, "package_export": True,
                          "package_restore": not settings.read_only_demo,
                          "plan_preview": True, "plan_save": True, "plan_report": True, "plan_csv": True,
-                         "analytics": False, "textbook_comparison": False},
+                         "analytics": True, "textbook_comparison": True},
             "links": {"docs": "/docs", "openapi": "/openapi.json", "datasets": "/api/datasets",
                       "results_template": "/api/templates/results.csv",
                       "curriculum_template": "/api/templates/curriculum.csv"},
@@ -151,8 +153,10 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
 
     application.include_router(datasets_router)
     application.include_router(planner_router)
+    application.include_router(analytics_router)
+    register_analytics_errors(application)
     for router in routers:
-        if router is not planner_router:
+        if router is not planner_router and router is not analytics_router:
             application.include_router(router)
 
     if settings.web_dist:

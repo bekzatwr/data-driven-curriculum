@@ -2,7 +2,8 @@
 
 Run with the project's Python environment. Never publishes a port outside loopback,
 never reads existing databases, and removes only containers/volumes created by this run.
-The probe checks packaging/SPA delivery, NOT Damir's frontend or Toni's analytics.
+The probe checks packaging/SPA delivery, NOT Damir's frontend. Real HTTP checks
+exercise the integrated analytics, comparison and planner against synthetic CSVs.
 """
 import csv
 import hashlib
@@ -14,6 +15,7 @@ import subprocess
 import sys
 import time
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from uuid import uuid4
 
@@ -84,10 +86,13 @@ def main():
             data = response.read()
             return response.status, data if raw else json.loads(data), response.headers
 
-    def persisted(base, dataset_id, plan, expected_csv):
+    def persisted(base, dataset_id, plan, expected_csv, analytics):
         assert http(base, "/api/datasets/" + dataset_id)[0] == 200
         assert http(base, "/api/plans/" + plan["plan_id"])[1] == plan
         assert http(base, "/api/plans/" + plan["plan_id"] + "/export.csv", raw=True)[1] == expected_csv
+        for path, expected in analytics.items():
+            status, actual, _ = http(base, path)
+            assert status == 200 and actual == expected
 
     try:
         command("docker", "info", "--format", "{{.ServerVersion}}", timeout=30)
@@ -96,7 +101,7 @@ def main():
         # A disposable build context avoids writing anything into Damir's source directory.
         context = artifacts / "context"
         context.mkdir()
-        for directory in ("backend", "planner", "deploy"):
+        for directory in ("backend", "planner", "analytics", "deploy"):
             shutil.copytree(ROOT / directory, context / directory,
                             ignore=shutil.ignore_patterns("__pycache__", "tests", ".env", "test-logs"))
         for filename in ("Dockerfile", ".dockerignore", "requirements.txt"):
@@ -124,11 +129,8 @@ def main():
         checks.append("release startup refuses missing frontend")
         gate = command("docker", "run", "--rm", "-e", "REQUIRE_P0=true", "-v", storage + ":/app/data",
                        web_image, "python", "-c", "from deploy.run_server import preflight; preflight()", ok=False)
-        if gate.returncode:
-            assert "missing analytics routes" in gate.stderr
-            checks.append("release preflight refuses missing analytics")
-        else:
-            checks.append("release preflight found all analytics routes")
+        assert gate.returncode == 0, gate.stderr
+        checks.append("release preflight found all integrated analytics routes")
         name = run_id + "-app"
         create(name, storage)
         base = start(name)
@@ -166,6 +168,26 @@ def main():
         dataset_id = imported["dataset_id"]
         assert http(base, "/api/datasets/import?dry_run=false", "POST", bytes(body), headers)[1]["dataset_id"] == dataset_id
         assert http(base, f"/api/datasets/{dataset_id}/filters")[0] == 200
+        dataset_path = f"/api/datasets/{dataset_id}"
+        comparison_query = urlencode({'topic_id': 'equations', 'textbook_a': 'Учебник A', 'textbook_b': 'Учебник B'})
+        analytics = {}
+        for suffix in ('/overview', '/topics/equations', '/comparison?' + comparison_query,
+                       '/overview?class_ids=7A&class_ids=7B'):
+            status, response, _ = http(base, dataset_path + suffix)
+            assert status == 200 and response['is_demo'] is False
+            analytics[dataset_path + suffix] = response
+        overview = analytics[dataset_path + '/overview']
+        comparison = analytics[dataset_path + '/comparison?' + comparison_query]
+        assert overview['metrics']['n_students'] == 120
+        assert overview['metrics']['n_post_results'] == 720
+        assert overview['metrics']['n_pairs'] == 720 and len(overview['heatmap']) == 24
+        assert analytics[dataset_path + '/topics/equations']['metrics']['n_pairs'] == 120
+        assert analytics[dataset_path + '/overview?class_ids=7A&class_ids=7B']['metrics']['n_students'] == 60
+        assert comparison['comparison_status'] == 'comparable'
+        assert comparison['group_a']['mean_gain_pp'] == 16
+        assert comparison['group_b']['mean_gain_pp'] == 8
+        assert comparison['difference_gain_pp'] == 8 and comparison['baseline_gap_pp'] == 1
+        checks.append("real HTTP topic analytics, heatmap, repeated class filters and paired textbook comparison")
         status, preview, _ = http(base, f"/api/datasets/{dataset_id}/plans/preview", "POST", {"class_id": "7A"})
         assert status == 200 and preview["total_hours"] == 24
         hours = {item["topic_id"]: item["proposed_hours"] for item in preview["items"]}
@@ -176,17 +198,17 @@ def main():
         assert status == 200 and exported.startswith(b"\xef\xbb\xbf")
         csv_rows = csv.DictReader(io.StringIO(exported.decode("utf-8-sig")))
         assert {row["topic_id"]: int(row["proposed_hours"]) for row in csv_rows} == hours
-        persisted(base, dataset_id, plan, exported)
-        checks.append("two synthetic CSVs -> preview/import -> filters -> planner -> saved JSON/CSV")
+        persisted(base, dataset_id, plan, exported, analytics)
+        checks.append("two synthetic CSVs -> import -> analytics -> textbook comparison -> planner -> saved JSON/CSV")
         command("docker", "restart", name)
         base = start(name)
-        persisted(base, dataset_id, plan, exported)
+        persisted(base, dataset_id, plan, exported, analytics)
         command("docker", "rm", "-f", name)
         containers.remove(name)
         create(name, storage)
         base = start(name)
-        persisted(base, dataset_id, plan, exported)
-        checks.append("identical dataset/plan/CSV after restart AND container replacement")
+        persisted(base, dataset_id, plan, exported, analytics)
+        checks.append("identical dataset/analytics/comparison/plan/CSV after restart AND container replacement")
         command("docker", "exec", name, "python", "-m", "backend.app.db.backup",
                 "--output", "/app/data/backups/rehearsal.sqlite3")
         backup = artifacts / "backup.sqlite3"
@@ -199,8 +221,8 @@ def main():
         command("docker", "run", "--rm", "--user", "0", "-v", restored_volume + ":/app/data",
                 backend_image, "chown", "appuser:appuser", "/app/data/recovery.sqlite3")
         restored_base = start(restored_name)
-        persisted(restored_base, dataset_id, plan, exported)
-        checks.append("off-volume backup restored to a NEW volume with identical dataset/plan/CSV")
+        persisted(restored_base, dataset_id, plan, exported, analytics)
+        checks.append("off-volume backup restored to a NEW volume with identical dataset/analytics/comparison/plan/CSV")
         # Inspect Docker's real healthcheck, not just an external HTTP request.
         deadline = time.monotonic() + 45
         while True:
@@ -211,10 +233,13 @@ def main():
             time.sleep(2)
         checks.append("Docker HEALTHCHECK on nondefault PORT=8765")
         features = http(restored_base, "/api/capabilities")[1]["features"]
-        report = {"infrastructure_passed": True, "full_p0_verified": False, "synthetic_data_only": True,
+        assert all(features[key] for key in ('analytics', 'textbook_comparison', 'plan_preview', 'plan_save', 'plan_report', 'plan_csv'))
+        report = {"infrastructure_passed": True, "server_p0_verified": True, "full_p0_verified": False, "synthetic_data_only": True,
                   "frontend": "synthetic build probe; Damir React app unavailable",
                   "analytics_available": features["analytics"], "comparison_available": features["textbook_comparison"],
                   "dataset_id": dataset_id, "plan_id": plan["plan_id"], "checks": checks,
+                  "comparison_difference_gain_pp": comparison['difference_gain_pp'],
+                  "plan_total_hours": plan['total_hours'],
                   "backup_sha256": hashlib.sha256(backup.read_bytes()).hexdigest()}
         (artifacts / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)

@@ -44,6 +44,15 @@ def main():
             example("filters.response.json", client.get(f"/api/datasets/{dataset_id}/filters").json())
             example("results-page.response.json", client.get(f"/api/datasets/{dataset_id}/results?limit=3").json())
             example("quality.response.json", client.get(f"/api/datasets/{dataset_id}/quality").json())
+            for name, path, params in (
+                ('integrated-analytics-overview.response.json', '/overview', {}),
+                ('integrated-analytics-topic.response.json', '/topics/equations', {}),
+                ('integrated-analytics-comparison.response.json', '/comparison', {
+                    'topic_id': 'equations', 'textbook_a': 'Учебник A', 'textbook_b': 'Учебник B'}),
+            ):
+                analytics_response = client.get(f'/api/datasets/{dataset_id}' + path, params=params)
+                assert analytics_response.status_code == 200, analytics_response.text
+                example(name, analytics_response.json())
             plan_path = f"/api/datasets/{dataset_id}/plans"
             plan_preview = client.post(plan_path + "/preview", json={"class_id": "7A"})
             assert plan_preview.status_code == 200, plan_preview.text

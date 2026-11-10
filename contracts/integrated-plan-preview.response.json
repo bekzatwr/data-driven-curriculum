@@ -12,7 +12,7 @@
     "id": "__DATASET_ID__",
     "source_type": "demo",
     "metadata": {
-      "name": "Демо: математика, 7 класс",
+      "name": "Искусственные данные Тони: математика, 7 класс",
       "subject": "Математика",
       "grade": 7,
       "period_start": "2026-09-01",
@@ -28,7 +28,7 @@
       "textbooks": 2,
       "topics": 6
     },
-    "content_hash": "ca59efd32381b3779a59d43e7621a7b4c8672c2665a6a1716cf501fbbb17cf76",
+    "content_hash": "eae7538e4fbedf94f61f802759c072f2f2522a756bce110345635dcd6cb545a6",
     "created_at": "__CREATED_AT__"
   },
   "is_demo": true,
@@ -43,7 +43,7 @@
     },
     {
       "topic_id": "equations",
-      "mean_post_pct": 68.4,
+      "mean_post_pct": 68.0,
       "n_post": 30,
       "single_version": true,
       "test_version": "v1",
@@ -51,7 +51,7 @@
     },
     {
       "topic_id": "proportions",
-      "mean_post_pct": 61.4,
+      "mean_post_pct": 64.0,
       "n_post": 30,
       "single_version": true,
       "test_version": "v1",
@@ -59,7 +59,7 @@
     },
     {
       "topic_id": "geometry",
-      "mean_post_pct": 78.43333333333334,
+      "mean_post_pct": 74.0,
       "n_post": 30,
       "single_version": true,
       "test_version": "v1",
@@ -67,7 +67,7 @@
     },
     {
       "topic_id": "statistics",
-      "mean_post_pct": 86.86666666666666,
+      "mean_post_pct": 88.0,
       "n_post": 30,
       "single_version": true,
       "test_version": "v1",
@@ -75,7 +75,7 @@
     },
     {
       "topic_id": "revision",
-      "mean_post_pct": 65.73333333333333,
+      "mean_post_pct": 92.0,
       "n_post": 30,
       "single_version": true,
       "test_version": "v1",
@@ -109,7 +109,7 @@
       "automatic_eligible": true,
       "proposed_hours": 8,
       "delta": 2,
-      "reason": "Дроби: 48.0%, 30 учеников; цель 70%, порог донора 80%. 6 → 8 ч.; связанные темы: statistics. Границы 3–8 и лимит ±2 соблюдены."
+      "reason": "Дроби: 48.0%, 30 учеников; цель 70%, порог донора 80%. 6 → 8 ч.; связанные темы: revision, statistics. Границы 3–8 и лимит ±2 соблюдены."
     },
     {
       "topic_id": "equations",
@@ -120,7 +120,7 @@
       "max_hours": 8,
       "importance": 3,
       "is_locked": false,
-      "mean_post_pct": 68.4,
+      "mean_post_pct": 68.0,
       "n_post": 30,
       "test_version": "v1",
       "max_score": 100.0,
@@ -138,14 +138,14 @@
       "max_hours": 6,
       "importance": 2,
       "is_locked": false,
-      "mean_post_pct": 61.4,
+      "mean_post_pct": 64.0,
       "n_post": 30,
       "test_version": "v1",
       "max_score": 100.0,
       "automatic_eligible": true,
-      "proposed_hours": 4,
-      "delta": 0,
-      "reason": "Перенос не требуется или ограничен доступными часами"
+      "proposed_hours": 5,
+      "delta": 1,
+      "reason": "Пропорции: 64.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 5 ч.; связанные темы: statistics. Границы 2–6 и лимит ±2 соблюдены."
     },
     {
       "topic_id": "geometry",
@@ -156,7 +156,7 @@
       "max_hours": 5,
       "importance": 2,
       "is_locked": true,
-      "mean_post_pct": 78.43333333333334,
+      "mean_post_pct": 74.0,
       "n_post": 30,
       "test_version": "v1",
       "max_score": 100.0,
@@ -174,14 +174,14 @@
       "max_hours": 5,
       "importance": 1,
       "is_locked": false,
-      "mean_post_pct": 86.86666666666666,
+      "mean_post_pct": 88.0,
       "n_post": 30,
       "test_version": "v1",
       "max_score": 100.0,
       "automatic_eligible": true,
       "proposed_hours": 2,
       "delta": -2,
-      "reason": "Статистика: 86.9%, 30 учеников; цель 70%, порог донора 80%. 4 → 2 ч.; связанные темы: fractions. Границы 2–5 и лимит ±2 соблюдены."
+      "reason": "Статистика: 88.0%, 30 учеников; цель 70%, порог донора 80%. 4 → 2 ч.; связанные темы: fractions, proportions. Границы 2–5 и лимит ±2 соблюдены."
     },
     {
       "topic_id": "revision",
@@ -192,17 +192,22 @@
       "max_hours": 4,
       "importance": 1,
       "is_locked": false,
-      "mean_post_pct": 65.73333333333333,
+      "mean_post_pct": 92.0,
       "n_post": 30,
       "test_version": "v1",
       "max_score": 100.0,
       "automatic_eligible": true,
-      "proposed_hours": 2,
-      "delta": 0,
-      "reason": "Перенос не требуется или ограничен доступными часами"
+      "proposed_hours": 1,
+      "delta": -1,
+      "reason": "Повторение: 92.0%, 30 учеников; цель 70%, порог донора 80%. 2 → 1 ч.; связанные темы: fractions. Границы 1–4 и лимит ±2 соблюдены."
     }
   ],
   "transfers": [
+    {
+      "from_topic_id": "revision",
+      "to_topic_id": "fractions",
+      "hours": 1
+    },
     {
       "from_topic_id": "statistics",
       "to_topic_id": "fractions",
@@ -210,7 +215,7 @@
     },
     {
       "from_topic_id": "statistics",
-      "to_topic_id": "fractions",
+      "to_topic_id": "proportions",
       "hours": 1
     }
   ]

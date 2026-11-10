@@ -1,10 +1,10 @@
 {
   "format": "ddc-dataset",
   "version": 1,
-  "checksum": "f65337a477914803d7ee1753f18311f4989ce556b555f820324aed0d09d367fc",
+  "checksum": "77366a5aec4195840efad2df269220b33ea4d84889e91702585507a3cbb3cb9e",
   "data": {
     "metadata": {
-      "name": "Демо: математика, 7 класс",
+      "name": "Искусственные данные Тони: математика, 7 класс",
       "subject": "Математика",
       "grade": 7,
       "period_start": "2026-09-01",
@@ -95,7 +95,7 @@
         "topic_id": "fractions",
         "test_version": "v1",
         "stage": "pre",
-        "score": 30.0,
+        "score": 28.0,
         "max_score": 100.0,
         "tested_at": "2026-09-01"
       }

@@ -94,9 +94,9 @@ def test_frontend_contracts_and_cors(client):
     assert cors.status_code == 200
     assert cors.headers['access-control-allow-origin'] == 'http://localhost:5173'
     features = client.get('/api/capabilities').json()['features']
-    assert features['plan_save'] is True and features['analytics'] is False
-    assert features['textbook_comparison'] is False
-    assert '/api/datasets/{dataset_id}/comparison' not in schema['paths']
+    assert features['plan_save'] is True and features['analytics'] is True
+    assert features['textbook_comparison'] is True
+    assert '/api/datasets/{dataset_id}/comparison' in schema['paths']
     # The legacy integration factory must not duplicate the built-in planner router.
     from planner.api import router
     app = create_app(client.app.state.settings, routers=(router,))

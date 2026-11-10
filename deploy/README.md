@@ -94,11 +94,11 @@ docker compose --env-file deploy/.env -f deploy/compose.yaml up --build -d --wai
 python scripts/check_release.py --base-url http://127.0.0.1:8080
 ```
 
-Swagger — `http://127.0.0.1:8080/docs`. Release precheck сейчас должен завершиться кодом 2 с отсутствующими frontend/analytics/comparison. Он ничего не публикует и не меняет данные. Не открывать этот неполный режим в production.
+Swagger — `http://127.0.0.1:8080/docs`. В `integration/p0-server` analytics/comparison уже подключены; без React frontend release precheck должен завершиться кодом 2. Он ничего не публикует и не меняет данные. Не открывать этот неполный режим в production.
 
 ## Публикация после завершения P0
 
-1. Review PR команды; подключить реальные frontend и аналитику, обновить OpenAPI/capabilities. Алгоритмы владельцев не переписывать. Зафиксировать проверенный SHA и результаты CI.
+1. Review PR команды и `integration/p0-server`; подключить frontend Дамира. Аналитика и OpenAPI/capabilities уже объединены в интеграционной ветке. Алгоритмы владельцев не переписывать. Зафиксировать проверенный SHA и результаты CI.
 2. Вернуть `APP_TARGET=fullstack`, `REQUIRE_P0=true`; для показа двух CSV установить `READ_ONLY_DEMO=false`. Собрать и запустить Compose. Выполнить `check_release.py` и ручной E2E ниже. Если ожидаемый модуль отсутствует, остановиться.
 3. Получить разрешение владельца на платный Render либо выбрать бесплатный временный показ. Не создавать ресурсы для «проверки оплаты».
 4. В Render создать Blueprint из репозитория, указав путь **deploy/render.yaml**, либо создать Docker Web Service вручную с точно такими же настройками. Регион Frankfurt, один instance `0.5c-512mb`, disk **1 GB → /app/data**, health `/api/health`, auto-deploy **off**. Проверить цену до подтверждения создания. Использовать проверенный SHA через Manual Deploy → Deploy a specific commit; до review не переводить ветку в main.

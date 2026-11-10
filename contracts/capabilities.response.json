@@ -20,8 +20,8 @@
     "plan_save": true,
     "plan_report": true,
     "plan_csv": true,
-    "analytics": false,
-    "textbook_comparison": false
+    "analytics": true,
+    "textbook_comparison": true
   },
   "links": {
     "docs": "/docs",

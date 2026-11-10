@@ -1,24 +1,30 @@
-# Контракты backend
+# Контракты общего сервера
 
-**P0, 10 ноября:** живая `openapi.json` включает четыре маршрута Айданы с моделями `PlanPreview` и `SavedPlan`, ошибками и CSV media type. `integrated-plan-preview.response.json` и `integrated-plan-saved.response.json` получены из общего приложения; ID заменены placeholders. Исходные `plan-*.json` Айданы сохранены и относятся к её изолированному демо.
+`openapi.json` описывает действующие маршруты импорта, аналитики Тони, сравнения учебников и планировщика Айданы в стандартном `backend.app.main.create_app()`. Живая схема — `/openapi.json`. `/api/capabilities` сообщает `analytics=true`, `textbook_comparison=true` и доступность плана/отчёта/CSV.
 
-`analytics-p0.proposed.openapi.json` — отдельный проект интерфейса для review Тони, НЕ описание реализованных маршрутов. Он не добавляется в live OpenAPI. Подробные границы и фильтры — `docs/P0_INTEGRATION.md`.
+`analytics.openapi.json` — схема отдельного демоприложения аналитики. `analytics-*.response.json` получены из его реальных ответов: обзор, детали темы, сравнение, пустая выборка и ошибка. Поля и единицы описаны в [TONI.md](../docs/TONI.md). Предварительный `analytics-p0.proposed.openapi.json` удалён после реализации; его enum и имена `status`/`gain_difference_pp` не являются текущим контрактом сравнения. Используйте `comparison_status`/`difference_gain_pp` из действующих схем.
 
-`openapi.json` — схема реально реализованных маршрутов Бекзата; актуальная живая версия доступна на `/openapi.json`. `*.response.json` получены вызовами приложения на синтетическом демо. `__DATASET_ID__` и `__CREATED_AT__` — заменители изменяющихся значений; в рабочем приложении брать их из ответа API.
+Общий `/api/datasets/demo` и CSV Тони используют `analytics.demo.demo_files()`. `*.response.json` — искусственные примеры, а не существующие наборы на сервере. `__DATASET_ID__`, `__CREATED_AT__`, `__PLAN_ID__`, `__PLAN_CREATED_AT__` заменяют изменяющиеся значения; в приложении брать ID и время из API.
 
 - `demo-import.response.json`: успешный `POST /api/datasets/demo`, HTTP 201.
 - `filters.response.json`: классы, учебники, темы и версии тестов.
-- `results-page.response.json`: первые 3 строки из 1 440; `total` относится ко всей выборке.
+- `results-page.response.json`: первые три строки из 1440; `total` относится ко всей выборке.
+- `quality.response.json`: структурная полнота набора, не образовательная оценка.
+- `capabilities.response.json`: функции и ограничения общего сервера.
+- `integrated-plan-preview.response.json`, `integrated-plan-saved.response.json`: ответы общего приложения с моделями `PlanPreview` и `SavedPlan`.
+- `plan-*.json`: исходные примеры изолированного демо Айданы; его фиксированные ID отличаются от общего сервера.
+- `dataset-package.schema.json`, `dataset-package.example.json`: перенос исходного набора между серверами.
 - `import-error.response.json`: строка с баллом выше максимума, HTTP 422.
-- `results.template.csv`, `curriculum.template.csv`: только заголовки; перед импортом добавить строки данных.
-- `plan-review-input.schema.json`: будущий вход P1. Это схема структуры, а не обещание готовых маршрутов review.
+- `results.template.csv`, `curriculum.template.csv`: заголовки CSV для заполнения.
+- `plan-review-input.schema.json`: структура будущего входа P1; готовых маршрутов повторной проверки нет.
 
-Генерация из корня после установки dev-зависимостей:
+Генерация из корня после `python scripts/start.py --dev --install-only`:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/export_contracts.py
+.\.venv\Scripts\python.exe -m scripts.export_analytics_contracts
 ```
 
-В Linux/macOS использовать `.venv/bin/python`. Генератор создаёт и удаляет отдельную временную SQLite, не трогая рабочую базу.
+В Linux/macOS используйте `.venv/bin/python`. Генератор общего сервера использует временную SQLite и не меняет рабочую базу. Схемы OpenAPI зависят от установленных FastAPI/Pydantic: общий сервер проверяется с `requirements-dev.txt`, а не со старыми зависимостями отдельных демо.
 
-Тони добавляет контракт аналитики/сравнения, Айдана — контракты preview/save/report. После подключения их роутеров обновить генератор, чтобы OpenAPI включал весь сервер. Изменение публичных полей сопровождать обновлением схемы и примера в том же PR.
+Изменение публичных полей сопровождать обновлением схемы и примера в том же PR. CI сверяет генерируемые контракты с файлами репозитория. Сохранённый отчёт строится из `GET /api/plans/{id}` и не должен пересчитываться по текущим фильтрам аналитики.
