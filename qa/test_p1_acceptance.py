@@ -5,6 +5,7 @@ Only provider transport is mocked. SQLite, analytics and planning are real.
 """
 import asyncio
 import sqlite3
+from dataclasses import replace
 
 import httpx
 import pytest
@@ -12,6 +13,7 @@ from fastapi.testclient import TestClient
 
 from backend.app.config import Settings
 from backend.app.main import create_app
+from backend.app.db.backup import backup_database
 from collab import ai
 
 
@@ -80,6 +82,25 @@ def test_offline_ai_preserves_academic_data(client, settings):
     assert response.status_code == 503 and response.json()['code'] == 'AI_NOT_CONFIGURED'
     assert 'ИИ не подключён' in response.json()['message']
     assert academic_state(settings.database_path) == before
+
+
+def test_period_backup_restore_includes_comments_and_csv(client, settings, tmp_path):
+    dataset, plan = setup_plan(client)
+    report = '/api/plans/' + plan['plan_id']
+    exported = client.get(report + '/export.csv').content
+    path = f'/api/datasets/{dataset}/comments'
+    comment = client.post(path, json={'target_type': 'plan_topic',
+        'target_id': plan['plan_id'] + ':fractions', 'author_name': 'Synthetic QA',
+        'author_role': 'methodist', 'text': 'Проверка восстановления'})
+    assert comment.status_code == 201
+    backup = tmp_path / 'period-backup.sqlite3'
+    restored = tmp_path / 'period-restored.sqlite3'
+    assert backup_database(settings.database_path, backup)['integrity'] == 'ok'
+    assert backup_database(backup, restored)['integrity'] == 'ok'
+    with TestClient(create_app(replace(settings, database_path=restored))) as recovered:
+        assert recovered.get(report).json() == plan
+        assert recovered.get(report + '/export.csv').content == exported
+        assert recovered.get(path).json()['items'] == [comment.json()]
 
 
 @pytest.mark.parametrize('scenario', ['success', 'provider_error', 'timeout', 'invalid_context'])
