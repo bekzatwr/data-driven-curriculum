@@ -1,4 +1,4 @@
-> Следующий этап: [BEKZAT_CLOUD_READINESS.md](BEKZAT_CLOUD_READINESS.md), актуальный frontend `c1e6e01`, новый cloud PR. Ниже сохранён протокол предыдущей сборки.
+> Следующий этап: [BEKZAT_CLOUD_READINESS.md](BEKZAT_CLOUD_READINESS.md), проверенный frontend и текущий cloud PR. Ниже сохранён протокол предыдущей сборки.
 
 # Готовность публичного демостенда · 10 ноября 2026
 
