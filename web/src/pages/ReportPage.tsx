@@ -6,6 +6,7 @@ import type { SavedItem, SavedPlan } from '../api/types';
 import { Badge, Banner, Button, CloseButton, Drawer, ErrorState, LoadingBlock, WarningsList, errorText, useToast } from '../components/ui';
 import { AiExplain } from '../components/AiExplain';
 import { CommentsPanel } from '../components/Comments';
+import { isNotFound, MissingData } from '../components/MissingData';
 import { Brand } from '../components/Logo';
 import { buildPeriodPlan } from '../lib/periodPlan';
 import { fmtDate, fmtDateTimeUtc5, fmtNum, fmtPct, fmtSigned, hours as hoursLabel, shortId } from '../lib/format';
@@ -38,7 +39,11 @@ export function ReportPage() {
   if (state.error != null) {
     return (
       <div className="card report">
-        <ErrorState error={state.error} onRetry={state.reload} />
+        {isNotFound(state.error) ? (
+          <MissingData kind="plan" staleId={planId} />
+        ) : (
+          <ErrorState error={state.error} onRetry={state.reload} />
+        )}
         <div style={{ textAlign: 'center', paddingBottom: 24 }}>
           <Link to="/reports">Все отчёты</Link>
         </div>

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { Outlet, useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import type { Dataset, Filters } from '../api/types';
+import { isNotFound, MissingData } from '../components/MissingData';
 import { ErrorState, LoadingBlock } from '../components/ui';
 import { readJson, writeJson } from '../lib/storage';
 import { useAsync } from '../lib/useAsync';
@@ -54,7 +55,11 @@ export function DatasetScope() {
   if (state.error) {
     return (
       <div className="card">
-        <ErrorState error={state.error} onRetry={state.reload} />
+        {isNotFound(state.error) ? (
+          <MissingData kind="dataset" staleId={datasetId} />
+        ) : (
+          <ErrorState error={state.error} onRetry={state.reload} />
+        )}
       </div>
     );
   }
