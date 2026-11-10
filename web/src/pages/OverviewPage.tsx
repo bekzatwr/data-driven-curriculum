@@ -6,6 +6,7 @@ import {
   ArrowUp,
   ArrowUpDown,
   CalendarRange,
+  ChevronRight,
   ClipboardList,
   GitCompareArrows,
   Grid3X3,
@@ -42,6 +43,7 @@ import { STATUS_ORDER, TOPIC_STATUS } from '../lib/status';
 import { useAsync } from '../lib/useAsync';
 import { useDataset } from '../state/dataset';
 import { AiExplain } from '../components/AiExplain';
+import { Ring } from '../components/Ring';
 import { CommentsPanel } from '../components/Comments';
 
 type SortKey = 'order' | 'mean' | 'below' | 'status';
@@ -143,6 +145,51 @@ export function OverviewPage() {
   );
 }
 
+/** «Главный вывод» над KPI: сколько тем проблемные и где результат ниже всего (описательно, без причин). */
+function Insight({ data, onSelectTopic }: { data: Overview; onSelectTopic: (id: string) => void }) {
+  const thr = data.settings.threshold_pct;
+  const ranked = data.topics
+    .filter((t) => isNum(t.mean_post_pct))
+    .sort((a, b) => (a.mean_post_pct as number) - (b.mean_post_pct as number));
+  const worst = ranked[0];
+  const problems = ranked.filter((t) => t.problem_topic);
+  const n = data.metrics.n_problem_topics;
+  const total = data.metrics.topic_count;
+  const below = worst && (worst.mean_post_pct as number) < thr;
+  return (
+    <section className={`insight fade-up ${n > 0 ? 'bad' : 'ok'}`}>
+      <div className="insight-body">
+        <div className="insight-kicker">Главный вывод</div>
+        <div className="insight-title">
+          {n > 0 ? (
+            <>
+              {n} {plural(n, ['тема', 'темы', 'тем'])} из {total} — {plural(n, ['проблемная', 'проблемные', 'проблемные'])}
+            </>
+          ) : (
+            'Проблемных тем нет'
+          )}
+        </div>
+        <div className="insight-text">
+          {below
+            ? `Ниже всего «${worst.topic_name}»: ${fmtPct(worst.mean_post_pct)} при пороге ${fmtPct(thr)} — на ${fmtOne(thr - (worst.mean_post_pct as number))} п.п. ниже.`
+            : `Все темы на уровне порога ${fmtPct(thr)} или выше.`}
+        </div>
+      </div>
+      {problems.length > 0 && (
+        <div className="insight-chips">
+          {problems.slice(0, 3).map((t) => (
+            <button type="button" key={t.topic_id} className="insight-chip" onClick={() => onSelectTopic(t.topic_id)}>
+              <span>{t.topic_name}</span>
+              <b>{fmtPct(t.mean_post_pct)}</b>
+              <ChevronRight size={14} />
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function OverviewSkeleton() {
   return (
     <div className="stack">
@@ -212,6 +259,8 @@ function OverviewBody({
     <div className="stack">
       <WarningsList warnings={[...data.warnings, ...m.warnings]} />
 
+      <Insight data={data} onSelectTopic={onSelectTopic} />
+
       <div className="kpi-strip fade-up">
         <div className="kpi">
           <div className="kpi-top">
@@ -243,7 +292,12 @@ function OverviewBody({
           </div>
         </div>
 
-        <div className="kpi">
+        <div className={`kpi ${isNum(m.mean_post_pct) ? 'has-ring' : ''}`}>
+          {isNum(m.mean_post_pct) && (
+            <Ring value={m.mean_post_pct} marker={s.threshold_pct} tone={m.mean_post_pct < s.threshold_pct ? 'critical' : 'ink'}>
+              <Percent size={14} />
+            </Ring>
+          )}
           <div className="kpi-top">
             <span className="kpi-label row" style={{ gap: 4 }}>
               Средний итоговый балл
@@ -275,7 +329,10 @@ function OverviewBody({
           </div>
         </div>
 
-        <div className={`kpi ${m.n_problem_topics > 0 ? 'tone-critical' : ''}`}>
+        <div className={`kpi has-ring ${m.n_problem_topics > 0 ? 'tone-critical' : 'tone-good'}`}>
+          <Ring value={m.n_problem_topics} max={Math.max(1, m.topic_count)} tone={m.n_problem_topics > 0 ? 'critical' : 'good'}>
+            <AlertOctagon size={14} />
+          </Ring>
           <div className="kpi-top">
             <span className="kpi-label row" style={{ gap: 4 }}>
               Проблемные темы

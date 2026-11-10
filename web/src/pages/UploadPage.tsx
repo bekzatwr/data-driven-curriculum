@@ -8,11 +8,8 @@ import {
   Download,
   FileSpreadsheet,
   FlaskConical,
-  Layers,
-  ListChecks,
   Lock,
   ShieldCheck,
-  Sparkles,
   Upload,
   UploadCloud,
   X,
@@ -23,9 +20,7 @@ import { Badge, Banner, Button, DemoBadge, EmptyState, ErrorState, LoadingBlock,
 import { fmtBytes, fmtDate, fmtDateTimeUtc5, fmtNum, plural } from '../lib/format';
 import { useAsync } from '../lib/useAsync';
 import { datasetToCurrent, useApp } from '../state/app';
-import { isMac } from '../components/CommandPalette';
 import { HeroPreview } from '../components/HeroPreview';
-import { LogoMark } from '../components/Logo';
 
 const DEFAULT_META: DatasetMetadata = {
   name: '',
@@ -75,26 +70,31 @@ export function UploadPage() {
 
   return (
     <div className="stack" style={{ gap: 24 }}>
-      <section className="hero wow">
+      <section className="hero premium">
         <div className="hero-grid">
           <div>
-            <div className="hero-logo fade-up">
-              <LogoMark size={52} />
-            </div>
-            <div>
-              <span className="hero-badge beam fade-up">
-                <span className="pill">P1</span>
-                ИИ-пояснения, обсуждения и план на весь период
-              </span>
-            </div>
-            <h1 className="fade-up-2">
-              Данные о результатах — <span className="grad-text">в решение по учебным часам</span>
+            <span className="hero-kicker">Аналитика результатов · план учебных часов</span>
+            <h1>
+              Данные о результатах — <em>в решение</em> по учебным часам
             </h1>
-            <p className="fade-up-2">
+            <p className="lead">
               Загрузите результаты тестов и учебный план. Система покажет проблемные темы, честно сравнит учебники и предложит
               объяснимое перераспределение часов без изменения общей суммы.
             </p>
-            <div className="hero-stats fade-up-3">
+            <div className="hero-actions">
+              <Button variant="primary" size="lg" onClick={loadDemo} loading={demoLoading} icon={<FlaskConical size={16} />}>
+                {demoLoading ? 'Готовим набор…' : 'Открыть демо'}
+              </Button>
+              <Button size="lg" icon={<UploadCloud size={16} />} onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                Загрузить свои CSV
+              </Button>
+            </div>
+            {current && (
+              <button type="button" className="hero-continue" onClick={() => navigate(`/datasets/${encodeURIComponent(current.id)}/overview`)}>
+                Продолжить: <span>{current.name}</span> <ArrowRight size={14} />
+              </button>
+            )}
+            <div className="hero-stats">
               <div>
                 <b>5 шагов</b>
                 <small>от CSV до отчёта</small>
@@ -110,68 +110,6 @@ export function UploadPage() {
             </div>
           </div>
           <HeroPreview />
-        </div>
-
-        <div className="tiles fade-up-3">
-          <button type="button" className="tile primary beam" onClick={loadDemo} disabled={demoLoading}>
-            <span className="tile-icon">{demoLoading ? <span className="spinner" /> : <FlaskConical size={16} />}</span>
-            <span className="tile-title">Демоданные за один клик</span>
-            <span className="tile-desc">120 искусственных учеников, 4 класса, 6 тем, 2 учебника</span>
-            <span className="tile-cta">
-              {demoLoading ? 'Готовим набор…' : 'Открыть демо'} <ArrowRight size={13} />
-            </span>
-          </button>
-          <button type="button" className="tile" onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
-            <span className="tile-icon">
-              <UploadCloud size={16} />
-            </span>
-            <span className="tile-title">Свои CSV</span>
-            <span className="tile-desc">results.csv и curriculum.csv — проверка до сохранения, ошибки по строкам</span>
-            <span className="tile-cta">
-              К импорту <ArrowRight size={13} />
-            </span>
-          </button>
-          {current ? (
-            <button type="button" className="tile" onClick={() => navigate(`/datasets/${encodeURIComponent(current.id)}/overview`)}>
-              <span className="tile-icon">
-                <Sparkles size={16} />
-              </span>
-              <span className="tile-title">Продолжить работу</span>
-              <span className="tile-desc" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
-                {current.name}
-              </span>
-              <span className="tile-cta">
-                К обзору <ArrowRight size={13} />
-              </span>
-            </button>
-          ) : (
-            <div className="tile" style={{ cursor: 'default' }}>
-              <span className="tile-icon">
-                <Sparkles size={16} />
-              </span>
-              <span className="tile-title">Быстрая навигация</span>
-              <span className="tile-desc">Переходы, темы, классы и отчёты — из любого места</span>
-              <span className="tile-cta" style={{ color: 'var(--muted)' }}>
-                Нажмите <span className="kbd">{isMac ? '⌘' : 'Ctrl'}</span>
-                <span className="kbd">K</span>
-              </span>
-            </div>
-          )}
-        </div>
-
-        <div className="features fade-up-3" aria-hidden>
-          <span>
-            <ShieldCheck size={14} /> Проверка до сохранения
-          </span>
-          <span>
-            <Layers size={14} /> Теплокарта «тема × класс»
-          </span>
-          <span>
-            <ListChecks size={14} /> Сравнение без «лучшего учебника»
-          </span>
-          <span>
-            <Lock size={14} /> Сумма часов и блокировки соблюдаются
-          </span>
         </div>
       </section>
 

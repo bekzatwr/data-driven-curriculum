@@ -1,32 +1,68 @@
 import { useCallback, useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { BarChart3, ChevronRight, ClipboardList, FileText, GitCompareArrows, GraduationCap, Menu, Moon, Search, Sun, Upload } from 'lucide-react';
+import {
+  BarChart3,
+  ChevronRight,
+  ClipboardList,
+  FileText,
+  GitCompareArrows,
+  GraduationCap,
+  Menu,
+  Moon,
+  Search,
+  Sparkles,
+  Sun,
+  Upload,
+} from 'lucide-react';
 import { useApp } from '../state/app';
 import { CommandPalette, isMac } from './CommandPalette';
-import { useSpotlight } from '../lib/useSpotlight';
 import { Brand } from './Logo';
 
 type Theme = 'light' | 'dark';
 
 export function Layout() {
-  const { current, lastPlanId, apiOnline, recheckApi } = useApp();
+  const { current, lastPlanId, apiOnline, recheckApi, capabilities } = useApp();
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(() => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'));
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  useSpotlight();
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#08090a' : '#fbfbfc');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#131210' : '#f5f3ee');
     try {
-      localStorage.setItem('ddc.theme2', theme);
+      localStorage.setItem('ddc.theme4', theme);
     } catch {
       /* ignore */
     }
   }, [theme]);
 
-  const toggleTheme = useCallback(() => setTheme((t) => (t === 'dark' ? 'light' : 'dark')), []);
+  /** Смена темы «кругом» от кнопки (View Transitions); без поддержки или при «меньше движения» — мгновенно. */
+  const toggleTheme = useCallback((e?: { clientX: number; clientY: number }) => {
+    const next: Theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } };
+    if (!doc.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setTheme(next);
+      return;
+    }
+    const x = e?.clientX ?? window.innerWidth - 40;
+    const y = e?.clientY ?? 26;
+    const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const t = doc.startViewTransition(() => {
+      document.documentElement.dataset.theme = next;
+      flushSync(() => setTheme(next));
+    });
+    t.ready
+      .then(() =>
+        document.documentElement.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
+          { duration: 600, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', pseudoElement: '::view-transition-new(root)' },
+        ),
+      )
+      .catch(() => {});
+  }, []);
+  const aiReady = capabilities?.features.ai_explain === true;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -147,23 +183,19 @@ export function Layout() {
           <button
             type="button"
             className="btn btn-ghost btn-icon btn-sm"
-            onClick={toggleTheme}
+            onClick={(e) => toggleTheme(e)}
             aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
             title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
           >
-            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            <span key={theme} className="theme-icon">
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </span>
           </button>
         </div>
       </aside>
       <div className="sidebar-backdrop" onClick={() => setNavOpen(false)} />
 
       <div className="main-col">
-        <div className={`aurora ${path === '/' ? '' : 'subtle'}`} aria-hidden>
-          <span className="blob b1" />
-          <span className="blob b2" />
-          <span className="blob b3" />
-          <span className="grid" />
-        </div>
         <header className="topbar">
           {activeIndex >= 0 && (
             <span className="topbar-progress" aria-hidden style={{ ['--p' as string]: (activeIndex + 1) / steps.length }} />
@@ -183,6 +215,24 @@ export function Layout() {
             <span className="cur">{pageTitle}</span>
           </nav>
           <span className="spacer" />
+          {aiReady && (
+            <span className="ai-status" title="ИИ-пояснения подключены: Groq, запасной — Gemini">
+              <span className="ai-status-dot" aria-hidden />
+              <Sparkles size={13} />
+              ИИ подключён
+            </span>
+          )}
+          <button
+            type="button"
+            className="btn btn-ghost btn-icon btn-sm theme-btn"
+            onClick={(e) => toggleTheme(e)}
+            aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+            title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+          >
+            <span key={theme} className="theme-icon">
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </span>
+          </button>
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPaletteOpen(true)} aria-label="Открыть поиск и команды">
             <Search size={14} />
             <span className="top-search-text">Поиск</span>
