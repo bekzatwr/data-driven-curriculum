@@ -3,7 +3,7 @@
 Проверено 10 ноября 2026. Ветка: `feature/aidana-period-planner`.
 Основа: `integration/p0-server` — `b25891c332a1e0020e8ac8bdb72b1c5ce5789f27`.
 Commit реализации: `89650cccaf67b12fb356c17a0fe6b0e9a9bc6198`.
-HEAD на момент окончательного аудита реализации: `6b52786f2d1274116ed6bd2d9b49d3a638477d5b`.
+Проверенный и опубликованный HEAD к моменту завершения передачи: `37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca`.
 Последующее обновление добавляет только документы и отдельный QA backup/restore; точный SHA checkout: `git rev-parse HEAD`.
 Удалённый [PR #10](https://github.com/bekzatwr/data-driven-curriculum/pull/10) **опубликован от Aidana17022007**, base `integration/p0-server`, конфликтов нет. Merge не выполнялся.
 Ветка отслеживает `origin/feature/aidana-period-planner`; origin — `https://github.com/bekzatwr/data-driven-curriculum.git`. Перед финальными QA-правками git status/diff были пусты, локальный и удалённый HEAD совпадали. Незакоммиченные изменения не потеряны.
@@ -74,9 +74,9 @@ python qa/check_http_e2e.py ../combined-checkout
 
 **Бекзату:** включить planner commit в интеграцию вместе с P1 infrastructure; в P1 capabilities заменить `period_planner_api: false` на true после подключения; при объединении OpenAPI перегенерировать контракты. В `collab/` новых блокирующих дефектов нашими тестами не обнаружено. Учесть отличие технических rate counters от учебных данных.
 
-**Публикация/403:** Айдана выполнила штатный GCM browser login для `Aidana17022007` и push с явным выбором этого username. Push прошёл, PR #10 создан от того же аккаунта. Следовательно, Git CLI Write-доступ подтверждён действием; новый collaborator grant не нужен. GitHub connector остался под `foxfordkz-cyber`, с прежним 403 на запись; его не используем для публикации от чужого имени. Credentials/токены не извлекались, настройки доступа не менялись. Описание PR и запрос review Бекзату требуют отдельной проверки публикации; на момент создания PR body и requested_reviewers пусты.
+**Публикация/403:** штатный GCM login позволил push от `Aidana17022007`. После отдельного штатного browser login GitHub CLI также подтвердил `Aidana17022007`. **Описание PR #10 опубликовано, заголовок уточнён, формальный review request отправлен `bekzatwr`**; обратное чтение GitHub подтвердило body и requested reviewer. Handoff с JSON и browser checklist опубликован в файлах PR и связан из описания, где отмечены Бекзат и Дамир. Устранён доступ для нужных операций через собственную авторизацию; connector с чужим аккаунтом для записи не использовался. Токены не извлекались; merge/production deploy не выполнялись.
 
-**PR #1:** замечания к `d83ce28` проверены, исправления признаны корректными. Технический результат review положительный; публикация Approve не выполнена из-за прав подключения.
+**PR #1:** замечания к точному `d83ce28724e41cefb2f03ae4121358c46df7c11e` закрыты. [Approve опубликован от Aidana17022007](https://github.com/bekzatwr/data-driven-curriculum/pull/1#pullrequestreview-5842802683); GitHub подтвердил APPROVED и тот же SHA. Review ограничен проверенным серверным подключением planner, не объявляет весь browser E2E завершённым.
 
 **Браузер:** повторная проверка завершилась `transport closed before response`; native Chrome также не дал состояние минимизированного окна. Контроль через Yandex ранее был остановлен политикой инструмента. Ограничения не обходились. Полный интерактивный E2E и мобильная приёмка не подтверждены. Точный сценарий для команды опубликован в [AIDANA_INTEGRATION_HANDOFF.md](AIDANA_INTEGRATION_HANDOFF.md).
 
@@ -86,20 +86,24 @@ python qa/check_http_e2e.py ../combined-checkout
 - [Planner PR run](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42823564816)
 - [Analytics PR run](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42823564704)
 
+Повторно проверен **новый `37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca`: 6/6 PR jobs successful**, включая каждый job backend/container/deployment, Windows/Ubuntu analytics и planner:
+[Backend](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42825109617), [Analytics](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42825109431), [Planner](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42825109452).
+Последующий commit этого отчёта фиксирует выполненную публикацию/review без изменения runtime-кода; его актуальные checks проверяются в PR по полному SHA, а не выводятся из прежнего прогона.
+
 ## Задачи и ответственные
 
 | Задача | Сделано | Осталось | Блокер | Ответственный |
 | --- | --- | --- | --- | --- |
 | Аудит git/HEAD/upstream | SHA, чистое исходное дерево, правильный upstream | Сверять новый SHA после каждого push | Нет | Айдана |
-| Исправление 403 для push | GCM вход своим аккаунтом, push успешен | Connector всё ещё отдельно без write | Connector permissions | Айдана |
-| Публикация | PR #10 открыт в integration/p0-server | Описание и формальный review request проверить отдельно | Browser/connector write | Айдана |
+| Исправление 403 для публикации | GCM push и GitHub CLI API работают от Aidana17022007 | Нет для поставленных операций | Нет | Айдана |
+| Публикация | PR #10, описание, handoff и формальный запрос review bekzatwr опубликованы | Ответ reviewer | Ожидание команды | Айдана/Бекзат |
 | period_v1/P0 | Реализовано, regression и CI пройдены | Code review | Нет технического блокера | Айдана, Бекзат |
 | Совместимость PR #6 | Полный 332-test прогон, comments/AI/SQLite/OpenAPI | Merge командой после review, capability=true, общий exporter | Незавершённая общая интеграция | Бекзат |
 | Frontend period | Проверены две актуальные ветки, точные JSON и инструкция подготовлены | mode=period, server recommendations, UI flags | Клиент ещё считает period локально | Дамир |
 | Backup/restore | Новый QA подтверждает plan/CSV/comments в восстановленной БД | Совмещённый Docker-прогон на рабочем daemon | Локальный Docker API недоступен | Айдана/Бекзат |
-| GitHub CI | Все 6 push и 6 PR jobs успешны на указанном SHA | Проверить jobs нового HEAD после обновления документов | Нет | Айдана |
+| GitHub CI | Все 6 PR jobs успешны и на 37c0dd9 | Checks последующего документационного commit видны в PR | Нет | Айдана |
 | Browser E2E | Реальный HTTP маршрут и React build пройдены; точный browser checklist готов | Выполнить весь UI-маршрут после изменения frontend | Browser transport и неподключённый frontend mode | Дамир/Бекзат |
-| Передача | Инструкция и JSON находятся в PR-файлах | Подтверждение прочтения и формальный review | Ответ команды | Дамир/Бекзат |
+| Передача | Инструкция и JSON в PR-файлах, ссылки и обращения к команде в опубликованном описании | Подтверждение прочтения и результат review | Ответ команды | Дамир/Бекзат |
 
 До заморозки **11 ноября 18:00 UTC+5**: подключить mode в UI и capability на сервере, пройти совместный браузерный QA. До дедлайна **11 ноября 23:59 UTC+5**: review, CI итоговой интеграции и зафиксированное GO/NO-GO. Если P1 не принят — сохранить работающий P0, не объявлять полный E2E готовым.
 
