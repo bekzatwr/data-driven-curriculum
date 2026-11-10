@@ -1,0 +1,186 @@
+{
+  "audited_at_utc": "2026-11-10T14:08:57.916698+00:00",
+  "repository": "bekzatwr/data-driven-curriculum",
+  "own_baseline": "64cba3f570d5b8dae0a097350ebc34e26c5feca8",
+  "damir_sha": "a8f645295e44a1d294429b4894279e4a9a8e4be9",
+  "prs": [
+    {
+      "number": 5,
+      "head": "deployment/mobile-public",
+      "sha": "2e6f3751acfb4e44efe9fb3c2b634a9d9428bbc7",
+      "base": "integration/p0-server",
+      "state": "open",
+      "merged": false,
+      "already_in_damir": true
+    },
+    {
+      "number": 6,
+      "head": "feature/bekzat-p1-infrastructure",
+      "sha": "cfce13d24b68b70a8bbec7e196f70886d254cfe7",
+      "base": "integration/p0-server",
+      "state": "open",
+      "merged": false,
+      "already_in_damir": true
+    },
+    {
+      "number": 8,
+      "head": "deployment/bekzat-cloud-readiness",
+      "sha": "024d422c52fac3922af5b8896ebfc8f358bd3895",
+      "base": "feature/bekzat-p1-infrastructure",
+      "state": "open",
+      "merged": false,
+      "already_in_damir": true
+    },
+    {
+      "number": 9,
+      "head": "fix/damir-final-integration",
+      "sha": "a8f645295e44a1d294429b4894279e4a9a8e4be9",
+      "base": "integration/p0-server",
+      "state": "open",
+      "merged": false
+    }
+  ],
+  "runtime_files_compared": [
+    {
+      "path": "Dockerfile",
+      "bekzat_blob": "9bfdb24cfc8e14fd5732d8e6d7a0e9bfa731c495",
+      "damir_blob": "9bfdb24cfc8e14fd5732d8e6d7a0e9bfa731c495",
+      "identical": true
+    },
+    {
+      "path": ".dockerignore",
+      "bekzat_blob": "05104e480585d50cc0cfc28eb531cc05fcf77c88",
+      "damir_blob": "05104e480585d50cc0cfc28eb531cc05fcf77c88",
+      "identical": true
+    },
+    {
+      "path": "compose.yaml",
+      "bekzat_blob": "95fa7e3500125d4f25dd5e519bdefca91e1c50b9",
+      "damir_blob": "95fa7e3500125d4f25dd5e519bdefca91e1c50b9",
+      "identical": true
+    },
+    {
+      "path": "deploy/render.yaml",
+      "bekzat_blob": "479cc8cf70ea32a5eeda2a09ecebf62efc9e0486",
+      "damir_blob": "479cc8cf70ea32a5eeda2a09ecebf62efc9e0486",
+      "identical": true
+    },
+    {
+      "path": "deploy/.env.example",
+      "bekzat_blob": "0d4b9c57f2ee92beef7054649a938acdd18e2369",
+      "damir_blob": "0d4b9c57f2ee92beef7054649a938acdd18e2369",
+      "identical": true
+    },
+    {
+      "path": "deploy/compose.yaml",
+      "bekzat_blob": "f38012aa59318f67300d81134e9ff90012cc4812",
+      "damir_blob": "f38012aa59318f67300d81134e9ff90012cc4812",
+      "identical": true
+    },
+    {
+      "path": "deploy/compose.local.yaml",
+      "bekzat_blob": "f81ae6debafe9895de35eb73f46f48404687c48c",
+      "damir_blob": "f81ae6debafe9895de35eb73f46f48404687c48c",
+      "identical": true
+    },
+    {
+      "path": "deploy/run_server.py",
+      "bekzat_blob": "53fecef8858e466895380d745b0863eb507cd416",
+      "damir_blob": "53fecef8858e466895380d745b0863eb507cd416",
+      "identical": true
+    },
+    {
+      "path": "deploy/seed_demo_report.py",
+      "bekzat_blob": "96f076fd9ff0057ac1994d8e097c335d8ba6426d",
+      "damir_blob": "96f076fd9ff0057ac1994d8e097c335d8ba6426d",
+      "identical": true
+    },
+    {
+      "path": "backend/app/config.py",
+      "bekzat_blob": "6b89351ee3ac22a74fdc81111a8da9c3a962075d",
+      "damir_blob": "6b89351ee3ac22a74fdc81111a8da9c3a962075d",
+      "identical": true
+    },
+    {
+      "path": "backend/app/db/backup.py",
+      "bekzat_blob": "3c1368d14bee419ca8e2254a3ed036b514e5c4eb",
+      "damir_blob": "3c1368d14bee419ca8e2254a3ed036b514e5c4eb",
+      "identical": true
+    },
+    {
+      "path": "scripts/check_release.py",
+      "bekzat_blob": "039755951c66ef60736e6552f6679af0755bb491",
+      "damir_blob": "039755951c66ef60736e6552f6679af0755bb491",
+      "identical": true
+    },
+    {
+      "path": "scripts/verify_deployment.py",
+      "bekzat_blob": "46cc9e88cd05ed829468b355a902b7626a90958e",
+      "damir_blob": "46cc9e88cd05ed829468b355a902b7626a90958e",
+      "identical": true
+    }
+  ],
+  "configuration_changed": false,
+  "reverts_performed": false,
+  "participant_branches_changed": false,
+  "paid_resources_created": false,
+  "deployment_performed": false,
+  "tests": {
+    "pytest": {
+      "passed": 147,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 1,
+      "seconds": 91.38,
+      "scope": [
+        "backup",
+        "storage",
+        "api",
+        "public_deployment",
+        "release_precheck",
+        "collab_hardening",
+        "planner_atomic_save"
+      ],
+      "command": "python -m pytest -q backend/tests/test_backup.py backend/tests/test_storage.py backend/tests/test_api.py backend/tests/test_public_deployment.py backend/tests/test_release_precheck.py backend/tests/test_collab_hardening.py backend/tests/test_planner_atomic_save.py --basetemp data/handoff-tests-tmp --junitxml data/handoff-tests.xml"
+    },
+    "docker_api_only": {
+      "run_id": "ddc-handoff-d274a1b7a7",
+      "source_commit": "64cba3f570d5b8dae0a097350ebc34e26c5feca8",
+      "source_dirty": false,
+      "checks": [
+        "backend-only image builds without compiling React",
+        "non-root API-only startup: custom PORT=8765 and persistent /srv/curriculum; mount guard retained",
+        "separate frontend CORS origin and preflight accepted; unlisted origin not granted",
+        "real synthetic analytics/comparison/preview and operator-seeded JSON/CSV report",
+        "public import/restore/save/comments/AI blocked without database changes",
+        "restart preserves report/CSV; Docker healthcheck uses nondefault PORT",
+        "SQLite online backup copied off-service and restored to new volume; report/CSV identical"
+      ],
+      "passed_groups": 7,
+      "failed_groups": 0,
+      "mode": "API-only; separate frontend represented only by CORS Origin",
+      "mount": "/srv/curriculum",
+      "port": 8765,
+      "synthetic_data_only": true,
+      "external_deployment": false,
+      "browser_tested": false,
+      "ai_provider_calls": 0
+    },
+    "contracts": "general and analytics exporters passed; no content diff",
+    "compose": "root, fullstack and local override passed"
+  },
+  "isolated_test_containers_and_volumes_removed": true,
+  "damir_ci_workflows": "4 successful at a8f6452; independent GitHub result, not a new local frontend acceptance",
+  "damir_post_audit_update": {
+    "previous": "dd3d0439ab6531a4bd26d8de1b8690bfe5c44b96",
+    "current": "a8f645295e44a1d294429b4894279e4a9a8e4be9",
+    "runtime_or_deployment_changed": false,
+    "ci_workflows": "4 successful for a8f6452, verified via GitHub"
+  },
+  "toni_publication_note": {
+    "sha": "59ba47b861f95fccf0b8c6dfaaea77468432610a",
+    "teachers_endpoint": "GET /api/datasets/{dataset_id}/teachers",
+    "merged_in_handoff": false,
+    "new_module_tests_run_here": false
+  }
+}

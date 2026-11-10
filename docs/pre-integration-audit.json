@@ -42,7 +42,8 @@
         5,
         6,
         8,
-        9
+        9,
+        10
       ]
     },
     {
@@ -94,7 +95,8 @@
         5,
         6,
         8,
-        9
+        9,
+        10
       ]
     },
     {
@@ -145,7 +147,8 @@
         5,
         6,
         8,
-        9
+        9,
+        10
       ]
     },
     {
@@ -426,6 +429,101 @@
         }
       ],
       "included_in": []
+    },
+    {
+      "number": 10,
+      "title": "Feature/aidana period planner",
+      "head": "feature/aidana-period-planner",
+      "sha": "37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca",
+      "base": "integration/p0-server",
+      "base_sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "state": "open",
+      "draft": false,
+      "mergeable_against_declared_base": true,
+      "created_at": "2026-11-10T13:20:01Z",
+      "updated_at": "2026-11-10T13:30:16Z",
+      "author": "Aidana17022007",
+      "reviews": [],
+      "ci_runs": [
+        {
+          "id": 42825109452,
+          "name": "Planner checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 57,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42825109452/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42825109452/logs",
+          "workflow_id": 412883257
+        },
+        {
+          "id": 42825109431,
+          "name": "Toni analytics",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 51,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42825109431/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42825109431/logs",
+          "workflow_id": 412917748
+        },
+        {
+          "id": 42825109617,
+          "name": "Backend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 41,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42825109617/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42825109617/logs",
+          "workflow_id": 412243852
+        }
+      ],
+      "ci_jobs": [
+        {
+          "id": 129860279447,
+          "name": "planner",
+          "conclusion": "success",
+          "run_id": 42825109452
+        },
+        {
+          "id": 129860278817,
+          "name": "analytics (ubuntu-latest)",
+          "conclusion": "success",
+          "run_id": 42825109431
+        },
+        {
+          "id": 129860279515,
+          "name": "analytics (windows-latest)",
+          "conclusion": "success",
+          "run_id": 42825109431
+        },
+        {
+          "id": 129860279669,
+          "name": "backend",
+          "conclusion": "success",
+          "run_id": 42825109617
+        },
+        {
+          "id": 129860279908,
+          "name": "deployment-rehearsal",
+          "conclusion": "success",
+          "run_id": 42825109617
+        },
+        {
+          "id": 129860280240,
+          "name": "container",
+          "conclusion": "success",
+          "run_id": 42825109617
+        }
+      ],
+      "ci_pytest": {
+        "passed": 234,
+        "failed": 0,
+        "skipped": 0,
+        "subtests_passed": 26,
+        "warnings": 1,
+        "seconds": 15.52,
+        "job_id": 129860279669
+      },
+      "included_in": []
     }
   ],
   "merge_tree_simulations": [
@@ -480,17 +578,69 @@
       "merge_bases": [
         "2e6f3751acfb4e44efe9fb3c2b634a9d9428bbc7"
       ]
+    },
+    {
+      "left_pr": 8,
+      "right_pr": 10,
+      "left_sha": "024d422c52fac3922af5b8896ebfc8f358bd3895",
+      "right_sha": "37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca",
+      "exit_code": 1,
+      "text_conflicts": [
+        "CONFLICT (content): Merge conflict in .github/workflows/backend.yml",
+        "CONFLICT (content): Merge conflict in scripts/export_contracts.py"
+      ]
+    },
+    {
+      "left_pr": 11,
+      "right_pr": 10,
+      "left_sha": "13011267804d148efea2c4bc679f39f4cf4a379c",
+      "right_sha": "37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca",
+      "exit_code": 1,
+      "text_conflicts": [
+        "CONFLICT (content): Merge conflict in .github/workflows/backend.yml",
+        "CONFLICT (content): Merge conflict in scripts/export_contracts.py"
+      ]
+    },
+    {
+      "left_pr": 9,
+      "right_pr": 10,
+      "left_sha": "f6eb7d3408ece65fdb571b0356c5584cd275c9f8",
+      "right_sha": "37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca",
+      "exit_code": 1,
+      "text_conflicts": [
+        "CONFLICT (content): Merge conflict in .github/workflows/backend.yml",
+        "CONFLICT (content): Merge conflict in scripts/export_contracts.py"
+      ]
     }
   ],
   "simulation_changed_refs_index_or_worktree": false,
   "baseline_sha": "024d422c52fac3922af5b8896ebfc8f358bd3895",
   "scope": "Pre-integration audit only. No participant branch was merged; not a release candidate.",
   "period_publication": {
-    "published_on_audited_refs": false,
-    "remote_branch": "planner/aidana",
-    "remote_sha": "7660b17e17e8d2e1bb57a6876c1026213d36146a",
-    "github_403": "Reported publication blocker; not reproduced using Aidana credentials.",
-    "artifact_received": false
+    "published_on_audited_refs": true,
+    "remote_branch": "feature/aidana-period-planner",
+    "remote_sha": "37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca",
+    "pr": 10,
+    "author": "Aidana17022007",
+    "publication_403": "No longer blocks delivery; published PR and remote fetched. No impersonation or permission changes.",
+    "patch_or_bundle_received": false,
+    "merged_into_audit_branch": false,
+    "local_review": {
+      "sha": "37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca",
+      "scope": "unmodified detached PR #10 only; not combined with PR #8 or PR #9",
+      "pytest": {
+        "passed": 234,
+        "failed": 0,
+        "skipped": 0,
+        "subtests_passed": 26,
+        "warnings": 1,
+        "seconds": 61.05
+      },
+      "period_specific_cases": 25,
+      "contracts": "general and analytics exporters passed; no diff",
+      "combined_qa": "not run: collab is absent at PR #10 base; no participant changes merged",
+      "browser_e2e": "not run"
+    }
   },
   "module_availability": {
     "probe": "current contract availability, not teachers/period acceptance",
@@ -515,7 +665,9 @@
       "configured": false,
       "providers": [],
       "models": {}
-    }
+    },
+    "source_sha": "024d422c52fac3922af5b8896ebfc8f358bd3895",
+    "scope": "baseline PR #8 only; does not describe the newly published PR #10"
   },
   "tests": {
     "pytest": {
@@ -532,7 +684,7 @@
     },
     "api_contract_exports": "passed; no diff",
     "teachers_acceptance": "not_run_module_missing",
-    "period_acceptance": "not_run_module_missing",
+    "period_acceptance": "234 tests passed in separate published PR #10; combined collab/browser acceptance not run",
     "browser_mobile": "not_run_unfinished_frontend",
     "ai_live_calls": 0
   },
@@ -546,5 +698,15 @@
     },
     "prepared_only": true,
     "public_deploy_performed": false
-  }
+  },
+  "updated_at_utc": "2026-11-10T13:39:45.234135+00:00",
+  "period_publication_initial_1311_utc": {
+    "published_on_audited_refs": false,
+    "remote_branch": "planner/aidana",
+    "remote_sha": "7660b17e17e8d2e1bb57a6876c1026213d36146a",
+    "github_403": "Reported publication blocker; not reproduced using Aidana credentials.",
+    "artifact_received": false
+  },
+  "formal_pr1_reviews_rechecked_after_pr10": [],
+  "ancestry_scope": "PR #1 through #10 at recorded SHA; recomputed after publication of PR #10"
 }

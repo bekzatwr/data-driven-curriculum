@@ -1,10 +1,10 @@
 # PRE-INTEGRATION STATUS — Data Driven Curriculum
 
-Срез: **10 ноября 2026, 13:11 UTC / 18:11 UTC+5**. Дедлайн: **11 ноября 2026, 23:59 UTC+5**.
+Первичный срез PR #1–#9: **10 ноября 2026, 13:11 UTC / 18:11 UTC+5**. Дополнение этого же дня: во время проверки опубликован **PR #10 Айданы, `37c0dd9`**, и проверен отдельно. Дедлайн: **11 ноября 2026, 23:59 UTC+5**.
 
 **Этап — подготовка, не Release Candidate.** Дамир и Тони продолжают разработку; название PR #9 «final» и `draft=false` не означают согласованное завершение. Незавершённые PR в этой задаче не объединялись. К финальной интеграции всего объёма и публикации сайта команда пока не готова.
 
-Рабочая ветка Бекзата: `chore/bekzat-pre-integration`, создана от **PR #8 / `024d422c52fac3922af5b8896ebfc8f358bd3895`**. В тестируемой базе уже есть React `03395ef`, опубликованный ранее. PR #9 `f6eb7d3` прочитан отдельно, **не включён**. Источники: [Git/CI audit JSON](pre-integration-audit.json), [свежая Docker-репетиция](pre-integration-docker.local.json).
+Рабочая ветка Бекзата: `chore/bekzat-pre-integration`, создана от **PR #8 / `024d422c52fac3922af5b8896ebfc8f358bd3895`**. В тестируемой базе уже есть React `03395ef`, опубликованный ранее. PR #9 `f6eb7d3` прочитан отдельно, **не включён**. PR #10 `37c0dd9` протестирован в отдельном detached worktree и также **не включён**. Источники: [Git/CI audit JSON](pre-integration-audit.json), [свежая Docker-репетиция](pre-integration-docker.local.json).
 
 ## 1. Что готово сейчас
 
@@ -19,13 +19,13 @@
 | AI | По умолчанию disabled; публичный POST закрыт, внешних вызовов в этой проверке 0 |
 | Docker | Настоящий React + FastAPI, non-root, один worker, health, динамический PORT, SPA и CORS |
 | Backup/restore | Согласованный SQLite backup с WAL; восстановление нового файла/volume с теми же данными, JSON/CSV и comments |
-| API contracts | OpenAPI и analytics exporters воспроизводимы; новые teachers/period API не выдаются за существующие |
+| API contracts | OpenAPI и analytics exporters воспроизводимы; Teachers API отсутствует, period-контракт проверен отдельно в #10 |
 
 `backend/app`, `planner`, `analytics`, `collab`, `web/` и `contracts/` в этой ветке не изменялись. Безопасная правка своей инфраструктуры: backend CI теперь запускается и у PR, направленного в `deployment/bekzat-cloud-readiness`. Никакие проверки не отключены.
 
-## 2. Зависимости PR #1–#9
+## 2. Зависимости PR #1–#9 и опубликованный во время проверки PR #10
 
-Все девять PR открыты, не объединены; submitted reviews отсутствовали в проверенном срезе. GitHub показывал `mergeable=true` **относительно указанной базы каждого PR** — это не проверка совместимости всех PR вместе.
+PR #1–#9 открыты, не объединены; submitted reviews отсутствовали в первичном срезе. Новый PR #10 также открыт, без merge и опубликованных reviews. GitHub показывал `mergeable=true` **относительно указанной базы каждого PR** — это не проверка совместимости всех PR вместе.
 
 | PR | HEAD / база | Что уже включено / что ещё требуется |
 | --- | --- | --- |
@@ -38,10 +38,13 @@
 | [#7](https://github.com/bekzatwr/data-driven-curriculum/pull/7) | `af1bdc0` → main | Только README/banner; не включён в #8/#9, требует согласования README-конфликта |
 | [#8](https://github.com/bekzatwr/data-driven-curriculum/pull/8) | `024d422` → feature/bekzat-p1-infrastructure | Проверенная основа Бекзата: включает #1–#6 и cloud gates. Отдельный #7 и исправления #9 отсутствуют |
 | [#9](https://github.com/bekzatwr/data-driven-curriculum/pull/9) | `f6eb7d3` → integration/p0-server | Содержит #6 + актуальный #4 + собственные UI/CI/tests; не содержит cloud-дельту #8. Остаётся WIP по указанию капитана |
+| [#10](https://github.com/bekzatwr/data-driven-curriculum/pull/10) | `37c0dd9` → integration/p0-server | Новый period planner от Айданы: содержит #3 и предков #1/#2, но не #6/#8/#9. Поставка опубликована, общий review/подключение ещё впереди |
 
 При проверке ancestry учитывались **полные SHA** из JSON, не только названия веток. Не нужно переносить код #1/#2/#5 вручную поверх #8. После общего review команда выбирает каноническую цепочку и судьбу перекрывающихся PR; этот аудит ничего не закрывает и не retarget-ит автоматически.
 
 CI соответствующих HEAD: #1 — 2 workflows successful; #2/#3/#4/#5 — по 3; #6/#8/#9 — по 4. Для #7 connector не вернул PR-triggered runs; успешный CI ему не приписывается. Логи CI #9 подтверждают **8 npm tests passed, 0 failed, 0 skipped**, typecheck/build. Это проверка опубликованного промежуточного HEAD, не приёмка окончательного frontend.
+
+Для нового PR #10 на `37c0dd9` проверены **6/6 jobs successful**: backend, container, deployment-rehearsal, planner, analytics Ubuntu/Windows. [Backend/container CI](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42825109617) включает Docker smoke, backup/restore и restart; backend-лог содержит 234 passed. Это CI самостоятельной ветки Айданы, не совместной сборки с #8. Формальный GitHub Approve PR #1 по-прежнему отсутствует: положительный технический отзыв в документе Айданы не заменяет submitted review.
 
 ## 3. Возможные конфликты и риски совместимости
 
@@ -54,8 +57,11 @@ CI соответствующих HEAD: #1 — 2 workflows successful; #2/#3/#4/
 | #6 + #7 | Exit 1: `README.md` |
 | #3 + #7 | Exit 1: `README.md` |
 | #8 + #5 | Exit 0, #5 уже предок #8 |
+| #8 / #9 / собственный #11 (`1301126`) + #10 `37c0dd9` | Exit 1: `.github/workflows/backend.yml` и `scripts/export_contracts.py` |
 
 Из этого **не следует**, что будущие HEAD объединятся без конфликтов или что вся функциональность совместима. После завершения участников симуляцию повторить на новых SHA.
+
+Новые конфликты #10 имеют точную причину: обе стороны расширили CI branch filters и добавили генерацию примеров в одно место exporter. После разрешённой интеграции сохранить объединённый набор CI triggers, все container/deployment jobs, обе группы примеров — comments/AI из #8 и period из #10; затем регенерировать общий OpenAPI. Сейчас конфликтные файлы не изменялись. Автоматическое объединение `contracts/openapi.json` не заменяет воспроизводимый export.
 
 Места будущего совместного review:
 
@@ -89,29 +95,31 @@ CI соответствующих HEAD: #1 — 2 workflows successful; #2/#3/#4/
 
 Нужны tests, methodological notes и завершённый HEAD. Сохраняются диапазон процентов, деление до умножения, парные выборки и отсутствие причинного ранжирования учебников/учителей. AI остаётся disabled; live provider calls для этой задачи не требуются.
 
-## 6. Айдана: period planner и GitHub 403
+## 6. Айдана: period planner опубликован, нужна интеграция после review
 
-**Реализация `settings.mode="period"` не опубликована на проверенных refs.** `planner/aidana:7660b17` содержит только README и ТЗ; P0 planner уже ранее поступил через main и интеграционную цепочку. В опубликованном `planner/models.py` Settings включает только target_pct/donor_pct/min_students/max_change, `extra="forbid"`.
+**Обновление во время выполнения:** [PR #10](https://github.com/bekzatwr/data-driven-curriculum/pull/10) создан аккаунтом **Aidana17022007** в 13:20 UTC. Проверенный опубликованный HEAD — **`37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca`**, ветка `feature/aidana-period-planner`, base `integration/p0-server:b25891c`. Код получен через обычный git fetch из origin. Это настоящая публикация, а не локальная копия.
 
-Проверка доступности контракта на настоящем текущем FastAPI/SQLite показала:
+Первоначальный `AIDANA-PUBLISH-403` **снят как блокер поставки кода**: PR и remote branch доступны. Старый `planner/aidana:7660b17` остался с README/ТЗ; наличие нового кода проверяется по **новой ветке**, а не по старому имени. Доступ ко всем средствам входа Айданы этим не подтверждается: её документ отдельно сообщает об ограничении connector write. Мы не меняли права и не входили под её аккаунтом.
 
-- `features.period_planner_api=false`, `features.teachers_api=false`;
-- `GET /api/datasets/{id}/teachers` → **404**;
-- preview с `{"class_id":"7A","settings":{"mode":"period"}}` → **422 INVALID_REQUEST**, поле `body.settings.mode`, extra input;
-- AI status: `configured=false`, providers/models пусты.
+[Patch/bundle-протокол](PERIOD_PLANNER_HANDOFF.md) сохранён как запасной способ согласованной передачи при будущем сбое; сейчас он не требуется. Ни bundle, ни patch не принимались и не применялись.
 
-Это доказательство отсутствия поддержки, **не тест алгоритма period**. Локальную реализацию Айданы без опубликованного SHA/полученного artifact не считаем поставкой.
+Независимо проверено на неизменённом PR #10 в detached worktree:
 
-Блокер **`AIDANA-PUBLISH-403`**: GitHub 403 при публикации сообщён капитаном. Сам 403 от аккаунта Айданы не воспроизводился; причина прав/аккаунта ещё не подтверждена. Подготовлен [протокол согласованного patch/bundle](PERIOD_PLANNER_HANDOFF.md): base/HEAD, авторство, SHA256, verify, изолированная проверка; без входа под чужим аккаунтом и обхода прав. Сейчас bundle/patch не получен и не применён.
+- **234 pytest passed, 0 failed, 0 skipped**, 26 subtests, 61.05 s; среди них **25 period-specific cases**. Один известный deprecation warning.
+- Настоящий `settings.mode="period"`, `algorithm_version="period_v1"`; P0 `rules_v1` остаётся default. Сервер проверяет бюджет/min/max/locked; ограничение ±2 сохраняется для P0, а period использует отдельные правила.
+- Preview, ручная правка, save, JSON/CSV, повторное открытие SQLite, старый snapshot без mode, 0.69/0.69=100 и rollback при ошибке response покрыты тестами автора и повторно прошли.
+- OpenAPI/general и analytics exporters проходят, `git diff -- contracts` пустой. Новый mode enum/default и реальные period-примеры опубликованы.
+- PR #10 не содержит collab из #6. Поэтому его отдельный `qa/test_p1_acceptance.py`, требующий совмещённого дерева, **здесь не запускался**. Совместные tests автора, parity и HTTP QA из её документа остаются авторскими результатами, не нашим повторным прогоном.
 
-Для подключения Айдана предоставляет:
+Точный handoff Айданы: [AIDANA_INTEGRATION_HANDOFF.md на проверенном SHA](https://github.com/bekzatwr/data-driven-curriculum/blob/37c0dd9a994525b3d4a7ea0b83e2a5b7a66151ca/docs/AIDANA_INTEGRATION_HANDOFF.md). Рабочие endpoints её ветки: `POST /api/datasets/{dataset_id}/plans/preview`, `POST /api/datasets/{dataset_id}/plans`, `GET /api/plans/{plan_id}`, `GET /api/plans/{plan_id}/export.csv`.
 
-- Совместимый серверный `settings.mode="period"` на существующих preview/save endpoints, схемы/ошибки и примеры. Без mode сохраняется прежнее поведение P0.
-- Явно сохранённый режим в snapshot/settings и различимый algorithm_version; `recommended_hours` отражает period-рекомендацию, `manually_modified` сравнивается с ней. JSON/CSV должны одинаково описывать сохранённый план.
-- Правила общего бюджета, min/max/locked, невозможного распределения и ручных правок; отдельные period rules не ослабляют существующие P0-тесты ±2.
-- Чтение старых snapshot, atomic save/rollback, restart/restore, граничные дробные баллы, tests и полный SHA.
+```json
+{"class_id":"7A","settings":{"mode":"period"}}
+```
 
-Алгоритм Айданы за неё не реализован и не переписан.
+Дамиру нужны `mode?: "rules_v1" | "period"`, серверные рекомендации `items[].proposed_hours`, причины и `recommended_hours`, полное `hours_by_topic` при ручной правке, сохранённые mode/algorithm_version в отчёте. Не заменять mode увеличением max_change. Бекзату после review — совместить exporter/CI, включить `period_planner_api` только в реально объединённом коде, прогнать period + comments + AI-off + restart/backup и общий browser E2E.
+
+**В проверенной базе Бекзата #8 поддержки пока нет:** capabilities teachers/period false, teachers GET → 404, period preview → 422 `INVALID_REQUEST` по `body.settings.mode`. Диагностика в JSON относится именно к `024d422`, не к новому PR #10. Его код в эту отчётную ветку не переносился; формальный review и интеграция остаются открытыми задачами.
 
 ## 7. Render готов к будущей настройке, не к публикации
 
@@ -147,23 +155,24 @@ Render YAML повторно проверен по официальной JSON S
 | Public / anti-spam | Запрет записи без мутаций БД; 429/Retry-After и spoofed XFF checks passed | Существующая защита |
 | AI disabled | Offline/capabilities проверены, внешних вызовов **0** | Unit mock tests не являются вызовами провайдера |
 | Frontend typecheck/build | Docker `tsc -b && vite build` прошёл | Версия #8, не приёмка #9 |
-| Teachers / Period acceptance | **NOT RUN — модули не опубликованы** | Только диагностика 404/422 и false capabilities |
+| Teachers acceptance | **NOT RUN — модуль не опубликован** | Диагностика 404 и false capability в #8 |
+| Period на PR #10 отдельно | **234 passed, 0 failed, 0 skipped**, включая 25 period cases; contracts без diff | `37c0dd9`, не совместная сборка с comments/frontend |
 | Browser/mobile/external HTTPS | **NOT RUN** | Незавершённый frontend, нет разрешённого deployment |
 
 Один известный Starlette/TestClient deprecation warning; использовался новый pytest basetemp внутри проекта. Старые ожидаемые результаты тестов не менялись.
 
-Свежий Docker run **`ddc-check-19fa98d943`**, source commit `024d422`, `source_dirty=false`, frontend tree `5df386a4b0ddb3eb393d15aade7cf3ae5d427fc8`. `full_p0_verified=false` сохранён: HTTP E2E не заменяет полный проход через React. После этих проверок менялись только CI trigger и документация; CI текущего отчётного PR фиксируется отдельно в его Checks.
+Свежий Docker run **`ddc-check-19fa98d943`**, source commit `024d422`, `source_dirty=false`, frontend tree `5df386a4b0ddb3eb393d15aade7cf3ae5d427fc8`. `full_p0_verified=false` сохранён: HTTP E2E не заменяет полный проход через React. Данные 319 и 234 относятся к разным деревьям, их нельзя складывать. После проверки базы менялись только CI trigger и документация; CI текущего отчётного PR фиксируется отдельно в его Checks.
 
 ## 9. Подготовленная матрица финальной приёмки
 
-Выполнять после завершения реальных модулей, на зафиксированных SHA. До этого не подменять отсутствующие Teachers/Period фиктивными ответами.
+Выполнять после завершения реальных модулей, на зафиксированных SHA. Не подменять отсутствующий Teachers API или неподключённый period модуль фиктивными ответами.
 
 | Сценарий | Что проверить | Сейчас / владелец |
 | --- | --- | --- |
 | CSV → analytics → comparison → planner → report | Dry-run/ошибки, два CSV, фильтры/pre/post/версии, ручная правка, save, JSON/CSV | Серверный P0 passed; финальный React E2E после завершения Дамира |
 | Comments | Все target types, чужой dataset 404, пустой/слишком большой текст, 429 + Retry-After, квота, rollback | Backend passed; UI #9 проверить после freeze / Бекзат + Дамир |
 | Teachers | Synthetic 120/4, dedup, фильтры, missing teacher, несколько школ, null и версии, совпадение UI/API | Заблокировано / Тони → Дамир |
-| Period planner | Настоящий mode, бюджет/min/max/locked, невозможные условия, ручная правка, mode в JSON/CSV, старые snapshots, atomic rollback | Заблокировано / Айдана → Дамир |
+| Period planner | Настоящий mode, бюджет/min/max/locked, невозможные условия, ручная правка, mode в JSON/CSV, старые snapshots, atomic rollback | Отдельный PR #10 passed; совместная приёмка после review / Айдана + Бекзат → Дамир |
 | AI disabled | Без ключей: configured=false, UI не отправляет POST, нет провайдерских вызовов, P0 работает | Backend passed; повторить в финальном UI / Бекзат + Дамир |
 | Public read-only | Import/save/comments/AI/restore запрещены; preview и подготовленный report/CSV доступны | Backend passed; финальная проверка capabilities в UI / Дамир |
 | Mobile | 360/390/430/768/1366/1920; меню, формы, picker, таблицы, графики, direct report/reload, timeout/Retry и CSV | После freeze; эмуляция отдельно от физических устройств / Дамир |
@@ -186,12 +195,12 @@ npm run build
 # npm run lint — когда script предоставлен/согласован командой.
 ```
 
-Teachers/Period tests добавляют владельцы вместе с модулями, они должны входить в общую pytest/CI. После намеренного расширения контрактов сначала review схем/примеров и commit, затем повторный экспорт должен давать пустой diff. Не менять ожидания ради зелёного статуса.
+Teachers tests предоставляет Тони. Period tests уже опубликованы в PR #10 и входят в его pytest; после разрешённого объединения дополнительно запустить `python -m pytest -q qa` с настоящим collab. Все реальные tests должны войти в общую CI. После намеренного расширения контрактов сначала review схем/примеров и commit, затем повторный экспорт должен давать пустой diff. Не менять ожидания ради зелёного статуса.
 
 ## 10. Безопасный порядок финальной интеграции
 
-1. Получить от Дамира, Тони и Айданы явное подтверждение завершения, точные HEAD/base SHA, контракты, test results и ограничения. До этого продолжаются раздельные ветки; #9 не объединять.
-2. Устранить `AIDANA-PUBLISH-403` обычным путём или получить согласованный artifact. Intake/review не равен публикации или включению в приложение.
+1. Получить от Дамира и Тони подтверждение завершения, точные HEAD/base SHA, контракты, test results и ограничения; у Айданы зафиксировать проверенный #10 или согласованный последующий HEAD и завершить review. До этого продолжаются раздельные ветки; #9 не объединять.
+2. Поставку Айданы использовать из опубликованного PR #10; публикационный 403 больше не блокирует код. Patch/bundle — только запасной согласованный путь при новой проблеме. Наличие remote PR не означает разрешённый merge.
 3. Согласовать Teachers/Period schemas с Дамиром и Бекзатом, проверить режимы snapshot и обратную совместимость. Не активировать capabilities раньше настоящей регистрации API и tests.
 4. После team review создать новую финальную integration-ветку от **тогда актуального main**. Использовать согласованную серверную цепочку #8, содержащую #3/#6 и их предков, а не повторно переносить каждую перекрывающуюся PR-дельту. Ни этот шаг, ни последующие merge сейчас не выполнялись.
 5. По одному подключить завершённые серверные модули Тони и Айданы; проверить P0/atomic save и их новые tests. Затем подключить окончательный frontend Дамира к уже согласованным API. Конфликты разбирать с владельцами, сохраняя авторство и без force push.
@@ -208,8 +217,8 @@ Teachers/Period tests добавляют владельцы вместе с мо
 | Бекзат | Повторная проверка P0, SQLite, comments, anti-spam, Docker, contracts, backup/restore | Интеграция завершённых модулей и итоговая приёмка | Бекзат |
 | Дамир | Опубликован промежуточный #9, CI зелёный | Завершение, Teachers/Period API, финальный React/mobile E2E, границы lint | Дамир |
 | Тони | P0-аналитика опубликована и работает | Финальный Teachers API, schemas/tests и методологический review | Тони |
-| Айдана | P0 planner работает | Публикация period или согласованный bundle, контракт/tests, review | Айдана; владелец GitHub по 403 |
+| Айдана | Period опубликован в #10; отдельно 234 tests и 6/6 CI jobs passed | Формальный review, согласованная интеграция, общий QA с comments и frontend | Айдана + Бекзат + Дамир |
 | Git | Зависимости/текстовые конфликты установлены, отдельная отчётная ветка | Review, затем согласованное объединение; README конфликт | Капитан + команда |
 | Render | Конфигурация подготовлена, локальные проверки прошли | Разрешённый сервис/HTTPS/disk verification после всех модулей | Владелец + Бекзат |
 
-**Сделано:** собственная часть перепроверена, зависимости и порядок объединения подготовлены. **Осталось:** завершение/поставка модулей и общая приёмка. **Ждём:** Дамира, Тони, Айдану и team review. **Финальная интеграция:** пока NO-GO. **Публикация сайта:** NO-GO. Эта работа не является финальным merge или Release Candidate.
+**Сделано:** собственная часть перепроверена, зависимости и порядок объединения подготовлены. **Осталось:** завершение/поставка модулей и общая приёмка. **Ждём:** завершения Дамира/Тони и командного review, в том числе опубликованного period Айданы. **Финальная интеграция:** пока NO-GO. **Публикация сайта:** NO-GO. Эта работа не является финальным merge или Release Candidate.
