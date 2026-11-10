@@ -273,7 +273,12 @@ export interface Comparison {
 
 // ---------- Планировщик ----------
 
+/** rules_v1 — переносы ±N (P0); period — распределение всех часов на сервере (PR #10, period_v1). */
+export type PlanMode = 'rules_v1' | 'period';
+
 export interface PlanSettings {
+  /** Нет в старых снимках и в запросах rules_v1 — значит rules_v1. */
+  mode?: PlanMode;
   target_pct: number;
   donor_pct: number;
   min_students: number;

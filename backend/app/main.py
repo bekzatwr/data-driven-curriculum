@@ -20,6 +20,11 @@ from .version import VERSION
 from .public_demo import PublicDemoGuard
 from planner.api import router as planner_router
 from planner.storage import SnapshotStore
+from typing import get_args
+from planner.models import Settings as PlannerSettings
+
+# Флаг по факту: true, только если подключённый planner принимает settings.mode="period" (PR #10).
+PERIOD_PLANNER_READY = "period" in get_args(PlannerSettings.model_fields["mode"].annotation)
 from analytics.api import router as analytics_router
 from analytics.app import register_analytics_errors
 from collab import ai as collab_ai
@@ -166,7 +171,7 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
                          "comments": settings.comments_enabled,
                          "comments_write": settings.comments_enabled and not settings.read_only_demo,
                          "ai_explain": not settings.read_only_demo and collab_ai.status()["configured"],
-                         "teachers_api": False, "period_planner_api": False},
+                         "teachers_api": False, "period_planner_api": PERIOD_PLANNER_READY},
             "links": {"docs": "/docs", "openapi": "/openapi.json", "datasets": "/api/datasets",
                       "results_template": "/api/templates/results.csv",
                       "curriculum_template": "/api/templates/curriculum.csv"},

@@ -1118,3 +1118,21 @@
     font-size: 16px;
   }
 }
+
+/* Пометка на декоративном превью главной: это пример, не данные пользователя */
+.hp-tag {
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--warning-text);
+  background: var(--warning-bg);
+  border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
+  white-space: nowrap;
+}
+/* Объяснение сервера в списке «Как распределены часы» */
+.transfers .transfer .tiny.muted {
+  line-height: 1.35;
+}

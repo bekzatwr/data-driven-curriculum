@@ -8,7 +8,6 @@ import { AiExplain } from '../components/AiExplain';
 import { CommentsPanel } from '../components/Comments';
 import { isNotFound, MissingData } from '../components/MissingData';
 import { Brand } from '../components/Logo';
-import { buildPeriodPlan } from '../lib/periodPlan';
 import { fmtDate, fmtDateTimeUtc5, fmtNum, fmtPct, fmtSigned, hours as hoursLabel, shortId } from '../lib/format';
 import { rememberPlan } from '../lib/storage';
 import { useAsync } from '../lib/useAsync';
@@ -70,14 +69,15 @@ function Report({ plan }: { plan: SavedPlan }) {
   const changed = items.filter((i) => i.proposed_hours !== i.current_hours);
   const moved = items.reduce((s, i) => s + Math.max(0, i.proposed_hours - i.current_hours), 0);
   const name = (tid: string) => items.find((i) => i.topic_id === tid)?.topic_name || tid;
-  const isPeriod = plan.comment.startsWith('[План на весь период]');
+  // Режим — из снимка (settings.mode / algorithm_version), не из текста комментария.
+  const isPeriod = plan.settings.mode === 'period' || plan.algorithm_version === 'period_v1';
   // План на период: то же детерминированное распределение, что и на экране плана.
-  const period = isPeriod ? buildPeriodPlan(items, plan.total_hours, plan.settings.target_pct, plan.settings.donor_pct) : null;
-  const recommendedOf = (i: SavedItem) => (period ? period.hours[i.topic_id] ?? i.recommended_hours : i.recommended_hours);
-  const reasonOf = (i: SavedItem) => (period ? period.reasons[i.topic_id] ?? i.recommendation_reason : i.recommendation_reason);
-  const manual = items.filter((i) => (period ? i.proposed_hours !== recommendedOf(i) : i.manually_modified));
-  const isManual = (i: SavedItem) => manual.includes(i);
-  const comment = isPeriod ? plan.comment.replace('[План на весь период]', '').trim() : plan.comment;
+  // Рекомендация, причина и ручная правка — всё из сохранённого снимка сервера.
+  const recommendedOf = (i: SavedItem) => i.recommended_hours;
+  const reasonOf = (i: SavedItem) => i.recommendation_reason;
+  const manual = items.filter((i) => i.manually_modified);
+  const isManual = (i: SavedItem) => i.manually_modified;
+  const comment = plan.comment;
   const [openTopic, setOpenTopic] = useState<string | null>(null);
   const counts = useAsync((sig) => api.comments(plan.dataset_id, { type: 'plan_topic' }, sig), `pt|${plan.plan_id}|${openTopic ?? ''}`);
   const countFor = (tid: string) => counts.data?.items.filter((c) => c.target_id === `${plan.plan_id}:${tid}`).length ?? 0;
@@ -284,14 +284,14 @@ function Report({ plan }: { plan: SavedPlan }) {
 
         <div className="grid-2" style={{ marginTop: 8, alignItems: 'start' }}>
           <div>
-            <h2>{period ? 'Распределение на период' : 'Переносы по рекомендации'}</h2>
-            {period ? (
+            <h2>{isPeriod ? 'Распределение на период' : 'Переносы по рекомендации'}</h2>
+            {isPeriod ? (
               <div className="transfers">
                 {items.map((i) => (
                   <div className="transfer" key={i.topic_id}>
                     <span className="strong">{i.topic_name}</span>
                     <span className="tiny muted">
-                      {i.is_locked ? 'заблокирована' : `мин ${i.min_hours} + ${period.added[i.topic_id] ?? 0} по приоритету`}
+                      {reasonOf(i) || (i.is_locked ? 'заблокирована' : `было ${i.current_hours} ч`)}
                     </span>
                     <span className="h">{hoursLabel(recommendedOf(i))}</span>
                   </div>

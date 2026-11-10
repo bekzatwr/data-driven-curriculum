@@ -42,6 +42,7 @@ export function HeroPreview() {
           <i />
           <i />
           <span>Обзор · Математика, 7 класс</span>
+          <em className="hp-tag">пример экрана</em>
         </div>
         <div className="hp-body">
           <div className="hp-kpis">

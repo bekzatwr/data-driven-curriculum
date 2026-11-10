@@ -35,7 +35,6 @@ import {
 } from '../components/ui';
 import { fmtNum, fmtPct, fmtSigned, hours as hoursLabel, plural } from '../lib/format';
 import { rememberPlan } from '../lib/storage';
-import { buildPeriodPlan } from '../lib/periodPlan';
 import { AiExplain } from '../components/AiExplain';
 import { readOnlyReason, useFeatures } from '../lib/features';
 import { useApp } from '../state/app';
@@ -44,12 +43,11 @@ import { useDataset } from '../state/dataset';
 type PlanMode = 'shift' | 'period';
 
 /**
- * «План на весь период» — клиентский прототип (распределение в браузере + сохранение через
- * rules_v1 с max_change = сумме часов). Серверного режима settings.mode = "period" пока нет
- * (capabilities.period_planner_api = false), поэтому режим скрыт: иначе сохранялся бы план,
- * который сервер не считает периодным. Включать только вместе с серверным контрактом Айданы.
+ * «План на весь период» считает сервер (PR #10 Айданы, algorithm period_v1): в preview и save
+ * уходит settings.mode = "period", часы и причины — из ответа сервера. Режим показывается,
+ * только если capabilities.period_planner_api = true. Для rules_v1 mode не отправляется
+ * (совместимость со старыми серверами, у которых поля нет).
  */
-const PERIOD_PROTOTYPE_ENABLED = false;
 
 const DEFAULT_SETTINGS: PlanSettings = { target_pct: 70, donor_pct: 80, min_students: 10, max_change: 2 };
 
@@ -175,13 +173,11 @@ function PlanEditor({ classId }: { classId: string }) {
   const reqId = useRef(0);
   const features = useFeatures();
   const saveAllowed = !features.off('plan_save');
-  const periodAllowed = PERIOD_PROTOTYPE_ENABLED && features.on('period_planner_api');
+  const periodAllowed = features.on('period_planner_api');
   const [mode, setMode] = useState<PlanMode>('shift');
-  const totalCurrent = useMemo(() => filters.topics.reduce((sum, t) => sum + t.current_hours, 0), [filters.topics]);
-  // План на период: снимаем лимит ±N (сервер разрешает max_change до 10000), распределение строит buildPeriodPlan.
   const settingsFor = useCallback(
-    (m: PlanMode): PlanSettings => (m === 'period' ? { ...settings, max_change: Math.max(settings.max_change, totalCurrent) } : settings),
-    [settings, totalCurrent],
+    (m: PlanMode): PlanSettings => (m === 'period' ? { ...settings, mode: 'period' } : settings),
+    [settings],
   );
 
   const buildRequest = useCallback((m: PlanMode = mode): PlanRequest => {
@@ -212,10 +208,10 @@ function PlanEditor({ classId }: { classId: string }) {
       const cur = currentHours[tid];
       if (!Number.isInteger(c.min_hours) || !Number.isInteger(c.max_hours) || c.min_hours < 0 || c.max_hours > 10000) e[tid] = 'Целые часы от 0 до 10000';
       else if (c.min_hours > c.max_hours) e[tid] = 'Минимум больше максимума';
-      else if (cur < c.min_hours || cur > c.max_hours) e[tid] = `Текущие ${cur} ч должны быть в границах`;
+      else if ((mode !== 'period' || c.is_locked) && (cur < c.min_hours || cur > c.max_hours)) e[tid] = `Текущие ${cur} ч должны быть в границах`;
     });
     return e;
-  }, [constraints, currentHours]);
+  }, [constraints, currentHours, mode]);
   const settingsError =
     settings.target_pct < 0 || settings.target_pct > 100 || settings.donor_pct < 0 || settings.donor_pct > 100
       ? 'Пороги — от 0 до 100%'
@@ -230,7 +226,6 @@ function PlanEditor({ classId }: { classId: string }) {
     async (
       req: PlanRequest,
       snapshot: { constraints: Record<string, Constraint>; settings: PlanSettings; testVersions: Record<string, string> },
-      periodMode = false,
     ) => {
       const id = ++reqId.current;
       setLoading(true);
@@ -242,11 +237,8 @@ function PlanEditor({ classId }: { classId: string }) {
         setPreview(res);
         setPreviewSig(JSON.stringify(req));
         setPreviewReq(snapshot);
-        setHours(
-          periodMode
-            ? buildPeriodPlan(res.items, res.total_hours, res.settings.target_pct, res.settings.donor_pct).hours
-            : Object.fromEntries(res.items.map((i) => [i.topic_id, i.proposed_hours])),
-        );
+        // Рекомендация сервера — и для rules_v1, и для period; дальше методист правит копию.
+        setHours(Object.fromEntries(res.items.map((i) => [i.topic_id, i.proposed_hours])));
       } catch (e) {
         if (id !== reqId.current) return;
         setPreviewError(e);
@@ -263,13 +255,13 @@ function PlanEditor({ classId }: { classId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const runCalculate = () => canCalculate && calculate(request, { constraints, settings, testVersions }, mode === 'period');
+  const runCalculate = () => canCalculate && calculate(request, { constraints, settings, testVersions });
 
   const switchMode = (m: PlanMode) => {
     if (m === mode || !canCalculate || (m === 'period' && !periodAllowed)) return;
     setMode(m);
     setSaved(null);
-    calculate(buildRequest(m), { constraints, settings, testVersions }, m === 'period');
+    calculate(buildRequest(m), { constraints, settings, testVersions });
   };
 
   const resetChanges = () => {
@@ -284,15 +276,10 @@ function PlanEditor({ classId }: { classId: string }) {
 
   /* ---------- Проверка ручных часов ---------- */
   const items = preview?.items || [];
-  const period = useMemo(
-    () =>
-      preview && mode === 'period'
-        ? buildPeriodPlan(preview.items, preview.total_hours, preview.settings.target_pct, preview.settings.donor_pct)
-        : null,
-    [preview, mode],
-  );
+  // Режим расчёта — из ответа сервера (period_v1), а не из переключателя.
+  const isPeriod = preview?.settings.mode === 'period' || preview?.algorithm_version === 'period_v1';
   function baselineOf(it: PlanItem) {
-    return period ? period.hours[it.topic_id] ?? it.proposed_hours : it.proposed_hours;
+    return it.proposed_hours;
   }
   const maxChange = preview?.settings.max_change ?? settings.max_change;
   const rowErrors = useMemo(() => {
@@ -303,10 +290,10 @@ function PlanEditor({ classId }: { classId: string }) {
       else if (it.is_locked && h !== it.current_hours) e[it.topic_id] = `Тема заблокирована: должно остаться ${it.current_hours} ч`;
       else if (h < it.min_hours) e[it.topic_id] = `Меньше минимума ${it.min_hours} ч`;
       else if (h > it.max_hours) e[it.topic_id] = `Больше максимума ${it.max_hours} ч`;
-      else if (Math.abs(h - it.current_hours) > maxChange) e[it.topic_id] = `Изменение больше лимита ±${maxChange} ч`;
+      else if (!isPeriod && Math.abs(h - it.current_hours) > maxChange) e[it.topic_id] = `Изменение больше лимита ±${maxChange} ч`;
     });
     return e;
-  }, [items, hours, maxChange]);
+  }, [items, hours, maxChange, isPeriod]);
 
   const sum = items.reduce((s, it) => s + (hours[it.topic_id] ?? 0), 0);
   const total = preview?.total_hours ?? 0;
@@ -323,7 +310,7 @@ function PlanEditor({ classId }: { classId: string }) {
     setSaving(true);
     setSaveError(null);
     try {
-      const note = mode === 'period' ? `[План на весь период] ${comment.trim()}`.trim() : comment.trim();
+      const note = comment.trim();
       const body = { ...request, hours_by_topic: Object.fromEntries(items.map((it) => [it.topic_id, hours[it.topic_id]])), comment: note };
       const res = await api.savePlan(datasetId, body);
       setSaved(res);
@@ -364,7 +351,7 @@ function PlanEditor({ classId }: { classId: string }) {
   if (!preview && previewError != null) {
     return (
       <div className="card">
-        <ErrorState error={previewError} onRetry={() => calculate(request, { constraints, settings, testVersions }, mode === 'period')} />
+        <ErrorState error={previewError} onRetry={() => calculate(request, { constraints, settings, testVersions })} />
       </div>
     );
   }
@@ -386,23 +373,13 @@ function PlanEditor({ classId }: { classId: string }) {
         </div>
         <span className="small muted" style={{ flex: 1, minWidth: 240 }}>
           {mode === 'period'
-            ? `Все ${preview.total_hours} ч распределяются по темам с нуля: минимум каждой теме, остаток — по приоритету трудных и важных тем.`
+            ? `Сервер распределяет все ${preview.total_hours} ч заново: минимум каждой теме, остаток — по приоритету трудных и важных тем. Лимита ±N нет, блокировки и min/max соблюдаются.`
             : 'Небольшие переносы часов между темами по правилу rules_v1 с лимитом изменения на тему.'}
         </span>
       </div>}
       {!saveAllowed && (
         <Banner tone="info" title="Сохранение отключено сервером">
           {readOnlyReason(features.readOnly)} Расчёт, ручные правки и проверка ограничений работают.
-        </Banner>
-      )}
-      {period && period.overflow > 0 && (
-        <Banner tone="critical" title="Минимумы больше общего лимита">
-          Сумма минимумов и заблокированных часов превышает {preview.total_hours} ч на {period.overflow} ч. Уменьшите минимумы или снимите блокировку.
-        </Banner>
-      )}
-      {period && period.leftover > 0 && (
-        <Banner tone="warning" title="Не все часы удалось распределить">
-          {period.leftover} ч не помещаются из-за максимумов тем. Увеличьте максимум у важных тем и нажмите «Рассчитать».
         </Banner>
       )}
 
@@ -660,7 +637,7 @@ function PlanEditor({ classId }: { classId: string }) {
                         {err && <div className="field-error strong" style={{ marginBottom: 4 }}>{err}</div>}
                         {cErr && <div className="field-error strong" style={{ marginBottom: 4 }}>Ограничения: {cErr}</div>}
                         {manual && <Badge tone="warning">ручная правка: {fmtSigned(h - it.proposed_hours)} к рекомендации</Badge>}
-                        <Reason text={period ? period.reasons[it.topic_id] ?? it.reason : it.reason} />
+                        <Reason text={it.reason} />
                       </td>
                     </tr>
                   );
@@ -692,13 +669,13 @@ function PlanEditor({ classId }: { classId: string }) {
         <section className="card">
           <div className="card-head">
             <h3>
-              <ArrowRight size={16} /> {period ? 'Как распределены часы' : 'Переносы по рекомендации'}
+              <ArrowRight size={16} /> {isPeriod ? 'Как распределены часы' : 'Переносы по рекомендации'}
             </h3>
             <span className="spacer" />
-            <Badge>{period ? items.length : preview.transfers.length}</Badge>
+            <Badge>{isPeriod ? items.length : preview.transfers.length}</Badge>
           </div>
           <div className="card-body">
-            {period ? (
+            {isPeriod ? (
               <div className="transfers">
                 {[...items]
                   .sort((a, b) => a.topic_order - b.topic_order)
@@ -706,9 +683,9 @@ function PlanEditor({ classId }: { classId: string }) {
                     <div className="transfer" key={it.topic_id}>
                       <span className="strong">{it.topic_name}</span>
                       <span className="tiny muted">
-                        {it.is_locked ? 'заблокирована' : `мин ${it.min_hours} + ${period.added[it.topic_id] ?? 0} по приоритету`}
+                        {it.reason || (it.is_locked ? 'заблокирована' : `было ${it.current_hours} ч`)}
                       </span>
-                      <span className="h">{hoursLabel(period.hours[it.topic_id] ?? 0)}</span>
+                      <span className="h">{hoursLabel(it.proposed_hours)}</span>
                     </div>
                   ))}
               </div>
