@@ -1,6 +1,6 @@
 # Публикация Data Driven Curriculum
 
-Подготовка от 10 ноября 2026. Ветка `deployment/mobile-public`, основана на `integration/p0-server:b25891c`. **Deploy не выполнен. React отсутствует; создание сервиса сейчас заблокировано до P0 и review.** [Фактические проверки](../docs/PUBLIC_DEPLOYMENT_READINESS.md) · [Frontend handoff](../docs/MOBILE_ACCEPTANCE.md).
+Подготовка от 10 ноября 2026. Ветка `feature/bekzat-p1-infrastructure`, основана на `integration/p0-server:b25891c`, включает настоящий React из PR #4 (`68f5a56`). **Deploy не выполнен. Нужны review и устранение UI-блокеров публичного режима.** [Фактические проверки](../docs/PUBLIC_DEPLOYMENT_READINESS.md) · [Frontend handoff](../docs/MOBILE_ACCEPTANCE.md).
 
 ## Архитектура и стоимость
 
@@ -19,7 +19,7 @@ Render Free не поддерживает persistent disk; SQLite исчезае
 | Публичный | true | true | Синтетические данные, аналитика, сравнение, preview, чтение подготовленного JSON/CSV |
 | Локальный | false | false | Два CSV, preview/import, ручные правки, save, отчёт и export |
 
-`PUBLIC_DEMO=true` с `READ_ONLY_DEMO=false` останавливает entrypoint. В публичном режиме все изменяющие API-запросы получают 403 до разбора тела. Исключения: POST demo — чтение набора, созданного при запуске; POST plans/preview — расчёт без сохранения. Импорт, dry-run импорта, restore и save запрещены. CORS не является авторизацией.
+`PUBLIC_DEMO=true` с `READ_ONLY_DEMO=false` останавливает entrypoint. В публичном режиме все изменяющие API-запросы получают 403 до разбора тела. Исключения: POST demo — чтение набора, созданного при запуске; POST plans/preview — расчёт без сохранения. Импорт, dry-run импорта, restore, save, comments POST и AI POST запрещены. CORS не является авторизацией.
 
 Пользовательскую авторизацию не добавляли. Публичный стенд запускается только с новой синтетической БД. Существующие локальные базы и реальные школьные данные не загружать. Полный сценарий записи показывается на отдельном локальном стенде; публичную защиту ради показа не выключать.
 
@@ -38,14 +38,20 @@ Render Free не поддерживает persistent disk; SQLite исчезае
 | READ_ONLY_DEMO | true | Публичная политика без импорта и сохранения |
 | PUBLIC_DEMO | true | Защита от случайного включения публичной записи |
 | CORS_ORIGINS | пусто | Один origin; внешние frontend origins не разрешены |
-| FORWARDED_ALLOW_IPS | * | Доверять заголовкам прокси Render; не копировать в открытый локальный сервер |
+| TRUSTED_PROXY_CIDRS | пусто | Не доверять XFF, пока ingress не проверен; Uvicorn `--no-proxy-headers` |
+| P1_COMMENTS_ENABLED | true | Чтение comments; запись всё равно запрещена READ_ONLY_DEMO |
+| AI_ENABLED | false | Выключить внешние AI-вызовы |
+| AI_ACCOUNT_VERIFIED | false | Подтверждение разрешённого аккаунта/модели владельцем, не автоматическая проверка |
+| AI_PROVIDERS | groq,gemini | Порядок провайдеров в приватном режиме |
+| GROQ_API_KEY / GEMINI_API_KEY | не задаются | Не нужны публичному read-only стенду; runtime secrets только после разрешения владельца |
+| GROQ_MODEL / GEMINI_MODEL | openai/gpt-oss-120b / gemini-3.5-flash-lite | Значение конфигурации не доказывает доступ аккаунта |
 | WEB_DIST_DIR | /app/web | Уже задаётся Docker fullstack stage; вручную не требуется |
 
-Render передаёт env и как Docker build args. В Dockerfile объявлены только несекретные build args; секреты нельзя помещать в `VITE_*`, исходники, `.env` frontend или аргументы сборки. [.dockerignore](../.dockerignore) исключает env/БД/ключи, включая вложенные каталоги. Проверка hardcoded-секретов React ожидает его исходники. [Docker on Render](https://render.com/docs/docker).
+Render передаёт env и как Docker build args. В Dockerfile объявлены только несекретные build args; секреты нельзя помещать в `VITE_*`, исходники, `.env` frontend или аргументы сборки. [.dockerignore](../.dockerignore) исключает env/БД/ключи, включая вложенные каталоги. Исходники React входят в ветку без секретов; server keys не передаются в frontend. Не вводить ключи в Git или `VITE_*`. [Docker on Render](https://render.com/docs/docker).
 
-## Локальная приёмка после публикации frontend
+## Локальная приёмка настоящего frontend
 
-1. Дамир публикует React, lockfile и npm scripts `test`, `typecheck`, `lint`, `build` в своей ветке. Согласовать интеграцию через PR, не изменяя его ветку. Результат сборки — `dist/index.html`.
+1. React и lockfile уже опубликованы и включены из `68f5a56`. Build/typecheck есть; test/lint scripts пока ожидаются от Дамира. Исходники UI не изменялись Бекзатом.
 2. Проверить исходники: `python scripts/check_frontend_handoff.py --directory web`. Код 2 означает блокер; команда сама не выполняет frontend tests.
 3. В `web` выполнить `npm ci`, `npm test -- --run`, `npm run typecheck`, `npm run lint`, `npm run build`. Дамир должен обеспечить совместимый одноразовый test script (без watch). Секреты и абсолютные localhost URL недопустимы.
 4. Скопировать `deploy/.env.example` в `deploy/.env`. Этот файл не коммитить. Сохранить `APP_TARGET=fullstack` и `REQUIRE_P0=true`.
@@ -75,7 +81,7 @@ Remove-Item Env:HOST_PORT
 
 1. Получить готовый frontend, успешные проверки и review команды/Айданы; зафиксировать проверенный commit. В этой задаче merge в main не выполняется.
 2. Отдельно разрешить создание платного сервиса и публичный deployment. Проверить тариф, workspace и billing limits. **Создание Blueprint запускает первый deploy даже при auto-deploy off.**
-3. В Render подключить GitHub, выбрать репозиторий и ветку с проверенным commit. Создать Blueprint с путём `deploy/render.yaml` либо Docker Web Service с теми же настройками. Текущая подготовленная ветка — `deployment/mobile-public`; не выбирать устаревший backend/bekzat.
+3. В Render подключить GitHub, выбрать репозиторий и ветку с проверенным commit. Создать Blueprint с путём `deploy/render.yaml` либо Docker Web Service с теми же настройками. Текущая подготовленная ветка — `feature/bekzat-p1-infrastructure`; не выбирать устаревший backend/bekzat.
 4. Frankfurt, один instance `0.5c-512mb`, disk 1 GB, mount `/app/data`, health `/api/health`, Dockerfile `./Dockerfile`, context `.`, auto-deploy off. Сверить env по таблице. Не добавлять disk-dependent pre-deploy command: диск доступен только работающему сервису.
 5. Проверить build log: настоящий npm build, fullstack stage, никаких секретов. Runtime должен пройти mount/writeability/P0/public-policy checks и запуститься непривилегированным пользователем. При ошибке прав диска исправлять права средствами платформы, не отключать persistent guard.
 6. В Shell работающего сервиса выполнить `python deploy/seed_demo_report.py`, сохранить ссылки отчёта. Не запускать отдельный job для доступа к диску.
@@ -105,3 +111,13 @@ Get-FileHash data/offsite-backups/$stamp.sqlite3 -Algorithm SHA256
 На Render выполнить Python-команду в Shell/SSH и забрать копию через SCP/SFTP по реквизитам кабинета. Не создавать публичный endpoint для backup. JSON-пакет набора не содержит все сохранённые планы и не заменяет полный backup.
 
 Восстановление: загрузить копию в `/app/data/backups/`, выполнить `python -m backend.app.db.backup --source /app/data/backups/<copy>.sqlite3 --output /app/data/recovered-<stamp>.sqlite3`. Команда проверяет целостность и отказывается перезаписывать файл. Установить `DATABASE_PATH` на новый файл, перезапустить, проверить старые ID и CSV; старую БД сохранить. На новом volume проверить права appuser. Для rollback кода использовать ранее проверенный SHA и совместимую копию базы; автоотката миграций нет.
+
+## P1: эксплуатация, backup и rollback
+
+Комментарии `collab_comments` и ограниченные rate counters находятся в той же DATABASE_PATH, что datasets и `aidana_plan_snapshots`. Backup API копирует все таблицы и зафиксированный WAL; dataset package JSON не является полным backup комментариев/планов. Восстановление — в новый файл/volume, проверка datasets + plan JSON/CSV + comments, затем переключение; существующая БД не перезаписывается.
+
+До обновления сохранить off-service backup и проверенный предыдущий image digest. При проблеме P1 сначала установить `AI_ENABLED=false`, `P1_COMMENTS_ENABLED=false`, сохранить `READ_ONLY_DEMO=true`; новые таблицы не удалять. При откате к проверенной P0-сборке с PublicDemoGuard дополнительные таблицы остаются в БД и игнорируются. Никогда не откатывать к прототипу, разрешающему публичную запись. Не уменьшать `user_version` и не заменять рабочую БД файлом из Git.
+
+Для writable comments публичного разрешения нет. Потребуются отдельные аутентификация/ограничение доступа, подтверждение proxy CIDRs и review; текущая конфигурация специально не открывает такой режим. Локальная конфигурация с записью привязана к loopback.
+
+Ключи AI не проверялись реальными вызовами, не создавались и не публиковались. Доступность моделей подтверждена только документацией [Groq](https://console.groq.com/docs/models) и [Gemini](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite?authuser=0); доступ и квоту конкретного аккаунта проверяет владелец. Не включать AI до review контракта и методологии Тони. [Лимиты и API](../docs/BEKZAT_P1_API.md), [итоговая готовность](../docs/BEKZAT_P1_STATUS.md).

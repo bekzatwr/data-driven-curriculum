@@ -276,7 +276,7 @@ def main():
         assert blocked[0] == 429 and int(blocked[2]["Retry-After"]) > 0
         checks.append("Docker HTTP comment rate limit and spoofed forwarding-header rejection")
         report = {"infrastructure_passed": True, "server_p0_verified": True, "full_p0_verified": False, "synthetic_data_only": True,
-                  "frontend": "actual unmodified web/ from PR4 at 914d228; browser QA reported separately",
+            "frontend": "actual unmodified web/ from PR4 at 68f5a56; browser QA reported separately",
                   "comments_persistence_verified": True, "ai_provider_calls": 0,
                   "public_read_only_verified": True, "public_report_id": prepared['plan_id'],
                   "analytics_available": features["analytics"], "comparison_available": features["textbook_comparison"],

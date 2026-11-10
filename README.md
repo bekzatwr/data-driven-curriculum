@@ -3,11 +3,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml?query=branch%3Adeployment%2Fmobile-public"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml/badge.svg?branch=deployment%2Fmobile-public" alt="Deployment branch CI"></a>
+  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml?query=branch%3Afeature%2Fbekzat-p1-infrastructure"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml/badge.svg?branch=feature%2Fbekzat-p1-infrastructure" alt="Bekzat integration CI"></a>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/SQLite-persistent-003B57?logo=sqlite&logoColor=white" alt="SQLite persistent storage">
-  <img src="https://img.shields.io/badge/React-awaiting_frontend-F59E0B?logo=react&logoColor=white" alt="React awaiting publication">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React integrated from PR4">
 </p>
 
 <p align="center"><b>От результатов тестирования — к обоснованному учебному плану.</b><br>
@@ -20,10 +20,10 @@
 </p>
 
 > [!IMPORTANT]
-> **10 ноября 2026 · серверный P0 объединён; публичный сайт ещё не запущен.**
-> Ветка `deployment/mobile-public` основана на `integration/p0-server:b25891c` и готовит безопасный публичный демостенд.
-> В `frontend/damir` пока нет React-кода. Проверки настоящего интерфейса, мобильных экранов и внешнего HTTPS ожидают его публикации.
-> Изменения проходят review через PR; `main` и ветки участников не перезаписываются.
+> **10 ноября 2026 · P0 + серверная инфраструктура P1 на review.**
+> `feature/bekzat-p1-infrastructure` объединяет сервер `b25891c`, безопасный public mode и настоящий React Дамира из PR #4 (`68f5a56`).
+> Сайт пока не опубликован. AI выключен; учительская нагрузка и план на период — прототипы интерфейса, серверная реализация ожидает владельцев.
+> [Полный отчёт Бекзата](docs/BEKZAT_P1_STATUS.md) · [P1-контракт и handoff](docs/BEKZAT_P1_API.md). `main` и чужие ветки не меняются.
 
 <a id="status"></a>
 
@@ -37,24 +37,38 @@
 | Планировщик Айданы | Сумма часов, min/max, locked, ±2 часа, ручные правки | Подключён |
 | Backend Бекзата | Атомарное сохранение, SQLite, JSON/CSV, backup/restore | Подключён |
 | Публичный режим | Просмотр и расчёт; импорт/restore/save запрещены сервером | Подготовлен |
-| React Дамира | Загрузка, графики, формы, отчёт, адаптивность | **Исходники не опубликованы** |
+| React Дамира | Настоящий интерфейс из PR #4, исходники без изменений | Подключён в этой ветке |
+| Комментарии | Цели, SQLite, атомарная запись, квоты и антиспам | Подготовлены к review |
+| AI backend | Серверные агрегаты, deadline, квоты, offline/mock | По умолчанию выключен |
+| Учителя / period planner | Сейчас клиентские прототипы | Ожидаются API Тони / Айданы |
 | HTTPS-публикация | Один Docker-сервис, постоянный диск, ручной deploy | **Не выполнена** |
 
-**Мобильная готовность пока не подтверждена.** Матрица 360 / 390 / 430 / 768 / 1366 / 1920 px и порядок приёмки — в [задании для Дамира](docs/MOBILE_ACCEPTANCE.md).
+Фактические браузерные проверки, шесть ширин и ограничения среды — в [матрице приёмки](docs/MOBILE_ACCEPTANCE.md). Эмуляция не заменяет проверку физических Android/iPhone.
+
+<details>
+<summary><b>Посмотреть настоящий сохранённый отчёт</b></summary>
+
+![Отчёт из React Дамира после импорта, ручной правки и перезапуска API](docs/assets/p1-report-desktop.png)
+
+Локальный сценарий на синтетических CSV. Сумма 24 часа, две ручные правки; snapshot и комментарий пережили перезапуск. [Экран 360 px](docs/assets/p1-report-mobile.png) · [Результаты проверок](docs/BEKZAT_P1_STATUS.md).
+
+</details>
 
 <a id="start"></a>
 
-## Быстрый запуск серверного MVP
+## Быстрый запуск сайта
 
-Нужны Git и Python 3.13. Команды одинаковы для PowerShell и терминала macOS/Linux:
+Нужны Git и Docker Desktop. Для приватного показа с импортом и сохранением:
 
 ```bash
-git clone --branch deployment/mobile-public https://github.com/bekzatwr/data-driven-curriculum.git
+git clone --branch feature/bekzat-p1-infrastructure https://github.com/bekzatwr/data-driven-curriculum.git
 cd data-driven-curriculum
-python scripts/start.py
+docker compose -f deploy/compose.yaml -f deploy/compose.local.yaml up --build --detach --wait
 ```
 
-Скрипт создаёт `.venv`, устанавливает закреплённые зависимости и запускает API на loopback. Остановка — `Ctrl+C`. Это запуск API; React появится после подключения работы Дамира.
+Открыть **http://127.0.0.1:8080**. Один контейнер отдаёт React и `/api`; данные остаются в отдельном volume. Только синтетические CSV из `examples/toni-demo`. Остановка той же командой Compose с `down`, без `-v`.
+
+Для разработки API: `python scripts/start.py --dev`; React: `cd web`, `npm ci`, `npm run dev`. Адреса ниже относятся к API dev-серверу на порту 8000; в общем контейнере используйте порт 8080.
 
 | Адрес | Назначение |
 | :--- | :--- |
@@ -108,6 +122,8 @@ docker compose exec -T backend python deploy/seed_demo_report.py
 | Импорт и восстановление набора | Нет — 403 | Да |
 | Сохранение плана | Нет — 403 | Да |
 | JSON/CSV заранее сохранённого демоотчёта | Да | Да |
+| Новые комментарии | Нет — 403 | Да, с квотами |
+| Вызовы AI | Нет — 403 | Только после настройки владельцем; сейчас выключены |
 
 Публичная защита остаётся включённой во время показа. Полный сценарий с записью проводится отдельно локально. Реальные данные школьников не используются. Сравнение групп описывает наблюдаемые различия и не доказывает причинное влияние учебника.
 
@@ -117,7 +133,7 @@ docker compose exec -T backend python deploy/seed_demo_report.py
 
 ```mermaid
 flowchart LR
-    Device["Телефон / планшет / компьютер"] -. "После подключения React" .-> TLS["HTTPS · Render"]
+    Device["Телефон / планшет / компьютер"] --> TLS["HTTPS · Render после разрешённой публикации"]
     TLS --> App["Один Docker: React build + FastAPI"]
     App --> Analytics["Аналитика · Тони"]
     App --> Planner["Планировщик · Айдана"]
@@ -147,6 +163,9 @@ flowchart LR
 | POST | `/api/datasets/{id}/plans` | Атомарное сохранение, только локально |
 | GET | `/api/plans/{plan_id}` | Сохранённый JSON snapshot |
 | GET | `/api/plans/{plan_id}/export.csv` | CSV с UTF-8 BOM |
+| GET / POST | `/api/datasets/{id}/comments` | Обсуждение; POST только в приватном режиме |
+| GET | `/api/ai/status` | Подключён ли AI |
+| POST | `/api/datasets/{id}/ai/explain` | Только агрегаты сервера, AI по умолчанию выключен |
 
 **[Примеры JSON и FormData](docs/FRONTEND_API.md) · [OpenAPI](contracts/openapi.json) · [CSV-шаблоны](contracts/)**
 
@@ -167,7 +186,7 @@ python scripts/verify_deployment.py
 python scripts/check_frontend_handoff.py
 ```
 
-Последняя команда возвращает **код 2**, пока отсутствуют исходники Дамира. Docker-репетиция использует отдельную явно обозначенную оболочку для проверки упаковки; она не считается тестом React. Browser E2E, frontend tests, TypeScript, lint, build и адаптивность требуют настоящего frontend.
+`check_frontend_handoff.py` проверяет комплектность, а не качество. В PR #4 есть build/typecheck, но пока отсутствуют npm scripts `test` и `lint`. Docker-репетиция теперь собирает **настоящий React** и проверяет dataset/plan/comments после restart, пересоздания и restore. Браузерный протокол и реальные результаты — в отчёте Бекзата.
 
 <a id="team"></a>
 
@@ -180,12 +199,14 @@ python scripts/check_frontend_handoff.py
 | **Тони** | Аналитика, фильтры, сравнение учебников | `analytics/toni` |
 | **Айдана** | Планировщик, ограничения и отчёт | `planner/aidana` |
 
-Каждый работает в своей ветке. Общая серверная сборка — [PR #3](https://github.com/bekzatwr/data-driven-curriculum/pull/3). Подготовка публикации — отдельная ветка `deployment/mobile-public`. Merge в `main` — после успешного CI и review команды.
+Каждый работает в своей ветке. Общая серверная сборка — [PR #3](https://github.com/bekzatwr/data-driven-curriculum/pull/3). Подготовка P1 — отдельная ветка `feature/bekzat-p1-infrastructure`; предшествующая подготовка deployment — [draft PR #5](https://github.com/bekzatwr/data-driven-curriculum/pull/5). Merge в `main` — после успешного CI и review команды.
 
 ## Документация
 
 | Документ | Для чего |
 | :--- | :--- |
+| [Отчёт Бекзата: сделано / блокеры / тесты / Git](docs/BEKZAT_P1_STATUS.md) | Честная готовность P0 + P1 |
+| [P1 API и изменения контракта](docs/BEKZAT_P1_API.md) | Дамиру и reviewers |
 | [Публикация, env, backup/restore](deploy/README.md) | Пошаговая инструкция владельцу Render |
 | [Готовность публичного стенда](docs/PUBLIC_DEPLOYMENT_READINESS.md) | Фактические проверки и блокеры |
 | [Мобильная приёмка и handoff](docs/MOBILE_ACCEPTANCE.md) | Дамиру: экраны, ошибки, Retry и E2E |

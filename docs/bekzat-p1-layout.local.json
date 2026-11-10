@@ -1,0 +1,50 @@
+[
+  {
+    "viewport": 360,
+    "scroll": 350,
+    "tableScroll": [
+      "auto"
+    ],
+    "width": 350
+  },
+  {
+    "viewport": 390,
+    "scroll": 381,
+    "tableScroll": [
+      "auto"
+    ],
+    "width": 381
+  },
+  {
+    "viewport": 430,
+    "scroll": 421,
+    "tableScroll": [
+      "auto"
+    ],
+    "width": 421
+  },
+  {
+    "viewport": 768,
+    "scroll": 758,
+    "tableScroll": [
+      "auto"
+    ],
+    "width": 758
+  },
+  {
+    "viewport": 1366,
+    "scroll": 1357,
+    "tableScroll": [
+      "auto"
+    ],
+    "width": 1357
+  },
+  {
+    "viewport": 1920,
+    "scroll": 1910,
+    "tableScroll": [
+      "auto"
+    ],
+    "width": 1910
+  }
+]
