@@ -1,7 +1,7 @@
 """Transport contracts for Aidana's existing P0 implementation; no planning logic."""
 from typing import Literal
 from pydantic import BaseModel, Field
-from .models import Constraint, Settings
+from .models import PeriodConstraint, Settings
 
 
 class Metric(BaseModel):
@@ -13,7 +13,7 @@ class Metric(BaseModel):
     max_score: float | None
 
 
-class PlanItem(Constraint):
+class PlanItem(PeriodConstraint):
     mean_post_pct: float | None
     n_post: int
     test_version: str | None

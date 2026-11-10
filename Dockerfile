@@ -16,7 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt && useradd --create-home appu
 COPY backend ./backend
 COPY planner ./planner
 COPY deploy/run_server.py ./deploy/run_server.py
+COPY deploy/seed_demo_report.py ./deploy/seed_demo_report.py
 COPY analytics ./analytics
+COPY collab ./collab
 RUN mkdir -p /app/data && chown -R appuser:appuser /app
 USER appuser
 EXPOSE 8000
@@ -28,5 +30,5 @@ COPY --from=frontend-build --chown=appuser:appuser /build/dist /app/web
 ENV WEB_DIST_DIR=/app/web
 RUN test -f /app/web/index.html
 
-# Default builds remain backend-only while Damir's source is not published.
+# Explicit fullstack target builds the published React; backend target is for API checks.
 FROM ${APP_TARGET} AS final

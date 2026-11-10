@@ -15,3 +15,8 @@ outputs
 *.pem
 *.key
 .env.*
+**/.env*
+**/*.sqlite3*
+**/*.db
+**/*.pem
+**/*.key

@@ -21,7 +21,12 @@
     "plan_report": true,
     "plan_csv": true,
     "analytics": true,
-    "textbook_comparison": true
+    "textbook_comparison": true,
+    "comments": true,
+    "comments_write": true,
+    "ai_explain": false,
+    "teachers_api": false,
+    "period_planner_api": true
   },
   "links": {
     "docs": "/docs",

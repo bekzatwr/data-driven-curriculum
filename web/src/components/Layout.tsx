@@ -1,0 +1,326 @@
+import { useCallback, useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import {
+  BarChart3,
+  ChevronRight,
+  CircleHelp,
+  Projector,
+  ScrollText,
+  ClipboardList,
+  FileText,
+  GitCompareArrows,
+  GraduationCap,
+  Menu,
+  Moon,
+  Search,
+  Sparkles,
+  Sun,
+  Upload,
+} from 'lucide-react';
+import { useApp } from '../state/app';
+import { CommandPalette, isMac } from './CommandPalette';
+import { useSpotlight } from '../lib/useSpotlight';
+import { teachersModuleReady, useFeatures } from '../lib/features';
+import { Brand } from './Logo';
+import { Tour } from './Tour';
+import { readJson, writeJson } from '../lib/storage';
+
+type Theme = 'light' | 'dark';
+
+export function Layout() {
+  const { current, lastPlanId, apiOnline, recheckApi, capabilities } = useApp();
+  const features = useFeatures();
+  const location = useLocation();
+  const [theme, setTheme] = useState<Theme>(() => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'));
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
+  // Режим проектора: крупнее шрифт, выше контраст, без декоративного (запоминается).
+  const [projector, setProjector] = useState<boolean>(() => readJson('ddc.projector', false));
+  useSpotlight();
+
+  useEffect(() => {
+    const open = () => setTourOpen(true);
+    window.addEventListener('ddc:tour', open);
+    return () => window.removeEventListener('ddc:tour', open);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.projector = projector ? 'on' : 'off';
+    writeJson('ddc.projector', projector);
+  }, [projector]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#08090a' : '#fbfbfc');
+    try {
+      localStorage.setItem('ddc.theme2', theme);
+    } catch {
+      /* ignore */
+    }
+  }, [theme]);
+
+  /** Смена темы «кругом» от кнопки (View Transitions); без поддержки или при «меньше движения» — мгновенно. */
+  const toggleTheme = useCallback((e?: { clientX: number; clientY: number }) => {
+    const next: Theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } };
+    if (!doc.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setTheme(next);
+      return;
+    }
+    const x = e?.clientX ?? window.innerWidth - 40;
+    const y = e?.clientY ?? 26;
+    const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const t = doc.startViewTransition(() => {
+      document.documentElement.dataset.theme = next;
+      flushSync(() => setTheme(next));
+    });
+    t.ready
+      .then(() =>
+        document.documentElement.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
+          { duration: 600, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', pseudoElement: '::view-transition-new(root)' },
+        ),
+      )
+      .catch(() => {});
+  }, []);
+  const aiReady = capabilities?.features.ai_explain === true;
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+    setNavOpen(false);
+  }, [location.pathname]);
+
+  const path = location.pathname;
+  const base = current ? `/datasets/${encodeURIComponent(current.id)}` : null;
+  const steps = [
+    { key: 'data', label: 'Данные', icon: Upload, to: '/', active: path === '/', enabled: true },
+    { key: 'overview', label: 'Обзор', icon: BarChart3, to: base ? `${base}/overview` : '#', active: path.endsWith('/overview'), enabled: !!base },
+    { key: 'comparison', label: 'Сравнение', icon: GitCompareArrows, to: base ? `${base}/comparison` : '#', active: path.endsWith('/comparison'), enabled: !!base },
+    { key: 'plan', label: 'План часов', icon: ClipboardList, to: base ? `${base}/plan` : '#', active: path.endsWith('/plan'), enabled: !!base },
+    {
+      key: 'report',
+      label: 'Отчёт',
+      icon: FileText,
+      to: lastPlanId ? `/plans/${encodeURIComponent(lastPlanId)}` : '/reports',
+      active: path.startsWith('/plans') || path.startsWith('/reports'),
+      enabled: true,
+    },
+  ];
+  const activeIndex = steps.findIndex((s) => s.active);
+  const teachersActive = path.endsWith('/teachers');
+  const briefActive = path.endsWith('/brief');
+  const teachersVisible = teachersModuleReady(features);
+  const pageTitle = teachersActive ? 'Учителя и нагрузка' : briefActive ? 'Справка для педсовета' : steps[activeIndex]?.label ?? 'Страница';
+  const inDataset = path.startsWith('/datasets/') || path.startsWith('/plans/');
+
+  return (
+    <div className={`shell ${navOpen ? 'nav-open' : ''} ${path === '/' ? 'route-home' : 'route-work'}`}>
+      <aside className="sidebar" aria-label="Навигация">
+        <Link to="/" className="sb-brand" aria-label="Data-Driven Curriculum — на главную">
+          <Brand size={28} />
+        </Link>
+
+        <button type="button" className="sb-search" onClick={() => setPaletteOpen(true)}>
+          <Search size={14} />
+          Поиск и команды
+          <span className="kbds">
+            <span className="kbd">{isMac ? '⌘' : 'Ctrl'}</span>
+            <span className="kbd">K</span>
+          </span>
+        </button>
+
+        <div className="sb-label">Сценарий методиста</div>
+        <nav aria-label="Шаги сценария" className="stack-sm" style={{ gap: 2 }}>
+          {steps.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <NavLink
+                key={s.key}
+                to={s.to}
+                className={`sb-item ${s.active ? 'active' : ''} ${activeIndex > i && s.enabled ? 'done' : ''} ${s.enabled ? '' : 'disabled'}`}
+                aria-current={s.active ? 'page' : undefined}
+                aria-disabled={!s.enabled || undefined}
+                tabIndex={s.enabled ? undefined : -1}
+                title={s.enabled ? undefined : 'Сначала выберите или загрузите набор данных'}
+              >
+                <Icon size={16} />
+                {s.label}
+                <span className="sb-step">{i + 1}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        <div className="sb-label">Документы</div>
+        <NavLink
+          to={base ? `${base}/brief` : '#'}
+          className={`sb-item ${briefActive ? 'active' : ''} ${base ? '' : 'disabled'}`}
+          aria-current={briefActive ? 'page' : undefined}
+          aria-disabled={!base || undefined}
+          tabIndex={base ? undefined : -1}
+          title={base ? 'Итоги, сравнение и план на одной странице для педсовета' : 'Сначала выберите или загрузите набор данных'}
+        >
+          <ScrollText size={16} />
+          Справка для педсовета
+        </NavLink>
+
+        {teachersVisible && (
+          <>
+            <div className="sb-label">Школа</div>
+            <NavLink
+              to={base ? `${base}/teachers` : '#'}
+              className={`sb-item ${teachersActive ? 'active' : ''} ${base ? '' : 'disabled'}`}
+              aria-current={teachersActive ? 'page' : undefined}
+              tabIndex={base ? undefined : -1}
+            >
+              <GraduationCap size={16} />
+              Учителя и нагрузка
+            </NavLink>
+          </>
+        )}
+
+        {current && (
+          <div className="sb-dataset">
+            <div className="row" style={{ justifyContent: 'space-between' }}>
+              <span className="tiny faint">Текущий набор</span>
+              {current.isDemo && (
+                <span className="badge badge-demo" style={{ height: 18, padding: '0 6px', fontSize: 10.5 }}>
+                  демо
+                </span>
+              )}
+            </div>
+            <div className="name" title={current.name}>
+              {current.name}
+            </div>
+            <Link to="/" className="tiny" style={{ display: 'inline-block', marginTop: 6 }}>
+              Сменить набор
+            </Link>
+          </div>
+        )}
+
+        <div className="sb-footer">
+          <button
+            type="button"
+            className="sb-status"
+            onClick={recheckApi}
+            title={apiOnline === false ? 'API недоступен — нажмите, чтобы проверить снова' : 'Проверить соединение'}
+          >
+            <span className={`dot ${apiOnline === false ? 'off' : apiOnline ? '' : 'wait'}`} />
+            {apiOnline === false ? 'API недоступен' : apiOnline ? 'API подключён' : 'Проверяем…'}
+          </button>
+          <span className="spacer" />
+          <button
+            type="button"
+            className="btn btn-ghost btn-icon btn-sm"
+            onClick={(e) => toggleTheme(e)}
+            aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+            title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+          >
+            <span key={theme} className="theme-icon">
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </span>
+          </button>
+        </div>
+      </aside>
+      <div className="sidebar-backdrop" onClick={() => setNavOpen(false)} />
+
+      <div className="main-col">
+        {path === '/' && (
+          <div className="aurora" aria-hidden>
+            <span className="blob b1" />
+            <span className="blob b2" />
+            <span className="blob b3" />
+            <span className="grid" />
+          </div>
+        )}
+        <header className="topbar">
+          {activeIndex >= 0 && (
+            <span className="topbar-progress" aria-hidden style={{ ['--p' as string]: (activeIndex + 1) / steps.length }} />
+          )}
+          <button type="button" className="btn btn-ghost btn-icon btn-sm menu-btn" aria-label="Открыть меню" onClick={() => setNavOpen(true)}>
+            <Menu size={17} />
+          </button>
+          <nav className="crumbs" aria-label="Путь">
+            {inDataset && current ? (
+              <>
+                <Link to={`/datasets/${encodeURIComponent(current.id)}/overview`} className="crumb-ds" title={current.name}>
+                  {current.name}
+                </Link>
+                <ChevronRight size={14} className="sep crumb-ds" />
+              </>
+            ) : null}
+            <span className="cur">{pageTitle}</span>
+          </nav>
+          <span className="spacer" />
+          {aiReady && (
+            <span className="ai-status" title="ИИ-пояснения подключены: Groq, запасной — Gemini">
+              <span className="ai-status-dot" aria-hidden />
+              <Sparkles size={13} />
+              ИИ подключён
+            </span>
+          )}
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm tour-btn"
+            onClick={() => setTourOpen(true)}
+            aria-label="Экскурсия по сайту"
+            title="Как это работает — экскурсия за минуту"
+          >
+            <CircleHelp size={15} />
+            <span className="top-search-text">Как это работает</span>
+          </button>
+          <button
+            type="button"
+            className={`btn btn-ghost btn-icon btn-sm ${projector ? 'on' : ''}`}
+            onClick={() => setProjector((v) => !v)}
+            aria-pressed={projector}
+            aria-label={projector ? 'Выключить режим проектора' : 'Режим проектора'}
+            title={projector ? 'Выключить режим проектора' : 'Режим проектора: крупный шрифт и высокий контраст'}
+          >
+            <Projector size={15} />
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost btn-icon btn-sm theme-btn"
+            onClick={(e) => toggleTheme(e)}
+            aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+            title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+          >
+            <span key={theme} className="theme-icon">
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </span>
+          </button>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPaletteOpen(true)} aria-label="Открыть поиск и команды">
+            <Search size={14} />
+            <span className="top-search-text">Поиск</span>
+            <span className="kbd">{isMac ? '⌘K' : 'Ctrl K'}</span>
+          </button>
+        </header>
+
+        <main className="content" id="main">
+          <Outlet />
+        </main>
+
+        <footer className="footer no-print">
+          Рекомендации объяснимы и не прогнозируют рост баллов · решение принимает методист · время UTC+5
+        </footer>
+      </div>
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onToggleTheme={toggleTheme} />
+      {tourOpen && <Tour onClose={() => setTourOpen(false)} />}
+    </div>
+  );
+}

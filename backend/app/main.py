@@ -17,10 +17,20 @@ from .db import Store
 from .errors import ApiError
 from .schemas import Capabilities
 from .version import VERSION
+from .public_demo import PublicDemoGuard
 from planner.api import router as planner_router
 from planner.storage import SnapshotStore
+from typing import get_args
+from planner.models import Settings as PlannerSettings
+
+# Флаг по факту: true, только если подключённый planner принимает settings.mode="period" (PR #10).
+PERIOD_PLANNER_READY = "period" in get_args(PlannerSettings.model_fields["mode"].annotation)
 from analytics.api import router as analytics_router
 from analytics.app import register_analytics_errors
+from collab import ai as collab_ai
+from collab.api import router as collab_router
+from collab.storage import CommentStore
+from collab.security import CollabRequestGuard, RateStore
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +94,16 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
         await run_in_threadpool(store.initialize)
         # Keep source data and Aidana's immutable snapshots in the same backup/volume.
         application.state.plan_snapshots = await run_in_threadpool(SnapshotStore, settings.database_path)
+        if settings.read_only_demo:
+            # Seed trusted bundled fixtures before accepting public HTTP requests.
+            from analytics.demo import demo_files
+            from .validation import validate_upload
+            upload = await run_in_threadpool(validate_upload, *demo_files(), settings, source_type="demo")
+            dataset, _ = await run_in_threadpool(store.save_upload, upload)
+            application.state.public_demo = (upload, dataset)
+        # P1: comments live in the same database file, so backups and restarts keep them.
+        application.state.comments = await run_in_threadpool(CommentStore, settings.database_path)
+        application.state.collab_rates = await run_in_threadpool(RateStore, settings.database_path)
         yield
 
     application = FastAPI(
@@ -93,10 +113,12 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
     application.state.settings = settings
     application.state.store = store
     application.add_middleware(ImportBodyLimit, settings=settings)
+    application.add_middleware(CollabRequestGuard, settings=settings)
+    application.add_middleware(PublicDemoGuard, settings=settings)
     application.add_middleware(
         CORSMiddleware, allow_origins=list(settings.cors_origins),
         allow_methods=["GET", "POST", "OPTIONS"], allow_headers=["Content-Type"],
-        expose_headers=["Content-Disposition"],
+        expose_headers=["Content-Disposition", "Retry-After"],
     )
 
     @application.exception_handler(ApiError)
@@ -144,8 +166,12 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
             "features": {"csv_import": not settings.read_only_demo, "import_preview": not settings.read_only_demo,
                          "demo_dataset": True, "data_quality": True, "package_export": True,
                          "package_restore": not settings.read_only_demo,
-                         "plan_preview": True, "plan_save": True, "plan_report": True, "plan_csv": True,
-                         "analytics": True, "textbook_comparison": True},
+                         "plan_preview": True, "plan_save": not settings.read_only_demo, "plan_report": True, "plan_csv": True,
+                         "analytics": True, "textbook_comparison": True,
+                         "comments": settings.comments_enabled,
+                         "comments_write": settings.comments_enabled and not settings.read_only_demo,
+                         "ai_explain": not settings.read_only_demo and collab_ai.status()["configured"],
+                         "teachers_api": False, "period_planner_api": PERIOD_PLANNER_READY},
             "links": {"docs": "/docs", "openapi": "/openapi.json", "datasets": "/api/datasets",
                       "results_template": "/api/templates/results.csv",
                       "curriculum_template": "/api/templates/curriculum.csv"},
@@ -154,9 +180,10 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
     application.include_router(datasets_router)
     application.include_router(planner_router)
     application.include_router(analytics_router)
+    application.include_router(collab_router)
     register_analytics_errors(application)
     for router in routers:
-        if router is not planner_router and router is not analytics_router:
+        if router not in (planner_router, analytics_router, collab_router):
             application.include_router(router)
 
     if settings.web_dist:

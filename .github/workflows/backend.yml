@@ -1,9 +1,9 @@
 name: Backend checks
 on:
   push:
-    branches: [main, backend/bekzat, analytics/toni, 'integration/**']
+    branches: [main, backend/bekzat, analytics/toni, 'integration/**', 'deployment/**', 'feature/bekzat-*', feature/aidana-period-planner, 'fix/damir-*']
   pull_request:
-    branches: [main]
+    branches: [main, 'integration/**', feature/bekzat-p1-infrastructure, deployment/bekzat-cloud-readiness]
 permissions:
   contents: read
 jobs:
@@ -30,6 +30,7 @@ jobs:
           python-version: '3.13'
       - run: docker compose config --quiet
       - run: docker compose up --build --detach --wait --wait-timeout 90
+      - run: mkdir -p data && docker compose exec -T backend python deploy/seed_demo_report.py > data/demo-report.json
       - run: python scripts/smoke_container.py
       - run: docker compose exec -T backend python -m backend.app.db.backup --output /app/data/backups/ci.sqlite3
       - run: docker compose exec -T backend python -m backend.app.db.backup --source /app/data/backups/ci.sqlite3 --output /app/data/recovery.sqlite3

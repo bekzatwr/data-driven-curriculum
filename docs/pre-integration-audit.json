@@ -1,0 +1,550 @@
+{
+  "audited_at_utc": "2026-11-10T13:11:06Z",
+  "repository": "bekzatwr/data-driven-curriculum",
+  "main": "3ebe857c78248bb3a7c056342548ab3a1d25c968",
+  "prs": [
+    {
+      "number": 1,
+      "title": "P0: backend, интеграция планировщика и подготовка deploy",
+      "head": "backend/bekzat",
+      "sha": "d83ce28724e41cefb2f03ae4121358c46df7c11e",
+      "base": "main",
+      "base_sha": "3ebe857c78248bb3a7c056342548ab3a1d25c968",
+      "state": "open",
+      "draft": false,
+      "mergeable_against_declared_base": true,
+      "reviews": [],
+      "ci_runs": [
+        {
+          "id": 42764378198,
+          "name": "Planner checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 12,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42764378198/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42764378198/logs",
+          "workflow_id": 412883257
+        },
+        {
+          "id": 42764377991,
+          "name": "Backend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 22,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42764377991/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42764377991/logs",
+          "workflow_id": 412243852
+        }
+      ],
+      "included_in": [
+        3,
+        4,
+        5,
+        6,
+        8,
+        9
+      ]
+    },
+    {
+      "number": 2,
+      "title": "P0: аналитика Тони и полная интеграция с backend и планировщиком",
+      "head": "analytics/toni",
+      "sha": "a2a89fa2a03391d4e71b237f835f7b121b935768",
+      "base": "main",
+      "base_sha": "3ebe857c78248bb3a7c056342548ab3a1d25c968",
+      "state": "open",
+      "draft": false,
+      "mergeable_against_declared_base": true,
+      "reviews": [],
+      "ci_runs": [
+        {
+          "id": 42763356685,
+          "name": "Backend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 20,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42763356685/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42763356685/logs",
+          "workflow_id": 412243852
+        },
+        {
+          "id": 42763356615,
+          "name": "Planner checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 10,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42763356615/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42763356615/logs",
+          "workflow_id": 412883257
+        },
+        {
+          "id": 42763356631,
+          "name": "Toni analytics",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 6,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42763356631/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42763356631/logs",
+          "workflow_id": 412917748
+        }
+      ],
+      "included_in": [
+        3,
+        4,
+        5,
+        6,
+        8,
+        9
+      ]
+    },
+    {
+      "number": 3,
+      "title": "P0: интеграция аналитики, backend и атомарного planner",
+      "head": "integration/p0-server",
+      "sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "base": "main",
+      "base_sha": "3ebe857c78248bb3a7c056342548ab3a1d25c968",
+      "state": "open",
+      "draft": true,
+      "mergeable_against_declared_base": true,
+      "reviews": [],
+      "ci_runs": [
+        {
+          "id": 42770252029,
+          "name": "Toni analytics",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 8,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42770252029/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42770252029/logs",
+          "workflow_id": 412917748
+        },
+        {
+          "id": 42770252198,
+          "name": "Backend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 24,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42770252198/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42770252198/logs",
+          "workflow_id": 412243852
+        },
+        {
+          "id": 42770252124,
+          "name": "Planner checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 14,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42770252124/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42770252124/logs",
+          "workflow_id": 412883257
+        }
+      ],
+      "included_in": [
+        4,
+        5,
+        6,
+        8,
+        9
+      ]
+    },
+    {
+      "number": 4,
+      "title": "Frontend P0: все экраны на реальном API + дизайн в стиле Linear (Дамир)",
+      "head": "frontend/damir",
+      "sha": "03395ef5db68ac9fab379f622ddf6fbe09112327",
+      "base": "integration/p0-server",
+      "base_sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "state": "open",
+      "draft": false,
+      "mergeable_against_declared_base": true,
+      "reviews": [],
+      "ci_runs": [
+        {
+          "id": 42814667634,
+          "name": "Planner checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 45,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42814667634/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42814667634/logs",
+          "workflow_id": 412883257
+        },
+        {
+          "id": 42814667268,
+          "name": "Frontend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 24,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42814667268/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42814667268/logs",
+          "workflow_id": 413050758
+        },
+        {
+          "id": 42814667501,
+          "name": "Toni analytics",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 39,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42814667501/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42814667501/logs",
+          "workflow_id": 412917748
+        }
+      ],
+      "included_in": [
+        8,
+        9
+      ]
+    },
+    {
+      "number": 5,
+      "title": "P0: безопасный публичный демостенд, deployment и новый README",
+      "head": "deployment/mobile-public",
+      "sha": "2e6f3751acfb4e44efe9fb3c2b634a9d9428bbc7",
+      "base": "integration/p0-server",
+      "base_sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "state": "open",
+      "draft": true,
+      "mergeable_against_declared_base": true,
+      "reviews": [],
+      "ci_runs": [
+        {
+          "id": 42789569749,
+          "name": "Planner checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 25,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42789569749/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42789569749/logs",
+          "workflow_id": 412883257
+        },
+        {
+          "id": 42789569687,
+          "name": "Toni analytics",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 19,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42789569687/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42789569687/logs",
+          "workflow_id": 412917748
+        },
+        {
+          "id": 42789569846,
+          "name": "Backend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 26,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42789569846/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42789569846/logs",
+          "workflow_id": 412243852
+        }
+      ],
+      "included_in": [
+        6,
+        8,
+        9
+      ]
+    },
+    {
+      "number": 6,
+      "title": "P1 Бекзата: comments, безопасный AI backend и fullstack deployment",
+      "head": "feature/bekzat-p1-infrastructure",
+      "sha": "cfce13d24b68b70a8bbec7e196f70886d254cfe7",
+      "base": "integration/p0-server",
+      "base_sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "state": "open",
+      "draft": true,
+      "mergeable_against_declared_base": true,
+      "reviews": [],
+      "ci_runs": [
+        {
+          "id": 42811406271,
+          "name": "Planner checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 41,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42811406271/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42811406271/logs",
+          "workflow_id": 412883257
+        },
+        {
+          "id": 42811406212,
+          "name": "Frontend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 20,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42811406212/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42811406212/logs",
+          "workflow_id": 413050758
+        },
+        {
+          "id": 42811406462,
+          "name": "Toni analytics",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 35,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42811406462/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42811406462/logs",
+          "workflow_id": 412917748
+        },
+        {
+          "id": 42811406221,
+          "name": "Backend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 30,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42811406221/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42811406221/logs",
+          "workflow_id": 412243852
+        }
+      ],
+      "included_in": [
+        8,
+        9
+      ]
+    },
+    {
+      "number": 7,
+      "title": "README: оформление главной страницы, запуск MVP и честный статус интеграции",
+      "head": "docs/github-readme",
+      "sha": "af1bdc0382f44161eb7f694f05427e754f79d313",
+      "base": "main",
+      "base_sha": "3ebe857c78248bb3a7c056342548ab3a1d25c968",
+      "state": "open",
+      "draft": false,
+      "mergeable_against_declared_base": true,
+      "reviews": [],
+      "ci_runs": [],
+      "included_in": []
+    },
+    {
+      "number": 8,
+      "title": "Cloud readiness: Render + persistent SQLite, latest React and release gates",
+      "head": "deployment/bekzat-cloud-readiness",
+      "sha": "024d422c52fac3922af5b8896ebfc8f358bd3895",
+      "base": "feature/bekzat-p1-infrastructure",
+      "base_sha": "cfce13d24b68b70a8bbec7e196f70886d254cfe7",
+      "state": "open",
+      "draft": true,
+      "mergeable_against_declared_base": true,
+      "reviews": [],
+      "ci_runs": [
+        {
+          "id": 42818316744,
+          "name": "Planner checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 53,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42818316744/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42818316744/logs",
+          "workflow_id": 412883257
+        },
+        {
+          "id": 42818316772,
+          "name": "Frontend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 29,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42818316772/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42818316772/logs",
+          "workflow_id": 413050758
+        },
+        {
+          "id": 42818316715,
+          "name": "Toni analytics",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 47,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42818316715/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42818316715/logs",
+          "workflow_id": 412917748
+        },
+        {
+          "id": 42818316826,
+          "name": "Backend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 37,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42818316826/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42818316826/logs",
+          "workflow_id": 412243852
+        }
+      ],
+      "included_in": []
+    },
+    {
+      "number": 9,
+      "title": "Frontend: final integration with PR #6 (read-only, AI selectors, comments)",
+      "head": "fix/damir-final-integration",
+      "sha": "f6eb7d3408ece65fdb571b0356c5584cd275c9f8",
+      "base": "integration/p0-server",
+      "base_sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "state": "open",
+      "draft": false,
+      "mergeable_against_declared_base": true,
+      "reviews": [],
+      "ci_runs": [
+        {
+          "id": 42817300684,
+          "name": "Planner checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 49,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42817300684/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42817300684/logs",
+          "workflow_id": 412883257
+        },
+        {
+          "id": 42817300659,
+          "name": "Toni analytics",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 43,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42817300659/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42817300659/logs",
+          "workflow_id": 412917748
+        },
+        {
+          "id": 42817300601,
+          "name": "Frontend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 27,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42817300601/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42817300601/logs",
+          "workflow_id": 413050758
+        },
+        {
+          "id": 42817300542,
+          "name": "Backend checks",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 33,
+          "jobs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42817300542/jobs",
+          "logs_url": "https://api.github.com/repos/bekzatwr/data-driven-curriculum/actions/runs/42817300542/logs",
+          "workflow_id": 412243852
+        }
+      ],
+      "included_in": []
+    }
+  ],
+  "merge_tree_simulations": [
+    {
+      "left_pr": 8,
+      "right_pr": 9,
+      "exit_code": 0,
+      "text_conflicts": [],
+      "merge_bases": [
+        "03395ef5db68ac9fab379f622ddf6fbe09112327",
+        "cfce13d24b68b70a8bbec7e196f70886d254cfe7"
+      ]
+    },
+    {
+      "left_pr": 8,
+      "right_pr": 7,
+      "exit_code": 1,
+      "text_conflicts": [
+        "CONFLICT (content): Merge conflict in README.md"
+      ],
+      "merge_bases": [
+        "3ebe857c78248bb3a7c056342548ab3a1d25c968"
+      ]
+    },
+    {
+      "left_pr": 6,
+      "right_pr": 7,
+      "exit_code": 1,
+      "text_conflicts": [
+        "CONFLICT (content): Merge conflict in README.md"
+      ],
+      "merge_bases": [
+        "3ebe857c78248bb3a7c056342548ab3a1d25c968"
+      ]
+    },
+    {
+      "left_pr": 3,
+      "right_pr": 7,
+      "exit_code": 1,
+      "text_conflicts": [
+        "CONFLICT (content): Merge conflict in README.md"
+      ],
+      "merge_bases": [
+        "3ebe857c78248bb3a7c056342548ab3a1d25c968"
+      ]
+    },
+    {
+      "left_pr": 8,
+      "right_pr": 5,
+      "exit_code": 0,
+      "text_conflicts": [],
+      "merge_bases": [
+        "2e6f3751acfb4e44efe9fb3c2b634a9d9428bbc7"
+      ]
+    }
+  ],
+  "simulation_changed_refs_index_or_worktree": false,
+  "baseline_sha": "024d422c52fac3922af5b8896ebfc8f358bd3895",
+  "scope": "Pre-integration audit only. No participant branch was merged; not a release candidate.",
+  "period_publication": {
+    "published_on_audited_refs": false,
+    "remote_branch": "planner/aidana",
+    "remote_sha": "7660b17e17e8d2e1bb57a6876c1026213d36146a",
+    "github_403": "Reported publication blocker; not reproduced using Aidana credentials.",
+    "artifact_received": false
+  },
+  "module_availability": {
+    "probe": "current contract availability, not teachers/period acceptance",
+    "teachers_api": false,
+    "period_planner_api": false,
+    "teachers_http_status": 404,
+    "period_http_status": 422,
+    "period_error": {
+      "code": "INVALID_REQUEST",
+      "message": "Проверьте параметры запроса.",
+      "details": [
+        {
+          "file": "request",
+          "row": null,
+          "field": "body.settings.mode",
+          "reason": "Extra inputs are not permitted"
+        }
+      ],
+      "total_errors": 1
+    },
+    "ai_status": {
+      "configured": false,
+      "providers": [],
+      "models": {}
+    }
+  },
+  "tests": {
+    "pytest": {
+      "passed": 319,
+      "failed": 0,
+      "skipped": 0,
+      "subtests_passed": 26,
+      "warnings": 1,
+      "seconds": 249.53
+    },
+    "planner_unittest": {
+      "passed": 7,
+      "seconds": 1.749
+    },
+    "api_contract_exports": "passed; no diff",
+    "teachers_acceptance": "not_run_module_missing",
+    "period_acceptance": "not_run_module_missing",
+    "browser_mobile": "not_run_unfinished_frontend",
+    "ai_live_calls": 0
+  },
+  "render_validation": {
+    "schema_errors": 0,
+    "auto_deploy": "off",
+    "persistent_disk": {
+      "name": "curriculum-data",
+      "mountPath": "/app/data",
+      "sizeGB": 1
+    },
+    "prepared_only": true,
+    "public_deploy_performed": false
+  }
+}

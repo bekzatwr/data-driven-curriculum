@@ -5,7 +5,7 @@ services:
     name: data-driven-curriculum
     runtime: docker
     repo: https://github.com/bekzatwr/data-driven-curriculum
-    branch: backend/bekzat
+    branch: deployment/bekzat-cloud-readiness
     plan: 0.5c-512mb
     region: frankfurt
     numInstances: 1
@@ -13,7 +13,6 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /api/health
-    maxShutdownDelaySeconds: 30
     disk:
       name: curriculum-data
       mountPath: /app/data
@@ -36,8 +35,21 @@ services:
       - key: REQUIRE_P0
         value: "true"
       - key: READ_ONLY_DEMO
-        value: "false"
+        value: "true"
+      - key: PUBLIC_DEMO
+        value: "true"
       - key: CORS_ORIGINS
         value: ""
-      - key: FORWARDED_ALLOW_IPS
-        value: "*"
+      # Uvicorn does not rewrite the TCP peer. Populate only after proxy verification.
+      - key: TRUSTED_PROXY_CIDRS
+        value: ""
+      - key: P1_COMMENTS_ENABLED
+        value: "true"
+      - key: AI_ENABLED
+        value: "false"
+      - key: AI_ACCOUNT_VERIFIED
+        value: "false"
+      - key: AI_PROVIDERS
+        value: groq,gemini
+      # No AI secrets required for the read-only public demo. Add runtime-only keys
+      # to an approved PRIVATE environment after account/model verification.

@@ -1,0 +1,7 @@
+# Apply after compose.yaml. Separate project/volume, loopback-only writable demo.
+name: ddc-private-local
+services:
+  app:
+    environment:
+      PUBLIC_DEMO: "false"
+      READ_ONLY_DEMO: "false"
