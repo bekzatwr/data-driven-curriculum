@@ -1,6 +1,6 @@
 # Бекзат — Cloud Infrastructure Readiness
 
-> Текущий этап — [PRE-INTEGRATION](PRE_INTEGRATION_STATUS.md). Описанная ниже проверенная сборка не является Release Candidate: Дамир и Тони продолжают работу, period planner ещё не опубликован. Исторические результаты cloud audit не разрешают финальную интеграцию или deploy.
+> Текущий этап — [PRE-INTEGRATION](PRE_INTEGRATION_STATUS.md). Описанная ниже проверенная сборка не является Release Candidate: Дамир и Тони продолжают работу; period planner уже опубликован в PR #10 и проверен отдельно, но не подключён. Ниже сохранён предыдущий cloud-срез; актуальные блокеры находятся в PRE-INTEGRATION. Исторические результаты cloud audit не разрешают финальную интеграцию или deploy.
 
 Проверка: **10 ноября 2026**. Дедлайн: **11 ноября 2026, 23:59 UTC+5**.
 
