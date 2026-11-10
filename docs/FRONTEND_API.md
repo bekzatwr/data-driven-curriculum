@@ -8,6 +8,8 @@
 
 `{dataset_id}` — UUID из ответа импорта/демо, `{plan_id}` — ID сохранённого плана. `toni-demo`/`aidana-demo` относятся к отдельным демоприложениям, не к общему серверу.
 
+> **Публичный режим, deployment/mobile-public:** сначала читать `/api/capabilities`. При `mode=read_only_demo` функции `csv_import`, `import_preview`, `package_restore`, `plan_save` равны false; API отклоняет запись с 403 `READ_ONLY_DEMO`. `POST /api/datasets/demo` возвращает уже подготовленный при startup набор (200, created=false), без изменения БД. Preview, аналитика и чтение заранее сохранённого демоотчёта доступны. В локальном режиме импорт и save сохраняют прежние контракты. Ссылки подготовленного отчёта владелец получает командой `python deploy/seed_demo_report.py`. [Мобильная приёмка и Retry](MOBILE_ACCEPTANCE.md).
+
 | Метод и путь | Вход | Успех |
 | --- | --- | --- |
 | GET `/api/health` | — | 200, состояние БД |

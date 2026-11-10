@@ -1,0 +1,12 @@
+{
+  "id": "__COMMENT_ID__",
+  "dataset_id": "__DATASET_ID__",
+  "target_type": "plan_topic",
+  "target_id": "__PLAN_ID__:fractions",
+  "author_name": "Synthetic reviewer",
+  "author_school": "",
+  "author_role": "methodist",
+  "kind": "human",
+  "text": "Review the synthetic plan",
+  "created_at": "__COMMENT_CREATED_AT__"
+}

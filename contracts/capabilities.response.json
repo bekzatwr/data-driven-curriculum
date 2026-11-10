@@ -23,7 +23,10 @@
     "analytics": true,
     "textbook_comparison": true,
     "comments": true,
-    "ai_explain": false
+    "comments_write": true,
+    "ai_explain": false,
+    "teachers_api": false,
+    "period_planner_api": false
   },
   "links": {
     "docs": "/docs",

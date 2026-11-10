@@ -126,7 +126,9 @@ class BackendAnalyticsIntegrationTests(unittest.TestCase):
                     self.assertEqual(response.status_code, 404, response.text)
                     self.assertEqual(response.json()["code"], "DATASET_NOT_FOUND")
             demo = public.post("/api/datasets/demo")
-            self.assertEqual(demo.status_code, 201, demo.text)
+            # Public requests only retrieve the demo seeded before serving HTTP.
+            self.assertEqual(demo.status_code, 200, demo.text)
+            self.assertFalse(demo.json()["created"])
             visible = public.get(f"/api/datasets/{demo.json()['dataset_id']}/overview")
             self.assertEqual(visible.status_code, 200, visible.text)
             self.assertTrue(visible.json()["is_demo"])

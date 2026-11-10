@@ -1,10 +1,24 @@
 import io
-import urllib.error
+import asyncio
+import httpx
+import pytest
 
 from fastapi.testclient import TestClient
 
 from backend.app.main import create_app
 from collab import ai
+
+
+@pytest.fixture(autouse=True)
+def offline_ai(monkeypatch):
+    monkeypatch.setenv("AI_ENABLED", "true")
+    monkeypatch.setenv("AI_ACCOUNT_VERIFIED", "true")
+    monkeypatch.setenv("AI_PROVIDERS", "groq,gemini")
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    async def no_network(*args, **kwargs):
+        pytest.fail("Real provider traffic is prohibited in tests")
+    monkeypatch.setattr(ai, "_post_json", no_network)
 
 
 def demo_id(client):
@@ -46,11 +60,13 @@ def test_comment_validation_and_unknown_dataset(client):
 def test_comments_survive_restart(settings):
     with TestClient(create_app(settings)) as first:
         dataset = demo_id(first)
+        plan = first.post(f"/api/datasets/{dataset}/plans", json={"class_id": "7A"}).json()["plan_id"]
+        target = f"{plan}:fractions"
         assert first.post(f"/api/datasets/{dataset}/comments", json=comment(target_type="plan_topic",
-                          target_id="plan-1:fractions")).status_code == 201
+                          target_id=target)).status_code == 201
     with TestClient(create_app(settings)) as second:
         items = second.get(f"/api/datasets/{dataset}/comments", params={"target_type": "plan_topic"}).json()["items"]
-        assert [c["target_id"] for c in items] == ["plan-1:fractions"]
+        assert [c["target_id"] for c in items] == [target]
 
 
 def test_ai_not_configured(client, monkeypatch):
@@ -67,10 +83,10 @@ def test_ai_falls_back_from_groq_to_gemini(client, monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "test-gemini")
     calls = []
 
-    def fake_post(url, payload, headers):
+    async def fake_post(url, payload, headers):
         calls.append(url)
         if "groq" in url:
-            raise urllib.error.HTTPError(url, 429, "rate limited", {}, io.BytesIO(b"{}"))
+            raise httpx.HTTPStatusError("rate limited", request=httpx.Request("POST", url), response=httpx.Response(429))
         assert "x-goog-api-key" in headers and "<data>" in payload["contents"][0]["parts"][0]["text"]
         return {"candidates": [{"content": {"parts": [{"text": "**Вывод:** дроби требуют внимания."}]}}]}
 
@@ -79,7 +95,7 @@ def test_ai_falls_back_from_groq_to_gemini(client, monkeypatch):
     status = client.get("/api/ai/status").json()
     assert status["configured"] is True and status["providers"] == ["groq", "gemini"]
     response = client.post(f"/api/datasets/{dataset}/ai/explain",
-                           json={"kind": "comparison", "context": {"difference_gain_pp": 8.0}, "question": "Почему?"})
+                           json={"kind": "comparison", "context": {"topic_id": "equations", "textbook_a": "Учебник A", "textbook_b": "Учебник B"}})
     assert response.status_code == 200
     body = response.json()
     assert body["provider"] == "gemini" and body["text"].startswith("**Вывод:**")
@@ -89,9 +105,11 @@ def test_ai_falls_back_from_groq_to_gemini(client, monkeypatch):
 def test_ai_all_providers_fail_and_context_limit(client, monkeypatch):
     monkeypatch.setenv("GROQ_API_KEY", "test-groq")
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
-    monkeypatch.setattr(ai, "_post_json", lambda *a: (_ for _ in ()).throw(urllib.error.URLError("offline")))
+    async def fail(*args):
+        raise httpx.ConnectError("offline")
+    monkeypatch.setattr(ai, "_post_json", fail)
     dataset = demo_id(client)
-    failed = client.post(f"/api/datasets/{dataset}/ai/explain", json={"kind": "plan", "context": {"x": 1}})
+    failed = client.post(f"/api/datasets/{dataset}/ai/explain", json={"kind": "overview", "context": {}})
     assert failed.status_code == 502 and failed.json()["code"] == "AI_PROVIDER_ERROR"
     assert "test-groq" not in failed.text
     big = client.post(f"/api/datasets/{dataset}/ai/explain", json={"kind": "plan", "context": {"x": "я" * 20000}})
@@ -105,24 +123,15 @@ def test_prompt_marks_data_as_data():
 
 
 def test_requests_send_own_user_agent(monkeypatch):
-    # Cloudflare перед Groq отвечает 403 (error 1010) на стандартный «Python-urllib».
+    # Test the actual transport without external network access.
     seen = {}
-
-    class Response:
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *exc):
-            return False
-
-        def read(self):
-            return b'{"choices": [{"message": {"content": "ok"}}]}'
-
-    def fake_urlopen(request, timeout):
-        seen.update({k.lower(): v for k, v in request.header_items()})
-        return Response()
-
-    monkeypatch.setattr(ai.urllib.request, "urlopen", fake_urlopen)
-    ai._post_json("https://api.groq.com/openai/v1/chat/completions", {"x": 1}, {"Authorization": "Bearer t"})
+    async def handler(request):
+        seen.update(request.headers)
+        return httpx.Response(200, json={"choices": [{"message": {"content": "ok"}}]})
+    from importlib import reload
+    reload(ai)
+    real_client = httpx.AsyncClient
+    monkeypatch.setattr(ai.httpx, "AsyncClient", lambda **kwargs: real_client(transport=httpx.MockTransport(handler), **kwargs))
+    asyncio.run(ai._post_json("https://api.groq.com/openai/v1/chat/completions", {"x": 1}, {"Authorization": "Bearer t"}))
     assert seen["user-agent"] == ai.USER_AGENT and "python-urllib" not in seen["user-agent"].lower()
     assert seen["authorization"] == "Bearer t"

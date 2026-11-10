@@ -58,10 +58,10 @@ def test_public_mode_limits_plans_to_demo_sources(client, settings):
     with TestClient(create_app(replace(settings, read_only_demo=True))) as public:
         assert public.get('/api/plans/' + private['plan_id']).status_code == 404
         assert public.get('/api/plans/' + private['plan_id'] + '/export.csv').status_code == 404
-        for suffix in ('', '/preview'):
-            assert public.post(f'/api/datasets/{private_id}/plans{suffix}', json={'class_id': '7A'}).status_code == 404
+        assert public.post(f'/api/datasets/{private_id}/plans/preview', json={'class_id': '7A'}).status_code == 404
+        assert public.post(f'/api/datasets/{private_id}/plans', json={'class_id': '7A'}).status_code == 403
         demo_id = public.post('/api/datasets/demo').json()['dataset_id']
-        assert public.post(f'/api/datasets/{demo_id}/plans', json={'class_id': '7A'}).status_code == 201
+        assert public.post(f'/api/datasets/{demo_id}/plans', json={'class_id': '7A'}).status_code == 403
 
 
 @pytest.mark.parametrize('payload', [

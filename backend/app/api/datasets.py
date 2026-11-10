@@ -77,6 +77,9 @@ async def import_dataset(
 
 @router.post("/datasets/demo", response_model=ImportResponse, responses={201: {"model": ImportResponse}})
 def create_demo(request: Request, store: StoreDep):
+    if request.app.state.settings.read_only_demo:
+        upload, dataset = request.app.state.public_demo
+        return import_response(upload, False, dataset, False)
     upload = validate_upload(*demo_files(), request.app.state.settings, source_type="demo")
     dataset, created = store.save_upload(upload)
     return import_response(upload, False, dataset, created)

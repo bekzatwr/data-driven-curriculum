@@ -1,19 +1,21 @@
-"""ИИ-пояснения через бесплатные API: Groq (основной) и Gemini (запасной).
+"""ИИ-пояснения через API: Groq (основной) и Gemini (запасной).
 
 Ключи только в окружении сервера: GROQ_API_KEY, GEMINI_API_KEY. В модель уходят
-агрегированные показатели с экрана, без персональных данных учеников.
+только разрешённые серверные агрегаты, без персональных данных учеников.
 """
 import json
 import logging
 import os
-import urllib.error
-import urllib.request
+import asyncio
+import re
+import httpx
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_MODELS = {"groq": "openai/gpt-oss-120b", "gemini": "gemini-3.5-flash-lite"}
-TIMEOUT_SECONDS = 45
+TIMEOUT_SECONDS = 20
+MAX_RESPONSE_BYTES = 65536
 MAX_OUTPUT_TOKENS = 2048
 USER_AGENT = "data-driven-curriculum/0.2 (+https://github.com/bekzatwr/data-driven-curriculum)"
 
@@ -47,9 +49,11 @@ class AiError(Exception):
 
 
 def providers():
+    if os.getenv("AI_ENABLED", "false").lower() != "true" or os.getenv("AI_ACCOUNT_VERIFIED", "false").lower() != "true":
+        return []
     order = [p.strip() for p in os.getenv("AI_PROVIDERS", "groq,gemini").split(",") if p.strip()]
     keys = {"groq": os.getenv("GROQ_API_KEY", "").strip(), "gemini": os.getenv("GEMINI_API_KEY", "").strip()}
-    return [p for p in order if p in keys and keys[p]]
+    return list(dict.fromkeys(p for p in order if p in keys and keys[p] and re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._/-]{0,99}", models()[p])))
 
 
 def models():
@@ -62,32 +66,39 @@ def status():
     return {"configured": bool(active), "providers": active, "models": {p: models()[p] for p in active}}
 
 
-def _post_json(url, payload, headers):
-    request = urllib.request.Request(
-        url, data=json.dumps(payload, ensure_ascii=False).encode("utf-8"), method="POST",
-        # Свой User-Agent обязателен: Cloudflare перед Groq отвечает 403 (error 1010) на «Python-urllib».
-        headers={"Content-Type": "application/json", "User-Agent": USER_AGENT, **headers},
-    )
-    with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
-        return json.loads(response.read().decode("utf-8"))
+async def _post_json(url, payload, headers):
+    # Fixed provider URLs, no redirects, no environment proxy/secret forwarding.
+    async with httpx.AsyncClient(timeout=httpx.Timeout(10, connect=5), follow_redirects=False, trust_env=False) as client:
+        async with client.stream("POST", url, json=payload,
+                                 headers={"Content-Type": "application/json", "User-Agent": USER_AGENT, **headers}) as response:
+            response.raise_for_status()
+            body = bytearray()
+            async for chunk in response.aiter_bytes():
+                body.extend(chunk)
+                if len(body) > MAX_RESPONSE_BYTES:
+                    raise ValueError("provider response too large")
+            result = json.loads(body)
+            if not isinstance(result, dict):
+                raise ValueError("provider response must be an object")
+            return result
 
 
-def _groq(system, user):
+async def _groq(system, user):
     model = models()["groq"]
     payload = {"model": model, "temperature": 0.3, "max_tokens": MAX_OUTPUT_TOKENS,
                "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
     if model.startswith("openai/gpt-oss"):
         # Модель рассуждает перед ответом: короткое рассуждение не съедает лимит токенов и быстрее.
         payload["reasoning_effort"] = "low"
-    body = _post_json("https://api.groq.com/openai/v1/chat/completions", payload,
+    body = await _post_json("https://api.groq.com/openai/v1/chat/completions", payload,
                       {"Authorization": f"Bearer {os.environ['GROQ_API_KEY'].strip()}"})
     text = (body.get("choices") or [{}])[0].get("message", {}).get("content") or ""
     return model, text
 
 
-def _gemini(system, user):
+async def _gemini(system, user):
     model = models()["gemini"]
-    body = _post_json(
+    body = await _post_json(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         {"systemInstruction": {"parts": [{"text": system}]},
          "contents": [{"role": "user", "parts": [{"text": user}]}],
@@ -110,26 +121,35 @@ def build_prompt(kind, context, question):
     return "\n\n".join(lines)
 
 
-def explain(kind, context, question=None):
+async def explain(kind, context, question=None):
     active = providers()
     if not active:
-        raise AiError(503, "AI_NOT_CONFIGURED",
-                      "ИИ не подключён: на сервере не заданы GROQ_API_KEY или GEMINI_API_KEY.")
+        raise AiError(503, "AI_NOT_CONFIGURED", "ИИ не подключён: требуется разрешённый аккаунт, ключ и явное включение администратором.")
     prompt = build_prompt(kind, context, question)
     failures = []
-    for name in active:
-        try:
-            model, text = CALLS[name](SYSTEM_PROMPT, prompt)
-        except urllib.error.HTTPError as exc:
-            failures.append({"field": name, "reason": f"HTTP {exc.code}"})
-            logger.warning("AI provider %s failed with HTTP %s", name, exc.code)
-            continue
-        except (urllib.error.URLError, TimeoutError, OSError, ValueError, KeyError, IndexError) as exc:
-            failures.append({"field": name, "reason": type(exc).__name__})
-            logger.warning("AI provider %s failed: %s", name, type(exc).__name__)
-            continue
-        if text.strip():
-            return {"text": text.strip(), "provider": name, "model": model,
-                    "created_at": datetime.now(timezone.utc).isoformat()}
-        failures.append({"field": name, "reason": "пустой ответ"})
+    try:
+        # One total deadline for the whole fallback chain, including response reads.
+        async with asyncio.timeout(TIMEOUT_SECONDS):
+            for name in active:
+                try:
+                    model, text = await CALLS[name](SYSTEM_PROMPT, prompt)
+                    if not isinstance(text, str) or not text.strip() or len(text) > 15000:
+                        raise ValueError("invalid provider text")
+                except httpx.HTTPStatusError as exc:
+                    failures.append({"field": name, "reason": f"HTTP {exc.response.status_code}"})
+                    logger.warning("AI provider %s failed with HTTP %s", name, exc.response.status_code)
+                    continue
+                except (httpx.HTTPError, TimeoutError, OSError, ValueError, KeyError, IndexError, TypeError, AttributeError) as exc:
+                    failures.append({"field": name, "reason": type(exc).__name__})
+                    logger.warning("AI provider %s failed: %s", name, type(exc).__name__)
+                    continue
+                # Provider errors/bodies and credentials never enter logs or responses.
+                for variable in ("GROQ_API_KEY", "GEMINI_API_KEY"):
+                    secret = os.getenv(variable, "").strip()
+                    if secret:
+                        text = text.replace(secret, "[REDACTED]")
+                return {"text": text.strip(), "provider": name, "model": model,
+                        "created_at": datetime.now(timezone.utc).isoformat()}
+    except TimeoutError:
+        failures.append({"field": "providers", "reason": "deadline exceeded"})
     raise AiError(502, "AI_PROVIDER_ERROR", "ИИ-сервис не ответил. Повторите позже.", failures)
