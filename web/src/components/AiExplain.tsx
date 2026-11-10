@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, Copy, MessageSquarePlus, RefreshCw, Sparkles } from 'lucide-react';
 import { api, ApiError } from '../api/client';
 import type { AiKind, CommentTarget, Explanation } from '../api/types';
@@ -36,6 +36,26 @@ export function AiExplain({
   const [error, setError] = useState<unknown>(null);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
+  // Эффект печати: ответ «набирается» ~2–3 секунды; клик по тексту показывает его сразу.
+  const [shown, setShown] = useState(Infinity);
+  const typing = result != null && shown < result.text.length;
+  useEffect(() => {
+    if (!result) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setShown(Infinity);
+      return;
+    }
+    const step = Math.max(4, Math.ceil(result.text.length / 150));
+    setShown(0);
+    const t = window.setInterval(() => {
+      setShown((s) => {
+        const next = s + step;
+        if (next >= result.text.length) window.clearInterval(t);
+        return next;
+      });
+    }, 16);
+    return () => window.clearInterval(t);
+  }, [result]);
   const notConfigured =
     capabilities?.features.ai_explain === false || (error instanceof ApiError && error.code === 'AI_NOT_CONFIGURED');
 
@@ -120,12 +140,17 @@ export function AiExplain({
       )}
       {loading && !result && (
         <div className="ai-thinking">
-          <span className="spinner" /> ИИ читает показатели…
+          <span className="ai-orb" aria-hidden /> ИИ читает показатели
+          <span className="ai-dots" aria-hidden>
+            <i />
+            <i />
+            <i />
+          </span>
         </div>
       )}
       {result && (
-        <div className={`ai-result ${loading ? 'stale' : ''}`}>
-          <Markdown text={result.text} />
+        <div className={`ai-result ${loading ? 'stale' : ''} ${typing ? 'typing' : ''}`} onClick={() => typing && setShown(Infinity)}>
+          <Markdown text={result.text} limit={typing ? shown : undefined} />
           <div className="ai-foot">
             <span className="tiny faint">
               {result.provider} · {result.model} · {fmtDateTimeUtc5(result.created_at)}

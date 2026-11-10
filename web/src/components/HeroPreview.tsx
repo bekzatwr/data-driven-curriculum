@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { CheckCircle2, Sparkles, TrendingUp } from 'lucide-react';
 import { divergingStyle } from './Heatmap';
 
@@ -18,9 +19,24 @@ const PLAN: { t: string; from: number; to: number }[] = [
 ];
 
 export function HeroPreview() {
+  const win = useRef<HTMLDivElement>(null);
+  // Окно наклоняется за курсором (только мышь; на сенсорах — статичный наклон из CSS).
+  const onMove = (e: React.PointerEvent) => {
+    const el = win.current;
+    if (!el || e.pointerType !== 'mouse') return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.setProperty('--ry', `${(px * 16).toFixed(2)}deg`);
+    el.style.setProperty('--rx', `${(-py * 12).toFixed(2)}deg`);
+  };
+  const onLeave = () => {
+    win.current?.style.removeProperty('--ry');
+    win.current?.style.removeProperty('--rx');
+  };
   return (
-    <div className="hero-preview" aria-hidden>
-      <div className="hp-window">
+    <div className="hero-preview" aria-hidden onPointerMove={onMove} onPointerLeave={onLeave}>
+      <div className="hp-window" ref={win}>
         <div className="hp-bar">
           <i />
           <i />
@@ -105,7 +121,11 @@ function Row({ row, ri }: { row: { t: string; v: number[] }; ri: number }) {
     <>
       <span className="hp-row">{row.t}</span>
       {row.v.map((v, ci) => (
-        <span className="hp-cell" key={ci} style={{ ...divergingStyle(v, 60), animationDelay: `${300 + ri * 70 + ci * 45}ms` }}>
+        <span
+          className={`hp-cell ${v < 60 ? 'below' : ''}`}
+          key={ci}
+          style={{ ...divergingStyle(v, 60), animationDelay: `${300 + ri * 70 + ci * 45}ms` }}
+        >
           {v}
         </span>
       ))}
