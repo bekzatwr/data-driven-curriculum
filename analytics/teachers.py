@@ -60,7 +60,10 @@ def compute_teachers(records, topics, filters=None, settings=None):
     ):
         posts = [row for row in rows if row["stage"] == "post"]
         pairs = paired_rows(rows)
-        metrics = compute_topics(rows, {"topic_ids": topic_ids}, settings)
+        # Empty curriculum topics cannot contain mixed assessments. Preserve
+        # curriculum order while avoiding one empty metric per teacher/topic.
+        observed_topics = {row["topic_id"] for row in rows}
+        metrics = compute_topics(rows, {"topic_ids": [topic for topic in topic_ids if topic in observed_topics]}, settings)
         mixed = [metric["topic_id"] for metric in metrics if len(metric["available_slices"]) > 1]
         class_ids = sorted({row["class_id"] for row in rows})
         post_students = len({row["student_id"] for row in posts})
@@ -127,9 +130,12 @@ def compute_teachers(records, topics, filters=None, settings=None):
                 class_teachers[(school, row["class_id"])].add(teacher)
     if any(len(ids) > 1 for ids in class_teachers.values()):
         warnings.append("Один класс связан с несколькими учителями: его часы учитываются у каждого. Сумма нагрузки учителей не равна уникальным часам классов и не подтверждает совместное преподавание или назначение на будущий период.")
+    teachers_by_school = defaultdict(list)
+    for teacher in teachers:
+        teachers_by_school[teacher["school_id"]].append(teacher)
     return {
         "teachers": teachers,
-        "schools": [school_summary(school, rows, [teacher for teacher in teachers if teacher["school_id"] == school])
+        "schools": [school_summary(school, rows, teachers_by_school[school])
                     for school, rows in sorted(by_school.items())],
         "total": school_summary("Все школы", selected, teachers),
         "hours_per_class": hours_per_class,

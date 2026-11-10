@@ -1,17 +1,21 @@
 {
   "check": "Original frontend TypeScript computeTeachers versus Python compute_teachers on the canonical synthetic demo",
-  "created_at": "2026-11-10T14:22:08.745355+00:00",
+  "created_at": "2026-11-10T14:31:08.238661+00:00",
   "passed": true,
   "source": {
     "repository": "https://github.com/bekzatwr/data-driven-curriculum",
     "frontend_commit": "03395ef5db68ac9fab379f622ddf6fbe09112327",
     "frontend_path": "web/src/lib/teachers.ts",
     "frontend_sha256": "e592e31a2f6764588da1382c97c86d0b3547ea2df0bd6de9c9b4053652a3acab",
-    "frontend_execution": "Unchanged git-show bytes executed by Node with --experimental-strip-types; no translated substitute",
+    "frontend_raw_sha256": "e592e31a2f6764588da1382c97c86d0b3547ea2df0bd6de9c9b4053652a3acab",
+    "frontend_execution": "Unchanged git-show bytes executed by Node with --experimental-strip-types; no translated substitute or cached output",
     "backend_path": "analytics/teachers.py",
-    "backend_sha256": "367daa41b297e177fc6a7be0be34ff47f43866e34bc168e7f831b1673fbb6fba",
+    "backend_sha256": "35bab773783d0e58a70b136910019e1c06b6230f9ccf381af7f468ef1a7fc9a7",
     "fixture": "analytics.demo.demo_records()",
-    "input_sha256": "9a4d8ed80eda31181dc9722d7baedf39ea140df167863eb97bad53a35796dee2",
+    "fixture_sha256": "2c2e8ccacb340ebb20dc498ff92e6186ab6d71347c1c0848fbe0155721cb3343",
+    "hash_normalization": "Source hashes replace CRLF and bare CR with LF before SHA-256; executed TypeScript bytes are not normalized. frontend_raw_sha256 hashes the exact executed bytes.",
+    "input_sha256": "268096db7d5297614d6a503705b61e94f36587603d2bfd4c007324dc42c1a5e8",
+    "input_encoding": "UTF-8 canonical JSON: sorted keys, compact separators, no ASCII escaping; the same data is passed to both implementations.",
     "synthetic_data": true
   },
   "runtime": {
@@ -22,7 +26,7 @@
   "comparison": {
     "absolute_tolerance": 1e-10,
     "relative_tolerance": 0,
-    "ordering": "Teachers sorted by school_id/teacher_id; schools by school_id; class_ids and textbooks sorted. No records deduplicated.",
+    "ordering": "Teachers sorted by school_id/teacher_id; schools by school_id; class_ids and textbooks sorted. No deduplication.",
     "teacher_fields": [
       "teacher_id",
       "school_id",
@@ -251,40 +255,36 @@
     "missing_teacher_rows": 0
   },
   "additional_backend_fields_excluded_from_legacy_comparison": [
-    "warnings",
     "teachers[].is_missing_teacher",
+    "teachers[].mixed_topic_ids",
+    "teachers[].n_paired_students",
     "teachers[].n_post_students",
     "teachers[].pair_coverage",
-    "teachers[].mixed_topic_ids",
+    "teachers[].paired_student_share",
     "teachers[].warnings",
-    "teachers[].n_paired_students",
-    "teachers[].paired_student_share"
+    "warnings"
   ],
   "intentional_differences_outside_this_demo_parity_check": [
     {
-      "case": "The same teacher_id appears in multiple schools",
-      "backend_behavior": "Teacher identity is scoped by school; school and overall counts use separate school/teacher identities.",
-      "parity_required": false,
+      "case": "The same teacher_id in several schools",
+      "backend_behavior": "Teacher identity is scoped by school.",
       "executed_in_this_report": false
     },
     {
-      "case": "Missing teacher values and a real ID equal to the display label Не указан",
-      "backend_behavior": "Missing identity is separate from a real label-valued ID and is scoped by school.",
-      "parity_required": false,
+      "case": "Missing teacher and a real ID equal to the display label Не указан",
+      "backend_behavior": "Missing identity is distinct from a label-valued known identity.",
       "executed_in_this_report": false
     },
     {
-      "case": "Mixed test versions/scales or incompatible pre/post records",
-      "backend_behavior": "Shared analytic compatibility rules prevent pooled mixed-test means and exclude incompatible pairs.",
-      "parity_required": false,
+      "case": "Mixed versions/scales or incompatible pre/post records",
+      "backend_behavior": "Shared compatibility rules suppress mixed-topic means and exclude incompatible pairs.",
       "executed_in_this_report": false
     },
     {
       "case": "Duplicate student/topic/stage records",
-      "backend_behavior": "The backend rejects duplicates instead of overwriting map entries or double counting posts.",
-      "parity_required": false,
+      "backend_behavior": "Duplicates are rejected, not overwritten or counted twice.",
       "executed_in_this_report": false
     }
   ],
-  "limitations": "This report executes only the canonical demo on both implementations. Edge cases above are documented source-level differences, not fabricated cross-runtime results. No external AI calls or keys are used."
+  "limitations": "Only the canonical synthetic demo is executed on both implementations. Edge cases listed separately are documented differences, not fabricated cross-runtime results. This verifies calculations, not teacher quality or causal effects."
 }

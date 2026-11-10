@@ -233,6 +233,41 @@ class TeacherMetricsTests(unittest.TestCase):
         with self.assertRaises(AnalyticsError):
             compute_teachers([], TOPICS, settings={"min_students": 9})
 
+    def test_maximum_records_with_distinct_teachers_and_schools(self):
+        topics = [{"topic_id": f"t{i:03d}", "current_hours": 1} for i in range(100)]
+        records = [row(f"p{i:05d}", 70, teacher=f"T{i:05d}", school=f"S{i:05d}",
+                       classroom=f"C{i:05d}", topic=f"t{i % 100:03d}") for i in range(10_000)]
+        result = compute_teachers(records, topics)
+        self.assertEqual(len(result["teachers"]), 10_000)
+        self.assertEqual(len(result["schools"]), 10_000)
+        self.assertEqual(result["hours_per_class"], 100)
+        self.assertEqual(result["total"], {
+            "school_id": "Все школы", "teachers": 10_000, "students": 10_000, "classes": 10_000,
+            "students_per_teacher": 1, "classes_per_teacher": 1, "hours_per_teacher": 100,
+        })
+        for index, (teacher, school) in enumerate(zip(result["teachers"], result["schools"])):
+            self.assertEqual(teacher["school_id"], f"S{index:05d}")
+            self.assertEqual(teacher["teacher_id"], f"T{index:05d}")
+            self.assertEqual(teacher["mean_post_pct"], 70)
+            self.assertEqual(teacher["upcoming_hours"], 100)
+            self.assertEqual(teacher["n_pairs"], 0)
+            self.assertEqual(teacher["n_paired_students"], 0)
+            self.assertEqual(teacher["mixed_topic_ids"], [])
+            self.assertEqual(school["school_id"], teacher["school_id"])
+            self.assertEqual(school["teachers"], 1)
+            self.assertEqual(school["hours_per_teacher"], 100)
+
+    def test_sparse_mixed_topics_keep_curriculum_order_and_all_hours(self):
+        topics = [{"topic_id": f"t{i:03d}", "current_hours": 1} for i in range(100)]
+        topics.reverse()
+        records = [row(f"p{i}-{version}", topic=f"t{i:03d}", version=version)
+                   for i in (2, 70) for version in ("v1", "v2")]
+        teacher = compute_teachers(records, topics)["teachers"][0]
+        self.assertEqual(teacher["mixed_topic_ids"], ["t070", "t002"])
+        self.assertEqual(teacher["upcoming_hours"], 100)
+        self.assertIsNone(teacher["mean_post_pct"])
+        self.assertIsNone(teacher["mean_gain_pp"])
+
 
 if __name__ == "__main__":
     unittest.main()
