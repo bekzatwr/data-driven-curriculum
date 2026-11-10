@@ -22,6 +22,8 @@ def preflight():
     if not 1 <= port <= 65535:
         raise ValueError("PORT must be between 1 and 65535")
     settings = Settings.from_env()
+    if flag("PUBLIC_DEMO") and not settings.read_only_demo:
+        raise ValueError("PUBLIC_DEMO requires READ_ONLY_DEMO=true; refusing public writes")
     database = settings.database_path.resolve()
     if flag("REQUIRE_PERSISTENT_STORAGE"):
         mount = Path(os.getenv("DATA_MOUNT_PATH", "/app/data")).resolve()

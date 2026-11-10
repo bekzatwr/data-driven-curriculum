@@ -1279,6 +1279,16 @@
               }
             },
             "description": "Service Unavailable"
+          },
+          "403": {
+            "description": "Public read-only demo: saving is disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            }
           }
         }
       }

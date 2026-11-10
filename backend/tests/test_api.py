@@ -59,10 +59,11 @@ def test_read_only_demo_hides_uploads_and_rejects_import(settings, sample):
     with TestClient(create_app(replace(settings, read_only_demo=True))) as public:
         assert send_import(public, sample, dry_run=True).status_code == 403
         assert send_import(public, sample).status_code == 403
-        assert public.get("/api/datasets").json()["total"] == 0
+        # Trusted demo is seeded at startup, before accepting any public requests.
+        assert public.get("/api/datasets").json()["total"] == 1
         for suffix in ("", "/filters", "/curriculum", "/results"):
             assert public.get(f"/api/datasets/{private_id}{suffix}").status_code == 404
-        assert public.post("/api/datasets/demo").status_code == 201
+        assert public.post("/api/datasets/demo").status_code == 200
         assert public.get("/api/datasets").json()["total"] == 1
         assert public.get("/api/health").json()["read_only_demo"] is True
 

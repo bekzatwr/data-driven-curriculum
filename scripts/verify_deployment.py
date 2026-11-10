@@ -49,10 +49,11 @@ def main():
         volumes.append(name)
         return name
 
-    def create(name, storage, database="/app/data/curriculum.sqlite3"):
+    def create(name, storage, database="/app/data/curriculum.sqlite3", public=False):
         command("docker", "create", "--name", name, "-p", "127.0.0.1::8765",
                 "--security-opt", "no-new-privileges:true", "--cap-drop", "ALL",
-                "-e", "PORT=8765", "-e", "READ_ONLY_DEMO=false",
+                "-e", "PORT=8765", "-e", "READ_ONLY_DEMO=" + str(public).lower(),
+                "-e", "PUBLIC_DEMO=" + str(public).lower(),
                 "-e", "DATABASE_PATH=" + database, "-e", "REQUIRE_PERSISTENT_STORAGE=true",
                 "-e", "CORS_ORIGINS=https://frontend.test", "-v", storage + ":/app/data", web_image)
         containers.append(name)
@@ -123,6 +124,9 @@ def main():
         refused = command("docker", "run", "--rm", "-e", "REQUIRE_PERSISTENT_STORAGE=true", backend_image, ok=False)
         assert refused.returncode != 0 and "refusing ephemeral storage" in refused.stderr
         checks.append("startup refuses missing persistent mount")
+        refused = command("docker", "run", "--rm", "-e", "PUBLIC_DEMO=true", "-e", "READ_ONLY_DEMO=false", backend_image, ok=False)
+        assert refused.returncode != 0 and "refusing public writes" in refused.stderr
+        checks.append("public startup refuses writable HTTP configuration")
         storage = volume("-data")
         refused = command("docker", "run", "--rm", "-e", "REQUIRE_P0=true", "-v", storage + ":/app/data", backend_image, ok=False)
         assert refused.returncode != 0 and "frontend is missing" in refused.stderr
@@ -148,7 +152,7 @@ def main():
         headers["Origin"] = "https://unapproved.test"
         assert "Access-Control-Allow-Origin" not in http(base, "/api/datasets/import", "OPTIONS", headers=headers, raw=True)[2]
         checks.append("non-root runtime, dynamic PORT, SPA/assets/API routing, CORS allow/deny")
-        release = command(sys.executable, "scripts/check_release.py", "--base-url", base, ok=False)
+        release = command(sys.executable, "scripts/check_release.py", "--mode", "local", "--base-url", base, ok=False)
         assert release.returncode == 2 and "real frontend build" in release.stdout
         checks.append("read-only release check rejects the synthetic frontend probe")
         results, curriculum, metadata = demo_files()
@@ -234,8 +238,40 @@ def main():
         checks.append("Docker HEALTHCHECK on nondefault PORT=8765")
         features = http(restored_base, "/api/capabilities")[1]["features"]
         assert all(features[key] for key in ('analytics', 'textbook_comparison', 'plan_preview', 'plan_save', 'plan_report', 'plan_csv'))
+        # A fresh, isolated public service with an operator-prepared synthetic report.
+        public_volume = volume("-public")
+        public_name = run_id + "-public"
+        create(public_name, public_volume, public=True)
+        public_base = start(public_name)
+        prepared = json.loads(command("docker", "exec", public_name, "python", "deploy/seed_demo_report.py").stdout)
+        assert json.loads(command("docker", "exec", public_name, "python", "deploy/seed_demo_report.py").stdout) == prepared
+        dump_code = "import sqlite3,hashlib; c=sqlite3.connect('/app/data/curriculum.sqlite3'); print(hashlib.sha256(chr(10).join(c.iterdump()).encode()).hexdigest()); c.close()"
+        before = command("docker", "exec", public_name, "python", "-c", dump_code).stdout.strip()
+        status, public_demo, _ = http(public_base, "/api/datasets/demo", "POST")
+        assert status == 200 and public_demo['created'] is False and public_demo['dataset_id'] == prepared['dataset_id']
+        public_path = "/api/datasets/" + prepared['dataset_id']
+        for path in ("/api/datasets/import", "/api/datasets/restore", public_path + "/plans"):
+            assert http(public_base, path, "POST", {"class_id": "7A"})[0] == 403
+        assert http(public_base, public_path + "/plans/preview", "POST", {"class_id": "7A"})[0] == 200
+        assert http(public_base, public_path + "/overview")[0] == 200
+        public_report = http(public_base, prepared['report_url'])[1]
+        public_csv = http(public_base, prepared['csv_url'], raw=True)[1]
+        assert public_report['is_demo'] is True and public_report['total_hours'] == 24
+        assert public_csv.startswith(b'\xef\xbb\xbf')
+        assert http(public_base, '/api/plans/..%2f..%2fdata%2fcurriculum.sqlite3/export.csv')[0] == 404
+        public_features = http(public_base, '/api/capabilities')[1]['features']
+        assert all(public_features[k] is False for k in ('csv_import', 'package_restore', 'plan_save'))
+        after = command("docker", "exec", public_name, "python", "-c", dump_code).stdout.strip()
+        assert before == after
+        command("docker", "restart", public_name)
+        public_base = start(public_name)
+        assert http(public_base, prepared['report_url'])[1] == public_report
+        assert http(public_base, prepared['csv_url'], raw=True)[1] == public_csv
+        assert command("docker", "exec", public_name, "python", "-c", dump_code).stdout.strip() == before
+        checks.append("public HTTP cannot import/restore/save; demo/preview/report/export do not mutate SQLite; restart preserves report")
         report = {"infrastructure_passed": True, "server_p0_verified": True, "full_p0_verified": False, "synthetic_data_only": True,
                   "frontend": "synthetic build probe; Damir React app unavailable",
+                  "public_read_only_verified": True, "public_report_id": prepared['plan_id'],
                   "analytics_available": features["analytics"], "comparison_available": features["textbook_comparison"],
                   "dataset_id": dataset_id, "plan_id": plan["plan_id"], "checks": checks,
                   "comparison_difference_gain_pp": comparison['difference_gain_pp'],

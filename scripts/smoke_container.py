@@ -39,6 +39,7 @@ def main():
     status, caps = request("/api/capabilities")
     assert status == 200 and caps["features"]["package_restore"] is False
     assert caps['features']['analytics'] and caps['features']['textbook_comparison']
+    assert caps['features']['plan_save'] is False
     state_file = Path("data/container-check.json")
     if args.expect_existing:
         previous = json.loads(state_file.read_text(encoding="utf-8"))
@@ -74,8 +75,11 @@ def main():
     if args.expect_existing:
         plan = previous['plan']
     else:
-        status, plan = request(plan_path, 'POST', {'class_id': '7A'})
-        assert status == 201
+        prepared = json.loads(Path('data/demo-report.json').read_text(encoding='utf-8-sig'))
+        assert prepared['dataset_id'] == demo['dataset_id']
+        status, plan = request(prepared['report_url'])
+        assert status == 200 and plan['is_demo'] is True
+    assert request(plan_path, 'POST', {'class_id': '7A'})[0] == 403
     status, report = request('/api/plans/' + plan['plan_id'])
     assert status == 200 and report == plan
     status, exported = request('/api/plans/' + plan['plan_id'] + '/export.csv', raw=True)

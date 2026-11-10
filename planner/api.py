@@ -25,7 +25,8 @@ def preview_route(dataset_id: str, payload: PlanRequest, request: Request):
         return error(str(exc))
 
 
-@router.post('/datasets/{dataset_id}/plans', status_code=201, response_model=SavedPlan, response_model_exclude_unset=True)
+@router.post('/datasets/{dataset_id}/plans', status_code=201, response_model=SavedPlan, response_model_exclude_unset=True,
+             responses={403: {'model': PlanErrorResponse, 'description': 'Public read-only demo: saving is disabled'}})
 def save_route(dataset_id: str, payload: SaveRequest, request: Request):
     try:
         return save_plan(request.app.state.store, request.app.state.plan_snapshots, dataset_id, payload,

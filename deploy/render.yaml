@@ -5,7 +5,7 @@ services:
     name: data-driven-curriculum
     runtime: docker
     repo: https://github.com/bekzatwr/data-driven-curriculum
-    branch: backend/bekzat
+    branch: deployment/mobile-public
     plan: 0.5c-512mb
     region: frankfurt
     numInstances: 1
@@ -13,7 +13,6 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /api/health
-    maxShutdownDelaySeconds: 30
     disk:
       name: curriculum-data
       mountPath: /app/data
@@ -36,7 +35,9 @@ services:
       - key: REQUIRE_P0
         value: "true"
       - key: READ_ONLY_DEMO
-        value: "false"
+        value: "true"
+      - key: PUBLIC_DEMO
+        value: "true"
       - key: CORS_ORIGINS
         value: ""
       - key: FORWARDED_ALLOW_IPS

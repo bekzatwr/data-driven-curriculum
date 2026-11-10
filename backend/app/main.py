@@ -17,6 +17,7 @@ from .db import Store
 from .errors import ApiError
 from .schemas import Capabilities
 from .version import VERSION
+from .public_demo import PublicDemoGuard
 from planner.api import router as planner_router
 from planner.storage import SnapshotStore
 from analytics.api import router as analytics_router
@@ -84,6 +85,13 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
         await run_in_threadpool(store.initialize)
         # Keep source data and Aidana's immutable snapshots in the same backup/volume.
         application.state.plan_snapshots = await run_in_threadpool(SnapshotStore, settings.database_path)
+        if settings.read_only_demo:
+            # Seed trusted bundled fixtures before accepting public HTTP requests.
+            from analytics.demo import demo_files
+            from .validation import validate_upload
+            upload = await run_in_threadpool(validate_upload, *demo_files(), settings, source_type="demo")
+            dataset, _ = await run_in_threadpool(store.save_upload, upload)
+            application.state.public_demo = (upload, dataset)
         yield
 
     application = FastAPI(
@@ -93,6 +101,7 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
     application.state.settings = settings
     application.state.store = store
     application.add_middleware(ImportBodyLimit, settings=settings)
+    application.add_middleware(PublicDemoGuard, settings=settings)
     application.add_middleware(
         CORSMiddleware, allow_origins=list(settings.cors_origins),
         allow_methods=["GET", "POST", "OPTIONS"], allow_headers=["Content-Type"],
@@ -144,7 +153,7 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
             "features": {"csv_import": not settings.read_only_demo, "import_preview": not settings.read_only_demo,
                          "demo_dataset": True, "data_quality": True, "package_export": True,
                          "package_restore": not settings.read_only_demo,
-                         "plan_preview": True, "plan_save": True, "plan_report": True, "plan_csv": True,
+                         "plan_preview": True, "plan_save": not settings.read_only_demo, "plan_report": True, "plan_csv": True,
                          "analytics": True, "textbook_comparison": True},
             "links": {"docs": "/docs", "openapi": "/openapi.json", "datasets": "/api/datasets",
                       "results_template": "/api/templates/results.csv",

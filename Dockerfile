@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt && useradd --create-home appu
 COPY backend ./backend
 COPY planner ./planner
 COPY deploy/run_server.py ./deploy/run_server.py
+COPY deploy/seed_demo_report.py ./deploy/seed_demo_report.py
 COPY analytics ./analytics
 RUN mkdir -p /app/data && chown -R appuser:appuser /app
 USER appuser
