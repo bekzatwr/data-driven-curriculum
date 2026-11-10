@@ -11,6 +11,7 @@ import {
   Grid3X3,
   Percent,
   Scale,
+  ScrollText,
   Table2,
   Users,
 } from 'lucide-react';
@@ -97,6 +98,9 @@ export function OverviewPage() {
           </p>
         </div>
         <div className="row-wrap no-print">
+          <Button icon={<ScrollText size={16} />} onClick={() => navigate(`/datasets/${encodeURIComponent(datasetId)}/brief`)}>
+            Справка для педсовета
+          </Button>
           <Button icon={<GitCompareArrows size={16} />} onClick={() => navigate(`/datasets/${encodeURIComponent(datasetId)}/comparison`)}>
             Сравнить учебники
           </Button>

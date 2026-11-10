@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, type DragEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
+  CircleHelp,
   CheckCircle2,
   ChevronRight,
   Database,
@@ -108,6 +109,9 @@ export function UploadPage() {
                 <small>изменений с объяснением</small>
               </div>
             </div>
+            <button type="button" className="hero-tour fade-up-3" onClick={() => window.dispatchEvent(new Event('ddc:tour'))}>
+              <CircleHelp size={15} /> Экскурсия по сайту за минуту
+            </button>
           </div>
           <HeroPreview />
         </div>

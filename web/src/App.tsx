@@ -11,6 +11,7 @@ import { PlannerPage } from './pages/PlannerPage';
 import { ReportPage } from './pages/ReportPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { TeachersPage } from './pages/TeachersPage';
+import { BriefPage } from './pages/BriefPage';
 
 export function App() {
   return (
@@ -26,6 +27,7 @@ export function App() {
                 <Route path="comparison" element={<ComparisonPage />} />
                 <Route path="plan" element={<PlannerPage />} />
                 <Route path="teachers" element={<TeachersPage />} />
+                <Route path="brief" element={<BriefPage />} />
               </Route>
               <Route path="reports" element={<ReportsPage />} />
               <Route path="plans/:planId" element={<ReportPage />} />

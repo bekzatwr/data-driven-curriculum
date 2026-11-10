@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   BarChart3,
   BookOpen,
+  CircleHelp,
   ClipboardList,
   CornerDownLeft,
   Database,
@@ -11,6 +12,7 @@ import {
   GitCompareArrows,
   GraduationCap,
   Moon,
+  ScrollText,
   Search,
   Upload,
   Users,
@@ -90,6 +92,10 @@ export function CommandPalette({ open, onClose, onToggleTheme }: { open: boolean
       }
     }
     list.push({ id: 'nav-reports', group: 'Переходы', label: 'Отчёты', icon: <FileText size={16} />, hint: 'шаг 5', keywords: 'план сохранённый', run: () => go('/reports') });
+    if (base) {
+      list.push({ id: 'nav-brief', group: 'Переходы', label: 'Справка для педсовета', icon: <ScrollText size={16} />, keywords: 'педсовет печать документ подпись итоги', run: () => go(`${base}/brief`) });
+    }
+    list.push({ id: 'tour', group: 'Помощь', label: 'Экскурсия по сайту', icon: <CircleHelp size={16} />, keywords: 'как это работает помощь обучение', run: () => { onClose(); window.dispatchEvent(new Event('ddc:tour')); } });
 
     list.push(
       {

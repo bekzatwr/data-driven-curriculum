@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Braces, Check, Download, FileText, Link2, Lock, MessageSquare, Printer } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Braces, Check, Download, FileText, Link2, Lock, MessageSquare, Printer, ScrollText } from 'lucide-react';
 import { api } from '../api/client';
 import type { SavedItem, SavedPlan } from '../api/types';
 import { Badge, Banner, Button, CloseButton, Drawer, ErrorState, LoadingBlock, WarningsList, errorText, useToast } from '../components/ui';
@@ -124,6 +124,9 @@ function Report({ plan }: { plan: SavedPlan }) {
         </a>
         <Button icon={<Download size={16} />} onClick={downloadCsv} loading={downloading}>
           Скачать CSV
+        </Button>
+        <Button icon={<ScrollText size={16} />} onClick={() => navigate(`/datasets/${encodeURIComponent(plan.dataset_id)}/brief?plan=${encodeURIComponent(plan.plan_id)}`)}>
+          Справка для педсовета
         </Button>
         <Button variant="primary" icon={<Printer size={16} />} onClick={() => window.print()}>
           Печать

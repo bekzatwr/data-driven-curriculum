@@ -1136,3 +1136,386 @@
 .transfers .transfer .tiny.muted {
   line-height: 1.35;
 }
+
+/* ============================================================
+   Рабочие экраны (обзор, сравнение, план, отчёты, справка):
+   строгий деловой вид. «Вау» остаётся только на главной.
+   ============================================================ */
+.route-work .content > div > *,
+.route-work .content > div > *:nth-child(n) {
+  animation: calmIn 0.28s ease-out backwards;
+  animation-delay: 0s;
+}
+@keyframes calmIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.route-work .card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+.route-work .kpi::after,
+.route-work .spot::after,
+.route-work .btn-primary::after,
+.route-work .vs-badge::before,
+.route-work .ai-status-dot::after {
+  display: none;
+}
+.route-work .btn-primary:hover:not(:disabled) {
+  transform: none;
+}
+.route-work .topbar-progress {
+  background: var(--accent);
+  box-shadow: none;
+  animation: none;
+}
+.route-work .hm-cell:hover,
+.route-work .hm-cell:focus-visible {
+  transform: none;
+  box-shadow: 0 0 0 1.5px var(--text);
+}
+.route-work .kpi.tone-critical .kpi-icon {
+  animation: none;
+}
+.route-work .vs-grid > .book-card:first-child,
+.route-work .vs-grid > .book-card:last-child {
+  animation: calmIn 0.28s ease-out backwards;
+}
+.route-work .sb-item.active::before {
+  box-shadow: none;
+  background: var(--accent);
+}
+.route-work .brand-name b {
+  animation: none;
+}
+
+/* ============================================================
+   Режим проектора: крупнее, контрастнее, без лишнего
+   ============================================================ */
+:root[data-projector='on'][data-theme='light'] {
+  --text-2: #1f2125;
+  --muted: #45484e;
+  --faint: #66696f;
+  --border: #d2d2d9;
+  --border-strong: #b7b7c0;
+}
+:root[data-projector='on'][data-theme='dark'] {
+  --text-2: #e8eaee;
+  --muted: #b8bcc4;
+  --faint: #8f949c;
+  --border: rgba(255, 255, 255, 0.15);
+  --border-strong: rgba(255, 255, 255, 0.24);
+}
+@media (min-width: 1000px) {
+  :root[data-projector='on'] .shell {
+    zoom: 1.15;
+  }
+}
+:root[data-projector='on'] .aurora,
+:root[data-projector='on'] .footer,
+:root[data-projector='on'] .comments,
+:root[data-projector='on'] .ai-card,
+:root[data-projector='on'] .features,
+:root[data-projector='on'] .hp-chip {
+  display: none !important;
+}
+:root[data-projector='on'] *,
+:root[data-projector='on'] *::before,
+:root[data-projector='on'] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+:root[data-projector='on'] .hm-cell .v {
+  font-size: 16px;
+}
+:root[data-projector='on'] .kpi-value {
+  font-size: 34px;
+}
+.btn.on {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+/* ============================================================
+   Справка для педсовета
+   ============================================================ */
+.brief-toolbar {
+  gap: 10px;
+}
+.brief-sheet {
+  padding: 32px 36px 28px;
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+}
+.brief-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--text);
+}
+.brief-meta {
+  text-align: right;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.brief-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+.brief-sub {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+.brief-section {
+  margin-top: 24px;
+}
+.brief-section h2 {
+  font-size: 16px;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.brief-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.brief-kpis > div {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.brief-kpis b {
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.brief-kpis span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.brief-kpis .bad b {
+  color: var(--critical-text);
+}
+.brief-lead {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+.brief-table td,
+.brief-table th {
+  padding: 7px 10px;
+  font-size: 13px;
+}
+.brief-reason {
+  font-size: 12px;
+  color: var(--text-2);
+  max-width: 420px;
+}
+.brief-notes ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+.brief-sign {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 36px;
+}
+.brief-sign > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+}
+.brief-sign i {
+  display: block;
+  height: 26px;
+  border-bottom: 1px solid var(--text);
+}
+.brief-sign small {
+  color: var(--muted);
+  font-size: 11px;
+}
+@media screen and (max-width: 760px) {
+  .brief-sheet {
+    padding: 18px 14px;
+  }
+  .brief-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .brief-sign {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .brief-sheet .brief-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+@media print {
+  .brief-sheet {
+    padding: 0 !important;
+    max-width: none;
+    border: 0 !important;
+  }
+  .brief-head {
+    border-bottom-color: #000;
+  }
+  .brief-section {
+    break-inside: avoid-page;
+  }
+  .brief-section .brief-table tr {
+    break-inside: avoid;
+  }
+  .brief-sign {
+    break-inside: avoid;
+  }
+  .brief-sign i {
+    border-bottom-color: #000;
+  }
+}
+
+/* ============================================================
+   Экскурсия по сайту
+   ============================================================ */
+.tour {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 120;
+  width: min(380px, calc(100vw - 32px));
+  padding: 14px 16px 12px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-lg);
+  animation: chipIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+.tour-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tour-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.tour-dots {
+  display: inline-flex;
+  gap: 4px;
+  flex: 1;
+}
+.tour-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--surface-3);
+}
+.tour-dots i.done {
+  background: var(--accent-soft);
+}
+.tour-dots i.on {
+  width: 16px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+.tour-title {
+  margin-top: 8px;
+  font-weight: 650;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.tour-text {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.tour-need {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.tour-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.tour-focus {
+  outline: 3px solid var(--accent);
+  outline-offset: 5px;
+  border-radius: 12px;
+  animation: tourPulse 1.8s ease-in-out infinite;
+}
+@keyframes tourPulse {
+  0%,
+  100% {
+    outline-color: var(--accent);
+  }
+  50% {
+    outline-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+}
+@media (max-width: 640px) {
+  .tour {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+  }
+}
+@media print {
+  .tour,
+  .tour-btn {
+    display: none !important;
+  }
+  .tour-focus {
+    outline: none !important;
+  }
+}
+
+/* Ссылка «Экскурсия по сайту» на главной */
+.hero-tour {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.hero-tour:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

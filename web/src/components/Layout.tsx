@@ -4,6 +4,9 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   BarChart3,
   ChevronRight,
+  CircleHelp,
+  Projector,
+  ScrollText,
   ClipboardList,
   FileText,
   GitCompareArrows,
@@ -20,6 +23,8 @@ import { CommandPalette, isMac } from './CommandPalette';
 import { useSpotlight } from '../lib/useSpotlight';
 import { teachersModuleReady, useFeatures } from '../lib/features';
 import { Brand } from './Logo';
+import { Tour } from './Tour';
+import { readJson, writeJson } from '../lib/storage';
 
 type Theme = 'light' | 'dark';
 
@@ -30,7 +35,21 @@ export function Layout() {
   const [theme, setTheme] = useState<Theme>(() => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'));
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
+  // Режим проектора: крупнее шрифт, выше контраст, без декоративного (запоминается).
+  const [projector, setProjector] = useState<boolean>(() => readJson('ddc.projector', false));
   useSpotlight();
+
+  useEffect(() => {
+    const open = () => setTourOpen(true);
+    window.addEventListener('ddc:tour', open);
+    return () => window.removeEventListener('ddc:tour', open);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.projector = projector ? 'on' : 'off';
+    writeJson('ddc.projector', projector);
+  }, [projector]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -102,12 +121,13 @@ export function Layout() {
   ];
   const activeIndex = steps.findIndex((s) => s.active);
   const teachersActive = path.endsWith('/teachers');
+  const briefActive = path.endsWith('/brief');
   const teachersVisible = teachersModuleReady(features);
-  const pageTitle = teachersActive ? 'Учителя и нагрузка' : steps[activeIndex]?.label ?? 'Страница';
+  const pageTitle = teachersActive ? 'Учителя и нагрузка' : briefActive ? 'Справка для педсовета' : steps[activeIndex]?.label ?? 'Страница';
   const inDataset = path.startsWith('/datasets/') || path.startsWith('/plans/');
 
   return (
-    <div className={`shell ${navOpen ? 'nav-open' : ''}`}>
+    <div className={`shell ${navOpen ? 'nav-open' : ''} ${path === '/' ? 'route-home' : 'route-work'}`}>
       <aside className="sidebar" aria-label="Навигация">
         <Link to="/" className="sb-brand" aria-label="Data-Driven Curriculum — на главную">
           <Brand size={28} />
@@ -143,6 +163,19 @@ export function Layout() {
             );
           })}
         </nav>
+
+        <div className="sb-label">Документы</div>
+        <NavLink
+          to={base ? `${base}/brief` : '#'}
+          className={`sb-item ${briefActive ? 'active' : ''} ${base ? '' : 'disabled'}`}
+          aria-current={briefActive ? 'page' : undefined}
+          aria-disabled={!base || undefined}
+          tabIndex={base ? undefined : -1}
+          title={base ? 'Итоги, сравнение и план на одной странице для педсовета' : 'Сначала выберите или загрузите набор данных'}
+        >
+          <ScrollText size={16} />
+          Справка для педсовета
+        </NavLink>
 
         {teachersVisible && (
           <>
@@ -205,12 +238,14 @@ export function Layout() {
       <div className="sidebar-backdrop" onClick={() => setNavOpen(false)} />
 
       <div className="main-col">
-        <div className={`aurora ${path === '/' ? '' : 'subtle'}`} aria-hidden>
-          <span className="blob b1" />
-          <span className="blob b2" />
-          <span className="blob b3" />
-          <span className="grid" />
-        </div>
+        {path === '/' && (
+          <div className="aurora" aria-hidden>
+            <span className="blob b1" />
+            <span className="blob b2" />
+            <span className="blob b3" />
+            <span className="grid" />
+          </div>
+        )}
         <header className="topbar">
           {activeIndex >= 0 && (
             <span className="topbar-progress" aria-hidden style={{ ['--p' as string]: (activeIndex + 1) / steps.length }} />
@@ -239,6 +274,26 @@ export function Layout() {
           )}
           <button
             type="button"
+            className="btn btn-ghost btn-sm tour-btn"
+            onClick={() => setTourOpen(true)}
+            aria-label="Экскурсия по сайту"
+            title="Как это работает — экскурсия за минуту"
+          >
+            <CircleHelp size={15} />
+            <span className="top-search-text">Как это работает</span>
+          </button>
+          <button
+            type="button"
+            className={`btn btn-ghost btn-icon btn-sm ${projector ? 'on' : ''}`}
+            onClick={() => setProjector((v) => !v)}
+            aria-pressed={projector}
+            aria-label={projector ? 'Выключить режим проектора' : 'Режим проектора'}
+            title={projector ? 'Выключить режим проектора' : 'Режим проектора: крупный шрифт и высокий контраст'}
+          >
+            <Projector size={15} />
+          </button>
+          <button
+            type="button"
             className="btn btn-ghost btn-icon btn-sm theme-btn"
             onClick={(e) => toggleTheme(e)}
             aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
@@ -265,6 +320,7 @@ export function Layout() {
       </div>
 
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onToggleTheme={toggleTheme} />
+      {tourOpen && <Tour onClose={() => setTourOpen(false)} />}
     </div>
   );
 }
