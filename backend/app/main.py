@@ -145,7 +145,7 @@ def create_app(settings: Settings | None = None, routers: tuple[APIRouter, ...] 
                          "demo_dataset": True, "data_quality": True, "package_export": True,
                          "package_restore": not settings.read_only_demo,
                          "plan_preview": True, "plan_save": True, "plan_report": True, "plan_csv": True,
-                         "analytics": True, "textbook_comparison": True},
+                         "analytics": True, "textbook_comparison": True, "teachers_api": True},
             "links": {"docs": "/docs", "openapi": "/openapi.json", "datasets": "/api/datasets",
                       "results_template": "/api/templates/results.csv",
                       "curriculum_template": "/api/templates/curriculum.csv"},

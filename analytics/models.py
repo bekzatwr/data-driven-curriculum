@@ -118,6 +118,43 @@ class Comparison(Envelope):
     conclusion: str
 
 
+class TeacherMetrics(Model):
+    teacher_id: str
+    school_id: str
+    is_missing_teacher: bool
+    class_ids: list[str]
+    students: int
+    textbooks: list[str]
+    upcoming_hours: int
+    n_post: int
+    n_post_students: int
+    mean_post_pct: float | None
+    mean_gain_pp: float | None
+    n_pairs: int
+    pair_coverage: float | None
+    mixed_topic_ids: list[str]
+    warnings: list[str]
+
+
+class SchoolWorkload(Model):
+    school_id: str
+    teachers: int
+    students: int
+    classes: int
+    students_per_teacher: float | None
+    classes_per_teacher: float | None
+    hours_per_teacher: float | None
+
+
+class Teachers(Envelope):
+    teachers: list[TeacherMetrics]
+    schools: list[SchoolWorkload]
+    total: SchoolWorkload
+    hours_per_class: int
+    missing_teacher_rows: int
+    definitions: dict[str, str]
+
+
 class Error(Model):
     code: str
     message: str

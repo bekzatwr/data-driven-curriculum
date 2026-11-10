@@ -1,0 +1,189 @@
+import copy
+import unittest
+
+from analytics.common import AnalyticsError
+from analytics.demo import demo_records
+from analytics.teachers import compute_teachers
+
+
+TOPICS = [{"topic_id": "t1", "current_hours": 6}, {"topic_id": "t2", "current_hours": 18}]
+
+
+def row(student, score=60, *, teacher="T1", school="S1", classroom="7A", topic="t1",
+        stage="post", version="v1", maximum=100, textbook="A"):
+    return {"student_id": student, "score": score, "teacher_id": teacher, "school_id": school,
+            "class_id": classroom, "topic_id": topic, "stage": stage, "test_version": version,
+            "max_score": maximum, "textbook_id": textbook}
+
+
+class TeacherMetricsTests(unittest.TestCase):
+    def test_full_demo_counts_hours_and_known_gains(self):
+        topics, records = demo_records()
+        result = compute_teachers(records, topics)
+        self.assertEqual(result["hours_per_class"], 24)
+        self.assertEqual(result["missing_teacher_rows"], 0)
+        self.assertEqual(result["total"], {
+            "school_id": "Все школы", "teachers": 4, "students": 120, "classes": 4,
+            "students_per_teacher": 30, "classes_per_teacher": 1, "hours_per_teacher": 24,
+        })
+        for teacher in result["teachers"]:
+            self.assertEqual(teacher["students"], 30)
+            self.assertEqual(teacher["upcoming_hours"], 24)
+            self.assertEqual(teacher["n_post"], 180)
+            self.assertEqual(teacher["n_pairs"], 180)
+            self.assertEqual(teacher["n_post_students"], 30)
+            self.assertEqual(teacher["pair_coverage"], 1)
+            self.assertFalse(teacher["is_missing_teacher"])
+        self.assertAlmostEqual(result["teachers"][0]["mean_post_pct"], 434 / 6)
+        self.assertAlmostEqual(result["teachers"][0]["mean_gain_pp"], 73 / 6)
+        self.assertAlmostEqual(result["teachers"][2]["mean_post_pct"], 427 / 6)
+        self.assertAlmostEqual(result["teachers"][2]["mean_gain_pp"], 65 / 6)
+
+    def test_same_teacher_id_in_two_schools_is_not_merged(self):
+        records = [row("a", school="S1", classroom="7A"),
+                   row("b", school="S2", classroom="7A"),
+                   row("c", school="S2", classroom="7B")]
+        result = compute_teachers(records, TOPICS)
+        self.assertEqual([(t["school_id"], t["teacher_id"], t["students"]) for t in result["teachers"]],
+                         [("S1", "T1", 1), ("S2", "T1", 2)])
+        self.assertEqual(result["total"]["teachers"], 2)
+        self.assertEqual(result["total"]["classes"], 3)
+        self.assertEqual(result["total"]["classes_per_teacher"], 1.5)
+        self.assertEqual(result["schools"][0]["hours_per_teacher"], 24)
+        self.assertEqual(result["schools"][1]["hours_per_teacher"], 48)
+
+    def test_missing_and_literal_display_label_are_distinct_and_school_scoped(self):
+        records = [row("known", teacher="Не указан"), row("missing", teacher=None),
+                   row("blank", teacher=" \t"), row("other", teacher="", school="S2")]
+        result = compute_teachers(records, TOPICS)
+        self.assertEqual(result["missing_teacher_rows"], 3)
+        self.assertEqual(result["total"]["teachers"], 1)
+        self.assertEqual(result["total"]["students"], 4)
+        self.assertEqual(result["total"]["students_per_teacher"], 4)
+        self.assertEqual([(t["school_id"], t["is_missing_teacher"], t["students"]) for t in result["teachers"]],
+                         [("S1", False, 1), ("S1", True, 2), ("S2", True, 1)])
+        self.assertEqual(result["schools"][0]["students_per_teacher"], 3)
+        self.assertIsNone(result["schools"][1]["students_per_teacher"])
+        self.assertIsNone(result["schools"][1]["classes_per_teacher"])
+        self.assertIsNone(result["schools"][1]["hours_per_teacher"])
+        self.assertTrue(result["teachers"][1]["warnings"])
+        self.assertTrue(any("неполную атрибуцию" in warning for warning in result["warnings"]))
+
+    def test_nonblank_identifiers_preserved_and_sorting_is_deterministic(self):
+        records = [row("a", teacher=" T1 "), row("b", teacher="T1"), row("c", teacher=None),
+                   row("d", teacher="T0", school="S0")]
+        result = compute_teachers(records, TOPICS)
+        self.assertEqual(result, compute_teachers(list(reversed(records)), TOPICS))
+        self.assertEqual([t["teacher_id"] for t in result["teachers"]], ["T0", " T1 ", "T1", "Не указан"])
+
+    def test_coteaching_counts_links_not_unique_school_classes(self):
+        records = [row("a", teacher="T1"), row("a", teacher="T2", topic="t2"),
+                   row("b", teacher="T2", classroom="7B")]
+        result = compute_teachers(records, TOPICS)
+        self.assertEqual(result["total"]["students"], 2)
+        self.assertEqual(result["total"]["classes"], 2)
+        self.assertEqual(result["total"]["students_per_teacher"], 1)
+        self.assertEqual(result["total"]["classes_per_teacher"], 1.5)
+        self.assertEqual(result["total"]["hours_per_teacher"], 36)
+        self.assertEqual([t["upcoming_hours"] for t in result["teachers"]], [24, 48])
+        self.assertTrue(any("несколькими" in warning for warning in result["warnings"]))
+
+    def test_pre_only_and_no_pre_keep_workload_without_inventing_gain(self):
+        records = [row("pre", 30, stage="pre"), row("post", 70, teacher="T2")]
+        result = compute_teachers(records, TOPICS)
+        first, second = result["teachers"]
+        self.assertEqual(first["students"], 1)
+        self.assertEqual(first["upcoming_hours"], 24)
+        self.assertEqual(first["n_post"], 0)
+        self.assertIsNone(first["mean_post_pct"])
+        self.assertIsNone(first["pair_coverage"])
+        self.assertEqual(second["mean_post_pct"], 70)
+        self.assertEqual(second["pair_coverage"], 0)
+        self.assertEqual(second["n_pairs"], 0)
+        self.assertIsNone(second["mean_gain_pp"])
+
+    def test_changed_or_missing_teacher_does_not_receive_cross_teacher_gain(self):
+        for post_teacher in ("T2", None, ""):
+            with self.subTest(post_teacher=post_teacher):
+                records = [row("a", 20, stage="pre"), row("a", 80, teacher=post_teacher)]
+                result = compute_teachers(records, TOPICS)
+                self.assertEqual(result["total"]["students"], 1)
+                self.assertTrue(all(t["n_pairs"] == 0 and t["mean_gain_pp"] is None for t in result["teachers"]))
+
+    def test_compatible_pairs_and_negative_gain_use_shared_percentages(self):
+        records = [row("a", 8, maximum=10, stage="pre"), row("a", 4, maximum=10),
+                   row("b", 2, maximum=10, stage="pre"), row("b", 5, maximum=10)]
+        teacher = compute_teachers(records, TOPICS)["teachers"][0]
+        self.assertEqual(teacher["mean_post_pct"], 45)
+        self.assertEqual(teacher["mean_gain_pp"], -5)
+        self.assertEqual(teacher["n_pairs"], 2)
+
+    def test_pair_compatibility_rejects_textbook_class_school_and_scale_changes(self):
+        for changes in ({"textbook": "B"}, {"classroom": "7B"}, {"school": "S2"},
+                        {"version": "v2"}, {"maximum": 200}):
+            with self.subTest(changes=changes):
+                result = compute_teachers([row("a", 20, stage="pre"), row("a", 80, **changes)], TOPICS)
+                self.assertTrue(all(t["n_pairs"] == 0 and t["mean_gain_pp"] is None for t in result["teachers"]))
+
+    def test_mixed_versions_suppress_both_means_and_filter_recovers_slice(self):
+        records = [row("a", 10, stage="pre"), row("a", 50),
+                   row("b", 20, stage="pre", version="v2"), row("b", 80, version="v2")]
+        teacher = compute_teachers(records, TOPICS)["teachers"][0]
+        self.assertEqual(teacher["mixed_topic_ids"], ["t1"])
+        self.assertEqual(teacher["n_pairs"], 2)
+        self.assertIsNone(teacher["mean_post_pct"])
+        self.assertIsNone(teacher["mean_gain_pp"])
+        filtered = compute_teachers(records, TOPICS, {"test_version": "v2"})["teachers"][0]
+        self.assertEqual(filtered["mean_post_pct"], 80)
+        self.assertEqual(filtered["mean_gain_pp"], 60)
+        self.assertEqual(filtered["mixed_topic_ids"], [])
+
+    def test_mean_post_weights_observations_as_existing_teacher_ui(self):
+        records = [row("a", 100), row("a", 0, topic="t2"), row("b", 100)]
+        teacher = compute_teachers(records, TOPICS)["teachers"][0]
+        self.assertAlmostEqual(teacher["mean_post_pct"], 200 / 3)
+        self.assertNotEqual(teacher["mean_post_pct"], 75)
+        self.assertEqual(teacher["n_post_students"], 2)
+        self.assertEqual(teacher["n_post"], 3)
+
+    def test_filters_apply_to_all_summaries_but_not_curriculum_hours(self):
+        records = [row("a", 20, stage="pre"), row("a", 60),
+                   row("b", 100, teacher="T2", classroom="7B", textbook="B"),
+                   row("a", 90, topic="t2")]
+        original = copy.deepcopy((records, TOPICS))
+        filtered = compute_teachers(records, TOPICS, {
+            "class_ids": ["7A"], "textbook_ids": ["A"], "topic_ids": ["t1"], "test_version": "v1",
+        })
+        self.assertEqual(filtered["hours_per_class"], 24)
+        self.assertEqual(filtered["teachers"][0]["upcoming_hours"], 24)
+        self.assertEqual(filtered["teachers"][0]["mean_gain_pp"], 40)
+        self.assertEqual(filtered["total"]["teachers"], 1)
+        self.assertEqual(filtered["total"]["students"], 1)
+        self.assertEqual((records, TOPICS), original)
+        empty = compute_teachers(records, TOPICS, {"class_ids": ["7A"], "textbook_ids": ["B"]})
+        self.assertEqual(empty["teachers"], [])
+        self.assertEqual(empty["schools"], [])
+        self.assertEqual(empty["total"]["students"], 0)
+        self.assertEqual(empty["hours_per_class"], 24)
+
+    def test_zero_empty_and_missing_teacher_are_not_false_teachers(self):
+        teacher = compute_teachers([row("a", 0)], TOPICS)["teachers"][0]
+        self.assertEqual(teacher["mean_post_pct"], 0)
+        empty = compute_teachers([], TOPICS)
+        self.assertEqual(empty["total"]["teachers"], 0)
+        self.assertIsNone(empty["total"]["students_per_teacher"])
+        missing = compute_teachers([row("a", 0, teacher=None)], TOPICS)
+        self.assertEqual(missing["total"]["teachers"], 0)
+        self.assertEqual(missing["total"]["students"], 1)
+        self.assertIsNone(missing["total"]["hours_per_teacher"])
+
+    def test_duplicate_across_teacher_groups_raises_and_bad_settings_raise(self):
+        with self.assertRaises(AnalyticsError) as context:
+            compute_teachers([row("a"), row("a", teacher="T2")], TOPICS)
+        self.assertEqual(context.exception.code, "DUPLICATE_RESULT")
+        with self.assertRaises(AnalyticsError):
+            compute_teachers([], TOPICS, settings={"min_students": 9})
+
+
+if __name__ == "__main__":
+    unittest.main()

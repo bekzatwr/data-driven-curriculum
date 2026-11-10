@@ -1,0 +1,158 @@
+{
+  "dataset_id": "toni-demo",
+  "is_demo": true,
+  "source": {
+    "id": "toni-demo",
+    "source_type": "demo",
+    "metadata": {
+      "name": "Искусственные данные Тони: математика, 7 класс",
+      "subject": "Математика",
+      "grade": 7,
+      "period_start": "2026-09-01",
+      "period_end": "2026-10-31"
+    },
+    "counts": {
+      "students": 120,
+      "classes": 4,
+      "topics": 6,
+      "results": 1440
+    }
+  },
+  "applied_filters": {
+    "class_ids": [],
+    "textbook_ids": [],
+    "test_version": null
+  },
+  "settings": {
+    "threshold_pct": 60.0,
+    "mastered_pct": 80.0,
+    "min_students": 10,
+    "problem_share": 0.4,
+    "max_baseline_gap_pp": 10.0
+  },
+  "warnings": [
+    "Нагрузка относится только к предмету, параллели и выбранным записям набора; это не полная ставка или фактическое расписание учителя.",
+    "Результаты и прирост описывают учеников; они не оценивают качество работы учителя и не доказывают причинного влияния преподавания или учебника."
+  ],
+  "teachers": [
+    {
+      "teacher_id": "T1",
+      "school_id": "DEMO-SCHOOL",
+      "is_missing_teacher": false,
+      "class_ids": [
+        "7A"
+      ],
+      "students": 30,
+      "textbooks": [
+        "Учебник A"
+      ],
+      "upcoming_hours": 24,
+      "n_post": 180,
+      "n_post_students": 30,
+      "mean_post_pct": 72.33333333333333,
+      "mean_gain_pp": 12.166666666666666,
+      "n_pairs": 180,
+      "pair_coverage": 1.0,
+      "mixed_topic_ids": [],
+      "warnings": []
+    },
+    {
+      "teacher_id": "T2",
+      "school_id": "DEMO-SCHOOL",
+      "is_missing_teacher": false,
+      "class_ids": [
+        "7B"
+      ],
+      "students": 30,
+      "textbooks": [
+        "Учебник A"
+      ],
+      "upcoming_hours": 24,
+      "n_post": 180,
+      "n_post_students": 30,
+      "mean_post_pct": 72.33333333333333,
+      "mean_gain_pp": 12.166666666666666,
+      "n_pairs": 180,
+      "pair_coverage": 1.0,
+      "mixed_topic_ids": [],
+      "warnings": []
+    },
+    {
+      "teacher_id": "T3",
+      "school_id": "DEMO-SCHOOL",
+      "is_missing_teacher": false,
+      "class_ids": [
+        "7C"
+      ],
+      "students": 30,
+      "textbooks": [
+        "Учебник B"
+      ],
+      "upcoming_hours": 24,
+      "n_post": 180,
+      "n_post_students": 30,
+      "mean_post_pct": 71.16666666666667,
+      "mean_gain_pp": 10.833333333333334,
+      "n_pairs": 180,
+      "pair_coverage": 1.0,
+      "mixed_topic_ids": [],
+      "warnings": []
+    },
+    {
+      "teacher_id": "T4",
+      "school_id": "DEMO-SCHOOL",
+      "is_missing_teacher": false,
+      "class_ids": [
+        "7D"
+      ],
+      "students": 30,
+      "textbooks": [
+        "Учебник B"
+      ],
+      "upcoming_hours": 24,
+      "n_post": 180,
+      "n_post_students": 30,
+      "mean_post_pct": 71.16666666666667,
+      "mean_gain_pp": 10.833333333333334,
+      "n_pairs": 180,
+      "pair_coverage": 1.0,
+      "mixed_topic_ids": [],
+      "warnings": []
+    }
+  ],
+  "schools": [
+    {
+      "school_id": "DEMO-SCHOOL",
+      "teachers": 4,
+      "students": 120,
+      "classes": 4,
+      "students_per_teacher": 30.0,
+      "classes_per_teacher": 1.0,
+      "hours_per_teacher": 24.0
+    }
+  ],
+  "total": {
+    "school_id": "Все школы",
+    "teachers": 4,
+    "students": 120,
+    "classes": 4,
+    "students_per_teacher": 30.0,
+    "classes_per_teacher": 1.0,
+    "hours_per_teacher": 24.0
+  },
+  "hours_per_class": 24,
+  "missing_teacher_rows": 0,
+  "definitions": {
+    "scope": "Наблюдаемая нагрузка по одному предмету, параллели и периоду набора; не полная ставка и не оценка качества учителя.",
+    "teacher_key": "school_id + teacher_id + is_missing_teacher; пропуск учителя не является отдельным известным учителем.",
+    "upcoming_hours": "Число наблюдаемых классов учителя × сумма current_hours всех тем. Это оценка, а не расписание.",
+    "students_per_teacher": "Уникальные ученики школы, включая записи без учителя, / число известных учителей. При неполных ID показатель требует осторожности.",
+    "classes_per_teacher": "Число наблюдаемых связей известный учитель–класс / число известных учителей.",
+    "hours_per_teacher": "Число связей известный учитель–класс × hours_per_class / число известных учителей.",
+    "mean_post_pct": "Среднее процентов по итоговым записям ученик–тема, как в прототипе страницы учителей; отличается от взвешивания учеников в overview.",
+    "n_post": "Число итоговых записей ученик–тема; число уникальных учеников с итогом — n_post_students.",
+    "n_pairs": "Совместимые пары ученик–тема в одной группе school_id/teacher_id с одинаковым классом, учебником, версией и шкалой. Пары без teacher_id описывают учеников и не подтверждают одного преподавателя.",
+    "mean_gain_pp": "Среднее индивидуальных приростов по совместимым парам, в п.п.; не причинный эффект работы учителя.",
+    "missing_teacher_rows": "Количество записей без teacher_id; сгруппированы отдельно по школам и исключены из числа известных учителей."
+  }
+}

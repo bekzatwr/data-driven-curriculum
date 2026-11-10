@@ -15,6 +15,7 @@ def main():
         examples = {
             'analytics-overview.response.json': client.get(base + '/overview'),
             'analytics-topic.response.json': client.get(base + '/topics/equations'),
+            'analytics-teachers.response.json': client.get(base + '/teachers'),
             'analytics-comparison.response.json': client.get(base + '/comparison', params={
                 'topic_id': 'equations', 'textbook_a': 'Учебник A', 'textbook_b': 'Учебник B'}),
             'analytics-empty.response.json': client.get(base + '/overview', params={

@@ -39,6 +39,7 @@ def main():
     status, caps = request("/api/capabilities")
     assert status == 200 and caps["features"]["package_restore"] is False
     assert caps['features']['analytics'] and caps['features']['textbook_comparison']
+    assert caps['features']['teachers_api']
     state_file = Path("data/container-check.json")
     if args.expect_existing:
         previous = json.loads(state_file.read_text(encoding="utf-8"))
@@ -60,6 +61,10 @@ def main():
     status, overview = request(dataset_path + '/overview')
     assert status == 200 and overview['is_demo'] is True
     assert overview['metrics']['n_students'] == 120 and overview['metrics']['n_post_results'] == 720
+    status, teachers = request(dataset_path + '/teachers')
+    assert status == 200 and teachers['is_demo'] is True
+    assert teachers['total']['teachers'] == 4 and teachers['total']['students'] == 120
+    assert teachers['total']['students_per_teacher'] == 30 and teachers['hours_per_class'] == 24
     status, topic = request(dataset_path + '/topics/equations')
     assert status == 200 and topic['metrics']['n_pairs'] == 120
     query = urlencode({'topic_id': 'equations', 'textbook_a': 'Учебник A', 'textbook_b': 'Учебник B'})
@@ -68,6 +73,7 @@ def main():
     assert comparison['difference_gain_pp'] == 8
     if args.expect_existing:
         assert overview == previous['overview'] and comparison == previous['comparison']
+        assert teachers == previous['teachers']
     plan_path = f'/api/datasets/{demo["dataset_id"]}/plans'
     status, preview = request(plan_path + '/preview', 'POST', {'class_id': '7A'})
     assert status == 200 and preview['total_hours'] == 24
@@ -83,10 +89,10 @@ def main():
     result = {"passed": True, "read_only_demo": True, "dataset_id": demo["dataset_id"],
               "results": 1440, "quality_and_package_checked": True, "persistence_checked": args.expect_existing,
               "plan": plan, "saved_report_checked": True, 'analytics_checked': True,
-              'overview': overview, 'comparison': comparison}
+              'overview': overview, 'comparison': comparison, 'teachers': teachers, 'teachers_checked': True}
     state_file.parent.mkdir(exist_ok=True)
     state_file.write_text(json.dumps(result), encoding="utf-8")
-    print(json.dumps({key: value for key, value in result.items() if key not in {'plan', 'overview', 'comparison'}}))
+    print(json.dumps({key: value for key, value in result.items() if key not in {'plan', 'overview', 'comparison', 'teachers'}}))
 
 
 if __name__ == "__main__":

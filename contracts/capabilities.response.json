@@ -21,7 +21,8 @@
     "plan_report": true,
     "plan_csv": true,
     "analytics": true,
-    "textbook_comparison": true
+    "textbook_comparison": true,
+    "teachers_api": true
   },
   "links": {
     "docs": "/docs",

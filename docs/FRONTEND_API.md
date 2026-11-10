@@ -19,6 +19,7 @@
 | GET `/api/datasets/{dataset_id}/overview` | `class_ids`, `textbook_ids`, `test_version` | 200, metrics, topics, heatmap |
 | GET `/api/datasets/{dataset_id}/topics/{topic_id}` | Те же фильтры | 200, metrics, by_class, slices |
 | GET `/api/datasets/{dataset_id}/comparison` | Обязательные `topic_id`, `textbook_a`, `textbook_b`; необязательные `class_ids`, `test_version` | 200, сравнение и причины ограничений |
+| GET `/api/datasets/{dataset_id}/teachers` | `class_ids`, `textbook_ids`, `test_version` | 200, учителя, школы и общая нагрузка; [P1-контракт](TONI_P1.md) |
 | POST `/api/datasets/{dataset_id}/plans/preview` | JSON PlanRequest | 200, PlanPreview |
 | POST `/api/datasets/{dataset_id}/plans` | JSON SaveRequest | 201, SavedPlan |
 | GET `/api/plans/{plan_id}` | — | 200, сохранённый SavedPlan |
