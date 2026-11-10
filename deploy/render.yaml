@@ -41,3 +41,8 @@ services:
         value: ""
       - key: FORWARDED_ALLOW_IPS
         value: "*"
+      # P1 AI: free keys, entered in the Render dashboard (never committed).
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
