@@ -18,6 +18,8 @@ class PublicDemoGuard:
             allowed_post = method == "POST" and (
                 path == "/api/datasets/demo"
                 or re.fullmatch(r"/api/datasets/[^/]+/plans/preview", path)
+                # AI_PUBLIC_DEMO opt-in: explanations only; collab guard keeps quotas and demo-only checks.
+                or (self.settings.ai_public_demo and re.fullmatch(r"/api/datasets/[^/]+/ai/explain", path))
             )
             if path.startswith("/api/") and method not in {"GET", "HEAD", "OPTIONS"} and not allowed_post:
                 response = ApiError(403, "READ_ONLY_DEMO",

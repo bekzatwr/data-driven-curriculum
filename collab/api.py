@@ -111,7 +111,7 @@ def add_comment(dataset_id: str, payload: CommentIn, request: Request):
 
 @router.get("/ai/status", response_model=AiStatus)
 def ai_status(request: Request):
-    return {"configured": False, "providers": [], "models": {}} if request.app.state.settings.read_only_demo else ai.status()
+    return ai.status() if request.app.state.settings.ai_allowed else {"configured": False, "providers": [], "models": {}}
 
 
 @router.post("/datasets/{dataset_id}/ai/explain", response_model=Explanation)

@@ -9,6 +9,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
+from backend.app.config import Settings
 from backend.app.main import create_app
 from backend.app.db.backup import backup_database
 from collab import ai
@@ -365,3 +366,48 @@ def test_ai_http_429_and_question_length(client, monkeypatch):
         assert client.post(f"/api/datasets/{dataset}/ai/explain", json={"kind": "overview", "context": {}, "question": "x" * 501}).status_code == 422
     blocked = client.post(f"/api/datasets/{dataset}/ai/explain", json={"kind": "overview", "context": {}})
     assert blocked.status_code == 429 and int(blocked.headers["Retry-After"]) > 0
+
+
+def test_public_ai_opt_in_allows_demo_explanations_but_no_writes(settings, monkeypatch):
+    ready_ai(monkeypatch)
+    async def provider(url, payload, headers):
+        return {"choices": [{"message": {"content": "Synthetic public explanation"}}]}
+    monkeypatch.setattr(ai, "_post_json", provider)
+    with TestClient(create_app(replace(settings, read_only_demo=True, ai_public_demo=True))) as client:
+        features = client.get("/api/capabilities").json()["features"]
+        assert features["ai_explain"] is True
+        assert features["plan_save"] is False and features["comments_write"] is False and features["csv_import"] is False
+        assert client.get("/api/ai/status").json()["configured"] is True
+        dataset = demo(client)
+        response = client.post(f"/api/datasets/{dataset}/ai/explain", json={"kind": "overview", "context": {}})
+        assert response.status_code == 200 and response.json()["text"] == "Synthetic public explanation"
+        # The AI opt-in never opens public writes.
+        response = client.post(f"/api/datasets/{dataset}/comments", json=comment())
+        assert response.status_code == 403 and response.json()["code"] == "READ_ONLY_DEMO"
+
+
+def test_public_ai_stays_off_without_opt_in_or_keys(settings, monkeypatch):
+    ready_ai(monkeypatch)
+    with TestClient(create_app(replace(settings, read_only_demo=True))) as client:
+        assert client.get("/api/capabilities").json()["features"]["ai_explain"] is False
+        assert client.get("/api/ai/status").json()["configured"] is False
+    monkeypatch.delenv("GROQ_API_KEY")
+    other = replace(settings, database_path=settings.database_path.with_name("no-keys.sqlite3"),
+                    read_only_demo=True, ai_public_demo=True)
+    with TestClient(create_app(other)) as client:
+        assert client.get("/api/capabilities").json()["features"]["ai_explain"] is False
+        dataset = demo(client)
+        response = client.post(f"/api/datasets/{dataset}/ai/explain", json={"kind": "overview", "context": {}})
+        assert response.status_code == 503 and response.json()["code"] == "AI_NOT_CONFIGURED"
+
+
+@pytest.mark.parametrize("value,expected", [("true", True), ("1", True), ("false", False), ("0", False)])
+def test_ai_public_demo_env_flag(monkeypatch, value, expected):
+    monkeypatch.setenv("AI_PUBLIC_DEMO", value)
+    assert Settings.from_env().ai_public_demo is expected
+
+
+def test_ai_public_demo_env_flag_rejects_unknown_values(monkeypatch):
+    monkeypatch.setenv("AI_PUBLIC_DEMO", "yes")
+    with pytest.raises(ValueError, match="AI_PUBLIC_DEMO"):
+        Settings.from_env()

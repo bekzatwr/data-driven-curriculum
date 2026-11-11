@@ -24,6 +24,7 @@ services:
       P1_COMMENTS_ENABLED: "${P1_COMMENTS_ENABLED:-true}"
       AI_ENABLED: "${AI_ENABLED:-false}"
       AI_ACCOUNT_VERIFIED: "${AI_ACCOUNT_VERIFIED:-false}"
+      AI_PUBLIC_DEMO: "${AI_PUBLIC_DEMO:-false}"
       AI_PROVIDERS: "${AI_PROVIDERS:-groq,gemini}"
       GROQ_API_KEY: "${GROQ_API_KEY:-}"
       GEMINI_API_KEY: "${GEMINI_API_KEY:-}"

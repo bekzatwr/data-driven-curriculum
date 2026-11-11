@@ -5,3 +5,6 @@ services:
     environment:
       PUBLIC_DEMO: "false"
       READ_ONLY_DEMO: "false"
+      # Local stand: AI is on when GROQ_API_KEY / GEMINI_API_KEY are provided (git-ignored .env, see README).
+      AI_ENABLED: "${AI_ENABLED:-true}"
+      AI_ACCOUNT_VERIFIED: "${AI_ACCOUNT_VERIFIED:-true}"

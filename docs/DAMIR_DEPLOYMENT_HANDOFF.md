@@ -49,7 +49,9 @@ Origin заменить на адрес своего frontend. Проверит�
 | `CORS_ORIGINS` | Пусто для одного origin; для отдельного UI — его точный HTTPS origin, несколько через запятую |
 | `TRUSTED_PROXY_CIDRS` | Изначально пусто; заполнять только проверенными адресами ingress. Не использовать `0.0.0.0/0` или `::/0` |
 | `P1_COMMENTS_ENABLED` | `true`; public read-only всё равно запрещает POST comments |
-| `AI_ENABLED`, `AI_ACCOUNT_VERIFIED` | Оба `false`; ключи провайдеров для этого режима не нужны |
+| `AI_ENABLED`, `AI_ACCOUNT_VERIFIED` | Оба `true`, чтобы включить ИИ-пояснения; иначе `false`, и ключи не нужны |
+| `AI_PUBLIC_DEMO` | `true` — разрешить ИИ-пояснения встроенного демо в режиме `READ_ONLY_DEMO`. Запись (импорт, сохранение, комментарии) остаётся закрытой; лимит ИИ — 3 запроса в минуту на адрес, 10 в минуту и 100 в сутки на весь сервер. По умолчанию `false` |
+| `GROQ_API_KEY`, `GEMINI_API_KEY` | Секреты только в env платформы; хотя бы один для ИИ |
 
 `APP_TARGET`, `FRONTEND_DIR`, `VITE_API_BASE_URL` — параметры **сборки**, а не переключатели готового backend. Для отдельного UI Дамир задаёт при сборке React `VITE_API_BASE_URL=https://api.example.org` **без `/api` в конце**: клиент сам добавляет `/api/...`. Для одного origin оставить пусто. Изменение runtime env не пересобирает Vite. Секреты не должны попадать в VITE-переменные, build args или Git.
 

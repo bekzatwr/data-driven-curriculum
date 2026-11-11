@@ -18,6 +18,13 @@ class Settings:
     web_dist: Path | None = None
     comments_enabled: bool = True
     trusted_proxy_cidrs: tuple[str, ...] = ()
+    # Opt-in: allow AI explanations of the bundled synthetic demo on a read-only public stand.
+    # Writes (import, save, comments) stay forbidden; AI keeps its demo-only check and rate limits.
+    ai_public_demo: bool = False
+
+    @property
+    def ai_allowed(self) -> bool:
+        return not self.read_only_demo or self.ai_public_demo
 
     @classmethod
     def from_env(cls):
@@ -29,6 +36,9 @@ class Settings:
         comments = os.getenv("P1_COMMENTS_ENABLED", "true").lower()
         if comments not in {"true", "false", "1", "0"}:
             raise ValueError("P1_COMMENTS_ENABLED must be true, false, 1 or 0")
+        ai_public = os.getenv("AI_PUBLIC_DEMO", "false").lower()
+        if ai_public not in {"true", "false", "1", "0"}:
+            raise ValueError("AI_PUBLIC_DEMO must be true, false, 1 or 0")
         proxies = tuple(x.strip() for x in os.getenv("TRUSTED_PROXY_CIDRS", "").split(",") if x.strip())
         for cidr in proxies:
             if ipaddress.ip_network(cidr).prefixlen == 0:
@@ -41,4 +51,5 @@ class Settings:
             ).split(",") if x.strip()),
             web_dist=(Path(web) if Path(web).is_absolute() else ROOT / web) if web else None,
             comments_enabled=comments in {"true", "1"}, trusted_proxy_cidrs=proxies,
+            ai_public_demo=ai_public in {"true", "1"},
         )

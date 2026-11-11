@@ -114,9 +114,10 @@ class CollabRequestGuard:
         if scope["type"] != "http" or scope.get("method") != "POST" or not match:
             return await self.app(scope, receive, send)
         try:
-            if self.settings.read_only_demo:
-                raise ApiError(403, "READ_ONLY_DEMO", "Запись и внешние ИИ-запросы отключены в публичном деморежиме.")
             category = "comments" if match[1] == "comments" else "ai"
+            # Public stand: comments are always read-only; AI only with the explicit AI_PUBLIC_DEMO opt-in.
+            if self.settings.read_only_demo and not (category == "ai" and self.settings.ai_allowed):
+                raise ApiError(403, "READ_ONLY_DEMO", "Запись и внешние ИИ-запросы отключены в публичном деморежиме.")
             if category == "comments" and not self.settings.comments_enabled:
                 raise ApiError(503, "COMMENTS_DISABLED", "Комментарии отключены администратором.")
             # Global quotas bound the number of persisted IP hashes, including failures.
