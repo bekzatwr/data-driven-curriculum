@@ -39,6 +39,8 @@
 
 > [!NOTE]
 > **Демо:** [data-driven-curriculum.onrender.com](https://data-driven-curriculum.onrender.com) — синтетический набор: обзор, сравнение, расчёт плана, нагрузка учителей и ИИ-пояснения. Запись на сайте закрыта. Бесплатный тариф засыпает при простое: первый запуск занимает 30–50 секунд. Импорт CSV, сохранение плана, отчёты и комментарии — в [локальном запуске](#start).
+>
+> **Презентация для защиты:** [PDF](presentation/pitch.pdf) · [HTML с анимациями](presentation/pitch.html) — скачайте файл и откройте в браузере: стрелки листают, <kbd>F</kbd> — во весь экран, <kbd>N</kbd> — заметки докладчика.
 
 <a id="features"></a>
 
@@ -248,5 +250,6 @@ python scripts/check_release.py --mode public --require-https --allow-public-ai 
 | [Планировщик](docs/AIDANA.md) · [QA планировщика](docs/AIDANA_FINAL_QA.md) | Правила P0 и period, приёмка |
 | [Backend](docs/BACKEND.md) · [API и JSON](docs/FRONTEND_API.md) | Форматы данных и эндпоинты |
 | [Живая проверка ИИ](docs/AI_LIVE_CHECK.md) | Качество ИИ-пояснений и план доработок |
+| [Презентация: PDF](presentation/pitch.pdf) · [HTML](presentation/pitch.html) | Питч на 3–5 минут: 11 слайдов со скриншотами и заметками докладчика |
 
 <p align="center"><sub>Хакатон · ноябрь 2026 · только синтетические данные · время UTC+5</sub></p>
