@@ -138,7 +138,7 @@ cd web && npm ci && npm run dev        # React на http://localhost:5173 (proxy
 ## Архитектура
 
 ```mermaid
-flowchart LR
+flowchart TB
     U["Телефон · планшет · компьютер"] --> W["React 19 + TypeScript<br/>Vite build"]
     W -->|"/api, один origin"| A["FastAPI"]
     A --> T["Аналитика · Тони<br/>темы, сравнение, учителя"]
