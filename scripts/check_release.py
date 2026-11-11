@@ -37,7 +37,8 @@ class BuildHTML(HTMLParser):
             self.scripts.append(attrs['src'])
 
 
-def check_release(base_url, *, mode='public', require_https=False, plan_id=None, opener=None, timeout=15):
+def check_release(base_url, *, mode='public', require_https=False, plan_id=None, opener=None, timeout=15,
+                  allow_public_ai=False):
     base = base_url.rstrip('/')
     result = {'technical_precheck_passed': False, 'base_url': '<invalid URL withheld>', 'mode': mode,
               'plan_id': plan_id, 'https_verified': False, 'blockers': [], 'observed': {},
@@ -86,11 +87,15 @@ def check_release(base_url, *, mode='public', require_https=False, plan_id=None,
             if features.get(feature) is not (not public):
                 blockers.append('write policy: ' + feature)
         if public:
-            if read('/api/ai/status').get('configured') is not False:
+            # --allow-public-ai: the operator enabled AI_PUBLIC_DEMO on purpose; writes stay strict.
+            ai_features = () if allow_public_ai else ('ai_explain',)
+            if not allow_public_ai and read('/api/ai/status').get('configured') is not False:
                 blockers.append('AI must be offline in public demo')
-            for feature in ('comments_write', 'ai_explain'):
+            for feature in ('comments_write', *ai_features):
                 if features.get(feature) is not False:
                     blockers.append('public policy: ' + feature)
+            if allow_public_ai:
+                result['observed']['public_ai_explain'] = features.get('ai_explain') is True
         for feature in ('analytics', 'textbook_comparison', 'plan_preview', 'plan_report', 'plan_csv'):
             if features.get(feature) is not True:
                 blockers.append('feature: ' + feature)
@@ -156,9 +161,11 @@ def main():
     parser.add_argument('--timeout', type=float, default=15)
     parser.add_argument('--output', type=Path, help='New local JSON evidence file; never overwritten')
     parser.add_argument('--compare-to', type=Path, help='Prior JSON evidence for the same saved plan')
+    parser.add_argument('--allow-public-ai', action='store_true',
+                        help='Public stand runs with AI_PUBLIC_DEMO=true: AI explanations allowed, writes still forbidden')
     args = parser.parse_args()
     result = check_release(args.base_url, mode=args.mode, require_https=args.require_https,
-                           plan_id=args.plan_id, timeout=args.timeout)
+                           plan_id=args.plan_id, timeout=args.timeout, allow_public_ai=args.allow_public_ai)
     if args.compare_to:
         try:
             compare_observations(result, json.loads(args.compare_to.read_text(encoding='utf-8')))

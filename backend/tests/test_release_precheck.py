@@ -129,3 +129,30 @@ def test_baseline_comparison_detects_lost_or_changed_saved_data():
     wrong['plan_id'] = 'another-plan'
     compare_observations(after, wrong)
     assert not after['technical_precheck_passed']
+
+
+def test_public_ai_requires_explicit_operator_opt_in():
+    ai_on = {
+        '/api/ai/status': (200, 'application/json', json.dumps({'configured': True}).encode()),
+        '/api/capabilities': (200, 'application/json', json.dumps({'mode': 'read_only_demo', 'features': {
+            **dict.fromkeys(('csv_import', 'import_preview', 'package_restore', 'plan_save', 'comments_write'), False),
+            'ai_explain': True,
+            **dict.fromkeys(('analytics', 'textbook_comparison', 'plan_preview', 'plan_report', 'plan_csv'), True)}}).encode()),
+    }
+    with service(ai_on) as (base, _):
+        strict = check_release(base)
+        allowed = check_release(base, allow_public_ai=True)
+    assert not strict['technical_precheck_passed']
+    assert 'AI must be offline in public demo' in strict['blockers']
+    assert allowed['technical_precheck_passed'], allowed
+    assert allowed['observed']['public_ai_explain'] is True
+
+
+def test_public_ai_opt_in_never_relaxes_write_policy():
+    writes_open = {'/api/capabilities': (200, 'application/json', json.dumps({'mode': 'read_only_demo', 'features': {
+        **dict.fromkeys(('csv_import', 'import_preview', 'package_restore', 'plan_save'), False),
+        'comments_write': True, 'ai_explain': True,
+        **dict.fromkeys(('analytics', 'textbook_comparison', 'plan_preview', 'plan_report', 'plan_csv'), True)}}).encode())}
+    with service(writes_open) as (base, _):
+        result = check_release(base, allow_public_ai=True)
+    assert 'public policy: comments_write' in result['blockers']
