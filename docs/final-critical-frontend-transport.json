@@ -1,0 +1,52 @@
+{
+  "browser_e2e": false,
+  "synthetic_loopback_only": true,
+  "passed": 9,
+  "failed": 1,
+  "observations": [
+    {
+      "name": "HTTP 400 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 404 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 422 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 429 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 500 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 502 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 503 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTML proxy error maps to server unavailable",
+      "passed": true
+    },
+    {
+      "name": "timeout before headers",
+      "passed": true,
+      "elapsed_ms": 20017
+    },
+    {
+      "name": "timeout while reading body",
+      "passed": false,
+      "outcome": "pending-after-deadline",
+      "owner": "Damir",
+      "source": "web/src/api/client.ts:115-153"
+    }
+  ]
+}

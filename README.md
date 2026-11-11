@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/SQLite-persistent-003B57?logo=sqlite&logoColor=white" alt="SQLite persistent storage">
-  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React integrated from PR4">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React integrated from PR9">
 </p>
 
 <p align="center"><b>От результатов тестирования — к обоснованному учебному плану.</b><br>
@@ -20,9 +20,9 @@
 </p>
 
 > [!IMPORTANT]
-> **Изолированная финальная интеграция — на review.** Ветка `integration/final-e2e-stabilization` включает backend, аналитику и Teachers Тони, оба режима планировщика Айданы, Comments и настоящий React Дамира (`de7c585`). [Полный отчёт E2E и bugfix](docs/FINAL_E2E_BUGFIX_REPORT.md) · [Аудит PR #1–#13](docs/final-e2e-pr-audit.json).
+> **Серверная интеграция — на review в [PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14).** Backend, Teachers Тони, оба режима Planner Айданы, Comments и настоящий React Дамира работают вместе. Проверенный код `f1eee47`: **451 pytest**, **8 frontend tests**, TypeScript/build, API contracts и **19 Docker checks** прошли. [Отчёт и ограничения](docs/FINAL_E2E_BUGFIX_REPORT.md) · [Актуальный аудит PR](docs/final-critical-pr-audit.json).
 >
-> **Публичный запуск пока NO-GO.** Серверный сценарий, SQLite и Docker проверены отдельно от интерфейса. Browser/mobile E2E этой сборки не выполнен из-за недоступности браузерного инструмента; найден незакрытый дефект frontend timeout при зависшем теле ответа. Успешный CI не заменяет эти проверки и review команды.
+> **Основной сценарий пройден через React:** два CSV → аналитика → сравнение → P0/period → сохранение → отчёт → CSV, включая restart и restore. Отчёт проверен на шести ширинах. **Публичный запуск пока NO-GO:** остаются period stepper ±2 и frontend timeout при зависшем теле ответа, review команды и внешняя HTTPS-проверка. AI выключен до повторной проверки качества.
 >
 > **Deployment выполняет Дамир.** Бекзат отвечает за backend, SQLite, API и серверную интеграцию. [Handoff и env](docs/DAMIR_DEPLOYMENT_HANDOFF.md). Render — необязательный пример; main не изменён, production deploy этой версии не выполнялся.
 
@@ -39,22 +39,22 @@
 | Backend Бекзата | Атомарное сохранение, SQLite, JSON/CSV, backup/restore | Подключён |
 | Публичный режим | Просмотр и расчёт; импорт/restore/save запрещены сервером | Подготовлен |
 | React Дамира | PR #9 de7c585, серверные Teachers и period; исходники автора сохранены | Подключён в этой ветке |
-| Комментарии | Цели, SQLite, атомарная запись, квоты и антиспам | Проверены сервером; UI ждёт приёмки |
-| AI backend | Серверные агрегаты, deadline, квоты, offline/mock | По умолчанию выключен |
+| Комментарии | Цели, SQLite, атомарная запись, квоты и антиспам | UI и сохранность после restore проверены |
+| AI backend | Общая политика Тони, проверенные server settings/metrics, deadline и квоты | 15 новых regression tests; live AI не принят, по умолчанию выключен |
 | Нагрузка учителей | Серверный API Тони, демо 4/120/30/24; [API и проверка](docs/TONI_P1.md) | Подключена в интерфейсе |
 | План на период | Серверный period_v1 Айданы, ручные правки, отчёт | Подключён в интерфейсе |
 | HTTPS-публикация | Один Docker-сервис, постоянный диск, ручной deploy | **Не выполнена** |
 
 Сравнение групп показывает наблюдаемые различия и не доказывает причинное влияние учебника. [Методология Тони](docs/TONI_METHODOLOGY.md) · [Teachers API](docs/TONI_P1.md).
 
-Исторические браузерные проверки предыдущей сборки, шесть ширин и ограничения среды — в [матрице приёмки](docs/MOBILE_ACCEPTANCE.md). Эмуляция не заменяет проверку физических Android/iPhone.
+Текущие браузерные проверки и responsive-ограничения — в [отчёте 11 ноября](docs/FINAL_E2E_BUGFIX_REPORT.md). Шесть ширин проверены для сохранённого отчёта; полный мобильный сценарий и физические Android/iPhone ещё требуют проверки Дамира. [Историческая матрица](docs/MOBILE_ACCEPTANCE.md).
 
 <details>
 <summary><b>Посмотреть настоящий сохранённый отчёт</b></summary>
 
-![Отчёт из React Дамира после импорта, ручной правки и перезапуска API](docs/assets/p1-report-desktop.png)
+![Настоящий period-отчёт после восстановления SQLite из backup](qa/evidence/critical-20261111/report-after-restore.jpg)
 
-Скриншот предыдущей сборки frontend `68f5a56`, не текущего дизайна `03395ef`. Локальный сценарий на синтетических CSV: сумма 24 часа, две ручные правки; snapshot и комментарий пережили перезапуск. [Экран 360 px](docs/assets/p1-report-mobile.png) · [Результаты проверок](docs/BEKZAT_P1_STATUS.md).
+Проверка 11 ноября 2026: синтетические CSV, 24 часа, две ручные правки, `period_v1`. Snapshot, CSV и комментарий пережили restart и восстановление в новый файл SQLite. [Экран 360 px](qa/evidence/critical-20261111/report-360.jpg) · [Результаты](docs/final-critical-browser.json).
 
 </details>
 

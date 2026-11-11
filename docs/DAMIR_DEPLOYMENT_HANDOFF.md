@@ -2,7 +2,7 @@
 
 **За весь deployment отвечает Дамир:** выбор платформы, её конфигурация, сборка frontend, HTTPS, публикация, эксплуатация, backups и rollback. **Бекзат отвечает за backend, SQLite, API и серверную интеграцию.** Новое распределение заменяет прежнее назначение Бекзата ответственным за облако.
 
-Актуальная изолированная интеграция: `integration/final-e2e-stabilization`, проверенный SHA `2e4bb964b974292a669f85fe1072e0153e9c62d7`, frontend Дамира `de7c585`, Teachers Тони `b25cfaf`, period Айданы `62ad936`. [Результаты и оставшиеся блокеры](FINAL_E2E_BUGFIX_REPORT.md). Серверный HTTP/SQLite/Docker сценарий проверен; browser/mobile недоступны в этой среде, открыт дефект frontend body-timeout. Это handoff для review, не разрешение на deployment. Конфигурации сохранены; платформа остаётся выбором Дамира.
+Актуальная изолированная интеграция: `integration/final-e2e-stabilization`, [Draft PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14), проверенный код **`f1eee4799946a071d35f55bb7b7f9604e9988721`**. Последующий commit содержит документацию/evidence. Frontend `web/` совпадает с PR #9 `faf85a4` (код de7c585, новый commit только docs); Teachers Тони `b25cfaf`, period Айданы `62ad936`. [Результаты и блокеры](FINAL_E2E_BUGFIX_REPORT.md). Пройдены 451 pytest, HTTP/SQLite/Docker и основной React CSV→report сценарий, restart, restore и шесть ширин отчёта. Открыты frontend body-timeout и period stepper ±2; полного мобильного acceptance и внешнего HTTPS нет. Это handoff для review, не разрешение на deployment. AI оставлять выключенным до review Тони и разрешённого live-check. Конфигурации сохранены; платформа остаётся выбором Дамира.
 
 ## 1. Запуск backend — выбрать подходящий вариант
 
@@ -77,6 +77,7 @@ Seed создаёт только встроенный synthetic dataset и на�
 | CSV / проверка импорта | `POST /api/datasets/import?dry_run=true` или `false`; multipart: results_file, curriculum_file, metadata |
 | Данные и фильтры | `GET /api/datasets/{id}/filters`, `/quality`, `/curriculum`, `/results` |
 | Аналитика / сравнение | `GET /api/datasets/{id}/overview`, `/topics/{topic_id}`, `/comparison` |
+| Teachers | `GET /api/datasets/{id}/teachers`; [фактический HTTP response](final-critical-teachers.response.json) |
 | План | `POST /api/datasets/{id}/plans/preview`, `POST /api/datasets/{id}/plans` |
 | Сохранённый JSON / CSV | `GET /api/plans/{plan_id}`, `GET /api/plans/{plan_id}/export.csv` |
 | Comments | `GET/POST /api/datasets/{id}/comments` |

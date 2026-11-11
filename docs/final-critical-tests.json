@@ -1,0 +1,41 @@
+{
+  "source_commit": "f1eee4799946a071d35f55bb7b7f9604e9988721",
+  "pytest": {
+    "passed": 451,
+    "failed": 0,
+    "skipped": 0,
+    "subtests_passed_separately": 102,
+    "seconds": 222.79
+  },
+  "new_ai_regressions": 15,
+  "ai_collab_subset": {
+    "passed": 107,
+    "subtests_passed_separately": 19
+  },
+  "frontend_tests": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typecheck": "passed",
+  "frontend_build": "passed",
+  "lint": "not configured",
+  "contracts": "backend and analytics regenerated without diff",
+  "http_groups": {
+    "passed": 8,
+    "failed": 0
+  },
+  "docker_groups": {
+    "passed": 19,
+    "failed": 0
+  },
+  "frontend_transport": {
+    "passed": 9,
+    "failed": 1,
+    "reason": "known frontend response-body deadline"
+  },
+  "browser_core_journey": "passed",
+  "browser_release_acceptance": "NO-GO",
+  "external_ai_calls": 0,
+  "counting": "Subsets, subtests and check groups are not added to the 451 pytest tests."
+}

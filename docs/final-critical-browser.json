@@ -1,0 +1,113 @@
+{
+  "source_commit": "f1eee4799946a071d35f55bb7b7f9604e9988721",
+  "frontend_tree": "cd2cf4a219b144294b6670255f05993f4b076f2b",
+  "browser": "ChatGPT in-app browser on Windows; not standalone Chrome or Safari",
+  "synthetic_data_only": true,
+  "provider_calls": 0,
+  "external_https_tested": false,
+  "physical_android_tested": false,
+  "physical_iphone_tested": false,
+  "core_user_journey": "passed via actual React + FastAPI + SQLite",
+  "release_acceptance": "NO-GO: period stepper and response-body timeout remain open",
+  "dataset_id": "e614a79d-1fec-46a3-a98a-2d22047f99ad",
+  "rules_plan_id": "0aadd0ab-2613-48c7-b516-794af9c47cd3",
+  "period_plan_id": "4fa39bf0-0465-4fae-9ebb-4132e5d89974",
+  "passed_checks": [
+    "Native file chooser: invalid CSV rejected with row/header error; import stays disabled",
+    "Two synthetic CSV files: dry-run preview then import, 120 students and 1440 rows",
+    "Overview and topic drawer: mean 71.8 displayed; fractions 48%, paired gain 13 pp",
+    "Comparison equations: A 52 to 68, B 53 to 61; difference 8 pp, baseline gap 1 pp",
+    "rules_v1 manual 7/6/5/3/2/1 saved via React; total mismatch disables Save; Geometry locked",
+    "period_v1 manual 6/8/4/3/2/1 (+3 for equations) saved via direct input + Enter",
+    "Both report pages opened; browser-downloaded CSV files equal live API bytes",
+    "Teachers UI: 4 teachers / 120 students / 30 per teacher / 24 hours per teacher",
+    "Topic comment submitted through React and visible unchanged after backup restore",
+    "AI status configured=false; explain button absent; no external provider access",
+    "Deep-link report reload succeeds",
+    "Stopped API displays connection error and Retry; restart + Retry restores Teachers",
+    "After process restart both JSON/CSV snapshots, Comments and Teachers are identical",
+    "Online backup restored to new SQLite file; switched process reads identical JSON/CSV/Comments/Teachers",
+    "Both rules_v1 and period_v1 reports opened in browser after restore",
+    "SQLite integrity_check=ok, foreign_key_check empty, exactly two saved snapshots"
+  ],
+  "known_failure": {
+    "period_stepper": "Equations + disabled at 7 despite max=8 in period; direct input 8 succeeds"
+  },
+  "responsive_scope": "Saved period report only; viewport resize is not a physical phone/full mobile E2E",
+  "responsive": [
+    {
+      "requestedWidth": 360,
+      "pageWidth": 350,
+      "tableContainers": [
+        {
+          "containerWidth": 253,
+          "overflowX": "auto",
+          "tableWidth": 1009
+        }
+      ],
+      "viewport": 350
+    },
+    {
+      "requestedWidth": 390,
+      "pageWidth": 381,
+      "tableContainers": [
+        {
+          "containerWidth": 283,
+          "overflowX": "auto",
+          "tableWidth": 1009
+        }
+      ],
+      "viewport": 381
+    },
+    {
+      "requestedWidth": 430,
+      "pageWidth": 421,
+      "tableContainers": [
+        {
+          "containerWidth": 323,
+          "overflowX": "auto",
+          "tableWidth": 1009
+        }
+      ],
+      "viewport": 421
+    },
+    {
+      "requestedWidth": 768,
+      "pageWidth": 758,
+      "tableContainers": [
+        {
+          "containerWidth": 661,
+          "overflowX": "auto",
+          "tableWidth": 1009
+        }
+      ],
+      "viewport": 758
+    },
+    {
+      "requestedWidth": 1366,
+      "pageWidth": 1357,
+      "tableContainers": [
+        {
+          "containerWidth": 979,
+          "overflowX": "auto",
+          "tableWidth": 1009
+        }
+      ],
+      "viewport": 1357
+    },
+    {
+      "requestedWidth": 1920,
+      "pageWidth": 1910,
+      "tableContainers": [
+        {
+          "containerWidth": 1030,
+          "overflowX": "auto",
+          "tableWidth": 1030
+        }
+      ],
+      "viewport": 1910
+    }
+  ],
+  "environment_note": "One initial auxiliary HTTP read exceeded its default 5s timeout. Subsequent health/plan/status probes returned 200 in 0.68-0.73s; lifecycle checks used the same 20s HTTP timeout as the existing E2E harness. No production timeout was changed.",
+  "qa_server_stopped": true
+}

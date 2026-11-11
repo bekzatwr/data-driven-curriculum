@@ -1,0 +1,73 @@
+{
+  "audited_on": "2026-11-11",
+  "local_code_commit": "f1eee4799946a071d35f55bb7b7f9604e9988721",
+  "note": "Remote PR metadata before publishing this follow-up. PR #14 remains draft; COMMENTED is not APPROVED. Frontend faf85a4 adds docs only; its web tree equals the included de7c585.",
+  "prs": [
+    {
+      "number": 9,
+      "url": "https://github.com/bekzatwr/data-driven-curriculum/pull/9",
+      "head": "fix/damir-final-integration",
+      "head_sha": "faf85a480337f57e927809a1fdc14e1f9eec2a88",
+      "base": "integration/p0-server",
+      "base_sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "mergeable": true,
+      "reviews": []
+    },
+    {
+      "number": 10,
+      "url": "https://github.com/bekzatwr/data-driven-curriculum/pull/10",
+      "head": "feature/aidana-period-planner",
+      "head_sha": "62ad936ed19eab9e3beade22fd93dd3253849b33",
+      "base": "integration/p0-server",
+      "base_sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "mergeable": true,
+      "reviews": []
+    },
+    {
+      "number": 12,
+      "url": "https://github.com/bekzatwr/data-driven-curriculum/pull/12",
+      "head": "analytics/toni",
+      "head_sha": "b25cfaf7608cc6b8361c408c8d7db784eb3a74b7",
+      "base": "integration/p0-server",
+      "base_sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "mergeable": true,
+      "reviews": []
+    },
+    {
+      "number": 14,
+      "url": "https://github.com/bekzatwr/data-driven-curriculum/pull/14",
+      "head": "integration/final-e2e-stabilization",
+      "head_sha": "aaa78e1bc0ba5606d2239aa60839458f5f10c3b8",
+      "base": "integration/p0-server",
+      "base_sha": "b25891c332a1e0020e8ac8bdb72b1c5ce5789f27",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "reviews": [
+        {
+          "id": "PRR_kwDOVoP7zc8AAAABXGydJw",
+          "state": "COMMENTED",
+          "body": "@bekzatwr, review Айданы для **PR #14 / `aaa78e1bc0ba5606d2239aa60839458f5f10c3b8`** завершён.\n\n**[P1 Critical] Period UI сохраняет старую границу ±2 для кнопок.** `web/src/pages/PlannerPage.tsx:540–541`: в period для Equations current=5, min=3, max=8 кнопка «+» отключается на 7. Воспроизведено в настоящем Chrome на этой интеграции при корректной общей сумме 24. Ожидается доступность 8 в period; в P0 максимум должен оставаться 7. Owner: @foxfordkz-cyber. Минимальная правка — выбирать min/max по `isPeriod`, без current ± maxChange для period. Frontend мной не изменён.\n\n**Уточнение:** прямой ввод `8` + Enter работает. Именно через React сохранила period-план **6/8/4/3/2/1**, Equations +3, сумма 24. Поэтому ошибка локализована в stepper/ArrowUp/Down, сервер и прямой ввод +3 исправны. Подпись «лимит ±2» в period-настройках также остаётся (Minor).\n\n**GO — серверная часть Planner и сохранённые отчёты:**\n- Независимый полный pytest: **436 passed / 0 failed / 0 skipped**, 102 subtests отдельно. В 436 уже включены 7 QA acceptance и 9 новых import-atomic regression — повторно не суммирую.\n- Отдельно **15 дополнительных atomicity/manual-contract tests passed**, **8 frontend tests passed**, production build PASS, **200 TypeScript/Python parity cases PASS**.\n- P0 и Period preview/manual/save; фактический HTTP `settings.mode=\"period\"`, ответ/снимок `period_v1`; DOM proposed_hours совпадает с сервером.\n- Min/max и неверная сумма запрещают Save в браузере, locked Geometry не редактируется. Рекомендации и ручные часы разделены; snapshot/item manually_modified корректны.\n- Старые 3 P0/Period снимка перенесены online backup в отдельную SQLite новой интеграции и открылись неизменными. После добавления 2 новых браузерных планов и настоящего restart **все 5 JSON и CSV сохранились без изменений**; integrity=ok/FKs=[]; новый отчёт открыт снова в Chrome.\n- CSV скачан браузерной кнопкой и побайтно сверен с API. Legacy без mode, 0.69/0.69=100%, atomic save/rollback и backup/restore прошли.\n- Отдельный HTTP/SQLite CSV→оба planner→report→restart также PASS.\n\n**Границы приёмки:** это focused Planner browser review. Полный CSV picker/mobile E2E, транспортный body-timeout и deployment этим review не закрываются; Docker и failed transport probe здесь повторно не запускались. Известный timeout остаётся по отчёту Бекзата.\n\n[Полный отчёт, точные шаги и evidence](https://github.com/bekzatwr/data-driven-curriculum/blob/e6497f3308e488cdc45b6c659ceff1e1c7fa7480/docs/AIDANA_PR14_REVIEW.md) · [скриншот дефекта](https://github.com/bekzatwr/data-driven-curriculum/blob/e6497f3308e488cdc45b6c659ceff1e1c7fa7480/qa/evidence/pr14-stepper-blocked.jpg) · [отчёт после restart](https://github.com/bekzatwr/data-driven-curriculum/blob/e6497f3308e488cdc45b6c659ceff1e1c7fa7480/qa/evidence/pr14-report-after-restart.jpg).\n\nQA commit **`e6497f3`**, отдельная ветка `qa/aidana-pr14-review-20261110`. Код приложения, PR #10/#14 и ветки участников не менялись; merge/deployment не выполнялись.\n\n**Вердикт:** GO — P0/server period и сохранность данных; NO-GO — окончательная приёмка Period UI до исправления кнопок; общий публичный запуск остаётся NO-GO. Это COMMENT по своей зоне, не Approve всей сборки. Backend Planner исправлений по review не требует.\n",
+          "submitted_at": "2026-11-10T16:35:04Z",
+          "author": {
+            "login": "Aidana17022007",
+            "name": "Aidana17022007",
+            "email": null,
+            "avatar_url": "https://avatars.githubusercontent.com/u/267928699?v=4",
+            "id": null
+          }
+        }
+      ]
+    }
+  ]
+}
