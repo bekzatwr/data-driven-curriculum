@@ -112,8 +112,17 @@ export function apiUrl(path: string, query?: Query) {
   return `${BASE}${path}${buildQuery(query)}`;
 }
 
-/** fetch с пределом времени: отмена извне (смена фильтров) пробрасывается как AbortError, истечение — как HTTP 408. */
-async function fetchWithDeadline(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+/**
+ * fetch с пределом времени на весь обмен — заголовки И чтение тела (`read`). Иначе сервер, отдавший
+ * заголовки и начало JSON, оставлял бы экран в загрузке навсегда.
+ * Отмена извне (смена фильтров) пробрасывается как AbortError, истечение — как HTTP 408, обрыв сети — как статус 0.
+ */
+async function fetchWithDeadline<T>(
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+  read: (response: Response) => Promise<T>,
+): Promise<T> {
   const ctrl = new AbortController();
   const outer = init.signal;
   let timedOut = false;
@@ -122,24 +131,26 @@ async function fetchWithDeadline(url: string, init: RequestInit, timeoutMs: numb
     if (outer.aborted) ctrl.abort();
     else outer.addEventListener('abort', onAbort, { once: true });
   }
-  const timer = window.setTimeout(() => {
+  const timer = globalThis.setTimeout(() => {
     timedOut = true;
     ctrl.abort();
   }, timeoutMs);
   try {
-    return await fetch(url, { ...init, signal: ctrl.signal });
+    const response = await fetch(url, { ...init, signal: ctrl.signal });
+    return await read(response);
   } catch (err) {
     if (timedOut) throw new ApiError(408, {});
-    if ((err as Error)?.name === 'AbortError') throw err;
+    if (err instanceof ApiError || (err as Error)?.name === 'AbortError') throw err;
+    if (outer?.aborted) throw new DOMException('Запрос отменён', 'AbortError');
     throw new ApiError(0, {});
   } finally {
-    window.clearTimeout(timer);
+    globalThis.clearTimeout(timer);
     outer?.removeEventListener('abort', onAbort);
   }
 }
 
-
-async function request<T>(
+/** Экспортируется для регрессионных тестов транспорта (web/src/api/transport.test.ts). */
+export async function request<T>(
   path: string,
   init: RequestInit & { query?: Query; json?: unknown; timeoutMs?: number } = {},
 ): Promise<{ data: T; status: number; response: Response }> {
@@ -149,23 +160,24 @@ async function request<T>(
     finalInit.body = JSON.stringify(json);
     (finalInit.headers as Record<string, string>)['Content-Type'] = 'application/json';
   }
-  const response = await fetchWithDeadline(apiUrl(path, query), finalInit, timeoutMs);
-  const text = await response.text();
-  let body: unknown = null;
-  if (text) {
-    try {
-      body = JSON.parse(text);
-    } catch {
-      body = null;
+  return fetchWithDeadline(apiUrl(path, query), finalInit, timeoutMs, async (response) => {
+    const text = await response.text();
+    let body: unknown = null;
+    if (text) {
+      try {
+        body = JSON.parse(text);
+      } catch {
+        body = null;
+      }
     }
-  }
-  if (!response.ok) {
-    const apiBody = body && typeof body === 'object' && 'code' in (body as object) ? (body as Partial<ErrorBody>) : null;
-    // 5xx без JSON-ответа нашего API — это прокси/шлюз: сервер недоступен, а не ошибка в коде.
-    if (!apiBody && response.status >= 500) throw new ApiError(0, {});
-    throw new ApiError(response.status, apiBody || {}, parseRetryAfter(response.headers.get('Retry-After')));
-  }
-  return { data: body as T, status: response.status, response };
+    if (!response.ok) {
+      const apiBody = body && typeof body === 'object' && 'code' in (body as object) ? (body as Partial<ErrorBody>) : null;
+      // 5xx без JSON-ответа нашего API — это прокси/шлюз: сервер недоступен, а не ошибка в коде.
+      if (!apiBody && response.status >= 500) throw new ApiError(0, {});
+      throw new ApiError(response.status, apiBody || {}, parseRetryAfter(response.headers.get('Retry-After')));
+    }
+    return { data: body as T, status: response.status, response };
+  });
 }
 
 const enc = encodeURIComponent;
@@ -290,18 +302,19 @@ export const api = {
   templateUrl: (name: 'results' | 'curriculum') => apiUrl(`/api/templates/${name}.csv`),
 
   async downloadPlanCsv(planId: string, preferredName?: string) {
-    const response = await fetchWithDeadline(api.planCsvUrl(planId), {}, DEFAULT_TIMEOUT_MS);
-    if (!response.ok) {
-      let body: Partial<ErrorBody> = {};
-      try {
-        body = await response.json();
-      } catch {
-        /* ignore */
+    // Файл тоже скачивается целиком в пределах таймаута, а не только до заголовков.
+    const { blob, disposition } = await fetchWithDeadline(api.planCsvUrl(planId), {}, DEFAULT_TIMEOUT_MS, async (response) => {
+      if (!response.ok) {
+        let body: Partial<ErrorBody> = {};
+        try {
+          body = await response.json();
+        } catch {
+          /* ignore */
+        }
+        throw new ApiError(response.status, body);
       }
-      throw new ApiError(response.status, body);
-    }
-    const blob = await response.blob();
-    const disposition = response.headers.get('Content-Disposition') || '';
+      return { blob: await response.blob(), disposition: response.headers.get('Content-Disposition') || '' };
+    });
     const match = /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i.exec(disposition);
     const filename = preferredName || (match ? decodeURIComponent(match[1] || match[2]) : `plan-${planId}.csv`);
     const url = URL.createObjectURL(blob);

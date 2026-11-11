@@ -36,6 +36,7 @@ import {
 } from '../components/ui';
 import { fmtNum, fmtPct, fmtSigned, hours as hoursLabel, plural } from '../lib/format';
 import { rememberPlan } from '../lib/storage';
+import { hourBounds } from '../lib/planBounds';
 import { AiExplain } from '../components/AiExplain';
 import { readOnlyReason, useFeatures } from '../lib/features';
 import { useApp } from '../state/app';
@@ -493,6 +494,17 @@ function PlanEditor({ classId }: { classId: string }) {
               Ограничения тем
             </Button>
             <InfoPopover align="right" title="Как строится предложение">
+              {isPeriod ? (
+                <ul>
+                  <li>Заблокированные темы сохраняют текущие часы, остальные сначала получают свой минимум.</li>
+                  <li>
+                    Оставшиеся часы периода раздаются по одному: приоритет = важность × (1 + дефицит до цели {preview.settings.target_pct}% / 10) / (1 +
+                    уже добавленные часы). Темы от {preview.settings.donor_pct}% считаются освоенными и получают половинный вес.
+                  </li>
+                  <li>Изменение темы ограничено только её минимумом и максимумом — лимита ±{preview.settings.max_change} ч в этом режиме нет.</li>
+                  <li>Сумма часов равна бюджету периода. Рост баллов не прогнозируется.</li>
+                </ul>
+              ) : (
               <ul>
                 <li>
                   Получатели — темы со средним ниже цели {preview.settings.target_pct}%: приоритет = важность × (цель − средний) / (1 + уже добавленные часы).
@@ -502,6 +514,7 @@ function PlanEditor({ classId }: { classId: string }) {
                 <li>Темы с выборкой меньше {preview.settings.min_students} учеников не получают автоматической рекомендации.</li>
                 <li>Сумма часов не меняется. Рост баллов не прогнозируется.</li>
               </ul>
+              )}
             </InfoPopover>
             <Button size="sm" variant="ghost" icon={<BarChart3 size={14} />} onClick={openAnalytics}>
               Аналитика класса
@@ -537,8 +550,8 @@ function PlanEditor({ classId }: { classId: string }) {
                   const cErr = constraintErrors[it.topic_id];
                   const base0 = baselineOf(it);
                   const manual = h !== base0;
-                  const lo = Math.max(it.min_hours, it.current_hours - maxChange);
-                  const hi = Math.min(it.max_hours, it.current_hours + maxChange);
+                  // Period: границы — min/max темы; перераспределение: ещё и ±max_change от текущих часов.
+                  const bounds = hourBounds(it, isPeriod, maxChange);
                   return (
                     <tr key={it.topic_id} className={err ? 'row-invalid' : it.is_locked ? 'row-locked' : ''}>
                       <td>
@@ -630,8 +643,8 @@ function PlanEditor({ classId }: { classId: string }) {
                         <div className="stack-sm" style={{ alignItems: 'center', gap: 4 }}>
                           <HoursStepper
                             value={h}
-                            min={lo}
-                            max={hi}
+                            min={bounds.min}
+                            max={bounds.max}
                             disabled={it.is_locked || stale}
                             invalid={!!err}
                             changed={manual}
@@ -738,7 +751,8 @@ function PlanEditor({ classId }: { classId: string }) {
         <summary className="fold-summary">
           <Settings2 size={16} /> Настройки алгоритма
           <span className="tiny muted">
-            цель {settings.target_pct}%, порог донора {settings.donor_pct}%, лимит ±{settings.max_change} ч
+            цель {settings.target_pct}%, порог донора {settings.donor_pct}%
+            {mode === 'period' ? ', границы — минимум и максимум темы' : `, лимит ±${settings.max_change} ч`}
           </span>
         </summary>
         <div className="card-body">
@@ -746,7 +760,9 @@ function PlanEditor({ classId }: { classId: string }) {
             <NumField label="Цель, %" value={settings.target_pct} onChange={(v) => setSettings({ ...settings, target_pct: v })} hint="ниже — получатель часов" />
             <NumField label="Порог донора, %" value={settings.donor_pct} onChange={(v) => setSettings({ ...settings, donor_pct: v })} hint="от него — можно снять часы" />
             <NumField label="Мин. учеников" value={settings.min_students} onChange={(v) => setSettings({ ...settings, min_students: v })} hint="меньше — без авто-рекомендации" />
-            <NumField label="Лимит изменения, ±ч" value={settings.max_change} onChange={(v) => setSettings({ ...settings, max_change: v })} hint="на одну тему" />
+            {mode !== 'period' && (
+              <NumField label="Лимит изменения, ±ч" value={settings.max_change} onChange={(v) => setSettings({ ...settings, max_change: v })} hint="на одну тему" />
+            )}
           </div>
           <div className="row-wrap" style={{ marginTop: 10 }}>
             <p className="tiny muted" style={{ flex: 1, minWidth: 220, margin: 0 }}>
