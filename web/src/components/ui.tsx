@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { stepHours } from '../lib/planBounds';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -477,9 +478,15 @@ export function HoursStepper({
     onChange(v);
     setDraft(String(v));
   };
+  // Кнопки и стрелки шагают на 1 ч только внутри min…max; прямой ввод не ограничивается — ошибку покажет проверка строки.
+  const bounds = { min, max };
+  const step = (direction: 1 | -1) => {
+    const next = stepHours(value, direction, bounds);
+    if (next !== null) onChange(next);
+  };
   return (
     <div className={`hours-stepper ${invalid ? 'invalid' : ''} ${changed && !invalid ? 'changed' : ''}`}>
-      <button type="button" onClick={() => onChange(value - 1)} disabled={disabled || value <= min} aria-label={`${label}: уменьшить`}>
+      <button type="button" onClick={() => step(-1)} disabled={disabled || stepHours(value, -1, bounds) === null} aria-label={`${label}: уменьшить`}>
         <Minus size={14} />
       </button>
       <input
@@ -495,15 +502,15 @@ export function HoursStepper({
           if (e.key === 'Enter') commit((e.target as HTMLInputElement).value);
           if (e.key === 'ArrowUp') {
             e.preventDefault();
-            if (value < max) onChange(value + 1);
+            step(1);
           }
           if (e.key === 'ArrowDown') {
             e.preventDefault();
-            if (value > min) onChange(value - 1);
+            step(-1);
           }
         }}
       />
-      <button type="button" onClick={() => onChange(value + 1)} disabled={disabled || value >= max} aria-label={`${label}: увеличить`}>
+      <button type="button" onClick={() => step(1)} disabled={disabled || stepHours(value, 1, bounds) === null} aria-label={`${label}: увеличить`}>
         <Plus size={14} />
       </button>
     </div>
