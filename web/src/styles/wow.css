@@ -1584,3 +1584,81 @@ details.fold[open] > summary .tiny.muted {
   max-width: 600px;
   margin: 0 auto;
 }
+
+/* ===== Телефон: выбор учебников и таблицы карточками (план, отчёт) ===== */
+.grid-4.cmp-pick {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+}
+@media (max-width: 760px) {
+  /* Тема — во всю ширину, ниже учебники A и B с кнопкой обмена между ними. */
+  .grid-4.cmp-pick {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+  .grid-4.cmp-pick > .field:first-child {
+    grid-column: 1 / -1;
+  }
+}
+@media screen and (max-width: 640px) {
+  .table-wrap:has(> .stack-table) {
+    overflow-x: visible;
+  }
+  .stack-table thead {
+    display: none;
+  }
+  .stack-table,
+  .stack-table tbody,
+  .stack-table tfoot {
+    display: block;
+    width: 100%;
+  }
+  .stack-table tr {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .stack-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .stack-table tfoot tr {
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    border-bottom: 0;
+  }
+  .stack-table td,
+  .stack-table tfoot td {
+    display: block;
+    min-width: 0;
+    padding: 0 !important;
+    border: 0 !important;
+    background: none;
+    text-align: left !important;
+    max-width: none !important;
+  }
+  .stack-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .stack-table .st-full {
+    grid-column: 1 / -1;
+  }
+  .stack-table .st-hide {
+    display: none;
+  }
+  /* Строка «средний · было · изменение», ниже степпер во всю ширину, затем объяснение. */
+  .stack-table .st-stepper {
+    order: 1;
+  }
+  .stack-table .st-why {
+    order: 2;
+  }
+  .stack-table .st-stepper > .stack-sm {
+    align-items: flex-start !important;
+  }
+}

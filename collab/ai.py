@@ -25,8 +25,48 @@ USER_AGENT = "data-driven-curriculum/0.2 (+https://github.com/bekzatwr/data-driv
 # addresses the observed hours/percentage hallucination without changing Toni's
 # policy or the planning algorithms. Prompts do not guarantee model compliance.
 SYSTEM_PROMPT = ANALYTICS_SYSTEM_PROMPT + """
-11. Изменения часов описывай только в часах: не вычисляй новые проценты изменения часов и не называй часы процентными пунктами. Меньшее число часов не означает снижение успеваемости. Не показывай имена полей JSON пользователю — используй понятные подписи.
+11. Изменения часов описывай только в часах: не вычисляй новые проценты изменения часов и не называй часы процентными пунктами. Меньшее число часов не означает снижение успеваемости. Не показывай имена полей JSON и английские статусы пользователю — используй понятные русские подписи, например: pair_coverage — «охват пар», below_threshold_share — «доля ниже порога», mean_gain_pp — «средний прирост», comparison_status — «статус сравнения», mastered — «освоено», needs_practice — «нужно закрепление», requires_attention — «требует внимания», comparable — «сопоставимо», is_demo — «искусственные данные».
 12. Сервер скрывает названия, идентификаторы и свободные тексты. Если причины не переданы, не восстанавливай их по догадке. При omitted_warning_count > 0 или omitted_reason_count > 0 сообщи, что часть ограничений доступна в исходном отчёте; не объявляй данные полными и не делай сравнительного вывода о преимуществе группы."""
+
+# Display guard: prompts do not guarantee that the model hides technical names, so
+# known JSON fields, status codes and algorithm ids are replaced with the labels the
+# interface itself uses. Only exact identifiers are touched; numbers and text stay.
+DISPLAY_LABELS = {
+    "pair_coverage": "охват пар", "paired_student_share": "доля учеников с парами",
+    "below_threshold_share": "доля ниже порога", "mean_post_pct": "средний итоговый балл",
+    "mean_pre_paired_pct": "средний входной балл", "mean_post_paired_pct": "средний итоговый балл по парам",
+    "mean_gain_pp": "средний прирост", "difference_gain_pp": "разница приростов",
+    "baseline_gap_pp": "стартовый разрыв", "comparison_status": "статус сравнения",
+    "problem_topic": "проблемная тема", "single_version": "одна версия теста",
+    "n_students": "число учеников", "n_post_students": "учеников с итоговым тестом",
+    "n_post_results": "итоговых результатов", "n_post": "итоговых результатов",
+    "n_pairs": "пар «ученик–тема»", "n_paired_students": "учеников с парами",
+    "n_complete_students": "учеников со всеми темами", "n_problem_topics": "проблемных тем",
+    "topic_count": "число тем", "topic_index": "номер темы", "class_index": "номер класса",
+    "n_classes": "число классов", "n_teachers": "число учителей", "max_score": "максимальный балл",
+    "threshold_pct": "порог", "mastered_pct": "порог освоения", "problem_share": "доля для проблемной темы",
+    "target_pct": "цель", "donor_pct": "порог донора", "min_students": "минимум учеников",
+    "max_change": "лимит изменения", "total_hours": "всего часов", "current_hours": "текущие часы",
+    "min_hours": "минимум часов", "max_hours": "максимум часов", "is_locked": "блокировка",
+    "proposed_hours": "часы в плане", "recommended_hours": "рекомендованные часы",
+    "manually_modified": "ручная правка", "automatic_eligible": "автоматическая рекомендация",
+    "is_demo": "искусственные данные", "upcoming_hours": "предстоящие часы",
+    "omitted_warning_count": "скрытые предупреждения", "omitted_reason_count": "скрытые причины",
+    "algorithm_version": "алгоритм", "test_version": "версия теста",
+    "mastered": "освоено", "needs_practice": "нужно закрепление", "requires_attention": "требует внимания",
+    "not_comparable": "несопоставимо", "comparable": "сопоставимо", "insufficient_data": "недостаточно данных",
+    "mixed_versions": "разные версии тестов", "no_data": "нет данных",
+    "period_v1": "план на период", "rules_v1": "перераспределение",
+}
+_IDENTIFIER = "|".join(sorted(map(re.escape, DISPLAY_LABELS), key=len, reverse=True))
+_WRAPPED = re.compile(r"(`|\*{1,2})(" + _IDENTIFIER + r")\1")
+_BARE = re.compile(r"(?<![\w-])(" + _IDENTIFIER + r")(?![\w-])")
+
+
+def humanize(text):
+    """Replace technical identifiers in a model answer with Russian interface labels."""
+    text = _WRAPPED.sub(lambda m: DISPLAY_LABELS[m.group(2)], text)
+    return _BARE.sub(lambda m: DISPLAY_LABELS[m.group(1)], text)
 
 
 class AiError(Exception):
@@ -129,7 +169,7 @@ async def explain(kind, context, question=None):
                     secret = os.getenv(variable, "").strip()
                     if secret:
                         text = text.replace(secret, "[REDACTED]")
-                return {"text": text.strip(), "provider": name, "model": model,
+                return {"text": humanize(text).strip(), "provider": name, "model": model,
                         "created_at": datetime.now(timezone.utc).isoformat()}
     except TimeoutError:
         failures.append({"field": "providers", "reason": "deadline exceeded"})

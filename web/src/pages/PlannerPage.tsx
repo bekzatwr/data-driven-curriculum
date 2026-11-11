@@ -77,10 +77,11 @@ export function PlannerPage() {
       <div className="page-head fade-up">
         <div style={{ flex: 1, minWidth: 280 }}>
           <div className="eyebrow">Шаг 4 · План учебных часов</div>
-          <h1>Перераспределение оставшихся часов</h1>
+          <h1>Сколько часов дать каждой теме</h1>
           <p>
-            План строится для одного класса. Общая сумма, границы, блокировки и лимит изменения соблюдаются; каждое изменение
-            объяснено правилом. Предложение не прогнозирует рост баллов — решение за методистом.{' '}
+            План строится для одного класса: перераспределение в пределах ±2 ч на тему или распределение всех часов периода.
+            Сумма, минимумы, максимумы и блокировки соблюдаются; каждое изменение объяснено правилом. Предложение не прогнозирует
+            рост баллов — решение за методистом.{' '}
             {dataset.source_type === 'demo' && <DemoBadge />}
           </p>
         </div>
@@ -521,7 +522,7 @@ function PlanEditor({ classId }: { classId: string }) {
             </Button>
           </div>
           <div className="table-wrap">
-            <table className="table">
+            <table className="table stack-table">
               <thead>
                 <tr>
                   <th>Тема</th>
@@ -554,7 +555,7 @@ function PlanEditor({ classId }: { classId: string }) {
                   const bounds = hourBounds(it, isPeriod, maxChange);
                   return (
                     <tr key={it.topic_id} className={err ? 'row-invalid' : it.is_locked ? 'row-locked' : ''}>
-                      <td>
+                      <td className="st-full">
                         <div className="cell-topic">
                           <span className="t row" style={{ gap: 6 }}>
                             {it.is_locked && <Lock size={13} className="muted" aria-label="заблокирована" />}
@@ -590,16 +591,16 @@ function PlanEditor({ classId }: { classId: string }) {
                           )}
                         </div>
                       </td>
-                      <td className="r num">
+                      <td className="r num" data-label="Средний балл">
                         <span className="strong" title={`n=${fmtNum(it.n_post)}`}>
                           {fmtPct(it.mean_post_pct)}
                         </span>
                         {!it.automatic_eligible && !it.is_locked && <div className="tiny muted">мало данных</div>}
                       </td>
-                      <td className="r num strong">{it.current_hours}</td>
+                      <td className="r num strong" data-label="Было, ч">{it.current_hours}</td>
                       {limitsVisible && (
                       <>
-                      <td className="c">
+                      <td className="c" data-label="Мин, ч">
                         <input
                           className={`mini-input ${base && c.min_hours !== base.min_hours ? 'edited' : ''}`}
                           type="number"
@@ -609,7 +610,7 @@ function PlanEditor({ classId }: { classId: string }) {
                           onChange={(e) => setConstraint(it.topic_id, { min_hours: Math.round(Number(e.target.value || 0)) })}
                         />
                       </td>
-                      <td className="c">
+                      <td className="c" data-label="Макс, ч">
                         <input
                           className={`mini-input ${base && c.max_hours !== base.max_hours ? 'edited' : ''}`}
                           type="number"
@@ -619,7 +620,7 @@ function PlanEditor({ classId }: { classId: string }) {
                           onChange={(e) => setConstraint(it.topic_id, { max_hours: Math.round(Number(e.target.value || 0)) })}
                         />
                       </td>
-                      <td className="c">
+                      <td className="c" data-label="Важность">
                         <select
                           className={`mini-input ${base && c.importance !== base.importance ? 'edited' : ''}`}
                           style={{ width: 52 }}
@@ -634,12 +635,12 @@ function PlanEditor({ classId }: { classId: string }) {
                           ))}
                         </select>
                       </td>
-                      <td className="c">
+                      <td className="c" data-label="Блокировка">
                         <Switch checked={c.is_locked} onChange={(v) => setConstraint(it.topic_id, { is_locked: v })} label={`Блокировка: ${it.topic_name}`} />
                       </td>
                       </>
                       )}
-                      <td className="c">
+                      <td className="c st-full st-stepper" data-label="Станет, ч">
                         <div className="stack-sm" style={{ alignItems: 'center', gap: 4 }}>
                           <HoursStepper
                             value={h}
@@ -664,10 +665,10 @@ function PlanEditor({ classId }: { classId: string }) {
                           )}
                         </div>
                       </td>
-                      <td className="c">
+                      <td className="c" data-label="Изменение">
                         <span className={`delta ${delta > 0 ? 'up' : delta < 0 ? 'down' : ''}`}>{fmtSigned(delta)}</span>
                       </td>
-                      <td>
+                      <td className="st-full st-why">
                         {err && <div className="field-error strong" style={{ marginBottom: 4 }}>{err}</div>}
                         {cErr && <div className="field-error strong" style={{ marginBottom: 4 }}>Ограничения: {cErr}</div>}
                         {manual && <Badge tone="warning">ручная правка: {fmtSigned(h - it.proposed_hours)} к рекомендации</Badge>}
@@ -679,19 +680,19 @@ function PlanEditor({ classId }: { classId: string }) {
               </tbody>
               <tfoot>
                 <tr>
-                  <td className="strong" style={{ paddingLeft: 20 }}>
+                  <td className="strong st-full" style={{ paddingLeft: 20 }}>
                     Итого
                   </td>
-                  <td />
-                  <td className="r num strong">{items.reduce((s, it) => s + it.current_hours, 0)}</td>
-                  {limitsVisible && <td colSpan={4} />}
-                  <td className="c num strong" style={{ color: sumOk ? 'var(--good-text)' : 'var(--critical-text)' }}>
+                  <td className="st-hide" />
+                  <td className="r num strong" data-label="Было, ч">{items.reduce((s, it) => s + it.current_hours, 0)}</td>
+                  {limitsVisible && <td colSpan={4} className="st-hide" />}
+                  <td className="c num strong" data-label="Станет, ч" style={{ color: sumOk ? 'var(--good-text)' : 'var(--critical-text)' }}>
                     {sum} / {total}
                   </td>
-                  <td className="c">
+                  <td className="c" data-label="Изменение">
                     <span className={`delta ${sumDiff ? 'down' : ''}`}>{fmtSigned(sumDiff)}</span>
                   </td>
-                  <td className="small muted">{sumOk ? 'Сумма сохранена' : 'Верните общую сумму, чтобы сохранить план'}</td>
+                  <td className="small muted st-full">{sumOk ? 'Сумма сохранена' : 'Верните общую сумму, чтобы сохранить план'}</td>
                 </tr>
               </tfoot>
             </table>

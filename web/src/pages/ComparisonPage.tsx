@@ -86,7 +86,7 @@ export function ComparisonPage() {
       ) : (
         <div className="stack">
           <section className="card card-pad fade-up">
-            <div className="grid-4" style={{ gridTemplateColumns: 'minmax(0, 1.3fr) minmax(0, 1fr) auto minmax(0, 1fr)', alignItems: 'end' }}>
+            <div className="grid-4 cmp-pick">
               <div className="field">
                 <label className="label" htmlFor="c-topic">
                   Тема

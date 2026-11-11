@@ -202,7 +202,7 @@ function Report({ plan }: { plan: SavedPlan }) {
 
         <h2>Таблица часов</h2>
         <div className="table-wrap">
-          <table className="table table-compact">
+          <table className="table table-compact stack-table">
             <thead>
               <tr>
                 <th>Тема</th>
@@ -224,7 +224,7 @@ function Report({ plan }: { plan: SavedPlan }) {
                 const d = i.proposed_hours - i.current_hours;
                 return (
                   <tr key={i.topic_id}>
-                    <td>
+                    <td className="st-full">
                       <div className="cell-topic">
                         <span className="t">{i.topic_name}</span>
                         <span className="s">
@@ -233,16 +233,16 @@ function Report({ plan }: { plan: SavedPlan }) {
                         </span>
                       </div>
                     </td>
-                    <td className="r num">{fmtPct(i.mean_post_pct)}</td>
-                    <td className="r num">{fmtNum(i.n_post)}</td>
-                    <td className="r num">{i.current_hours}</td>
-                    <td className="c num">
+                    <td className="r num" data-label="Средний">{fmtPct(i.mean_post_pct)}</td>
+                    <td className="r num" data-label="Учеников">{fmtNum(i.n_post)}</td>
+                    <td className="r num" data-label="Было, ч">{i.current_hours}</td>
+                    <td className="c num" data-label="Границы">
                       {i.min_hours}–{i.max_hours}
                     </td>
-                    <td className="c num">{i.importance}</td>
-                    <td className="c">{i.is_locked ? <Lock size={13} aria-label="да" /> : '—'}</td>
-                    <td className="r num">{recommendedOf(i)}</td>
-                    <td className="r num strong">
+                    <td className="c num" data-label="Важность">{i.importance}</td>
+                    <td className="c" data-label="Блокировка">{i.is_locked ? <Lock size={13} aria-label="да" /> : '—'}</td>
+                    <td className="r num" data-label="Рекомендация">{recommendedOf(i)}</td>
+                    <td className="r num strong" data-label="Итог, ч">
                       {i.proposed_hours}
                       {isManual(i) && (
                         <div className="tiny" style={{ color: 'var(--warning-text)', fontWeight: 600 }}>
@@ -250,13 +250,13 @@ function Report({ plan }: { plan: SavedPlan }) {
                         </div>
                       )}
                     </td>
-                    <td className="c">
+                    <td className="c" data-label="Изменение">
                       <span className={`delta ${d > 0 ? 'up' : d < 0 ? 'down' : ''}`}>{fmtSigned(d)}</span>
                     </td>
-                    <td className="reason" style={{ maxWidth: 320 }}>
+                    <td className="reason st-full" style={{ maxWidth: 320 }}>
                       {reasonOf(i)}
                     </td>
-                    <td className="no-print">
+                    <td className="no-print st-full">
                       <button
                         type="button"
                         className={`comment-chip ${countFor(i.topic_id) ? 'has' : ''}`}
@@ -272,14 +272,14 @@ function Report({ plan }: { plan: SavedPlan }) {
             </tbody>
             <tfoot>
               <tr>
-                <td className="strong">Итого</td>
-                <td colSpan={2} />
-                <td className="r num strong">{items.reduce((s, i) => s + i.current_hours, 0)}</td>
-                <td colSpan={3} />
-                <td className="r num">{items.reduce((s, i) => s + recommendedOf(i), 0)}</td>
-                <td className="r num strong">{items.reduce((s, i) => s + i.proposed_hours, 0)}</td>
-                <td colSpan={2} />
-                <td className="no-print" />
+                <td className="strong st-full">Итого</td>
+                <td colSpan={2} className="st-hide" />
+                <td className="r num strong" data-label="Было, ч">{items.reduce((s, i) => s + i.current_hours, 0)}</td>
+                <td colSpan={3} className="st-hide" />
+                <td className="r num" data-label="Рекомендация">{items.reduce((s, i) => s + recommendedOf(i), 0)}</td>
+                <td className="r num strong" data-label="Итог, ч">{items.reduce((s, i) => s + i.proposed_hours, 0)}</td>
+                <td colSpan={2} className="st-hide" />
+                <td className="no-print st-hide" />
               </tr>
             </tfoot>
           </table>
