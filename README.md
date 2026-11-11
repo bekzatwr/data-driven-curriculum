@@ -1,135 +1,137 @@
 <p align="center">
-  <img src="docs/assets/readme-banner.svg" alt="Data Driven Curriculum — учебные решения на основе данных" width="100%">
+  <img src="docs/assets/readme-banner.svg" alt="Data-Driven Curriculum — учебные решения на основе данных" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml?query=branch%3Aintegration%2Ffinal-e2e-stabilization"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml/badge.svg?branch=integration%2Ffinal-e2e-stabilization" alt="Bekzat integration CI"></a>
-  <img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13">
+  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml?query=branch%3Amain"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/backend.yml/badge.svg?branch=main" alt="Backend checks"></a>
+  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/web.yml?query=branch%3Amain"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/web.yml/badge.svg?branch=main" alt="Frontend checks"></a>
+  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/analytics.yml?query=branch%3Amain"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/analytics.yml/badge.svg?branch=main" alt="Analytics checks"></a>
+  <a href="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/planner.yml?query=branch%3Amain"><img src="https://github.com/bekzatwr/data-driven-curriculum/actions/workflows/planner.yml/badge.svg?branch=main" alt="Planner checks"></a>
+  <br>
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
-  <img src="https://img.shields.io/badge/SQLite-persistent-003B57?logo=sqlite&logoColor=white" alt="SQLite persistent storage">
-  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React integrated from PR9">
+  <img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13">
+  <img src="https://img.shields.io/badge/SQLite-WAL-003B57?logo=sqlite&logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/Docker-one_service-2496ED?logo=docker&logoColor=white" alt="Docker">
 </p>
 
-<p align="center"><b>От результатов тестирования — к обоснованному учебному плану.</b><br>
-Платформа для методистов: проблемные темы, сравнение учебников и распределение часов.</p>
+<h3 align="center">От результатов тестирования — к обоснованному учебному плану</h3>
 
 <p align="center">
-  <a href="#status">Готовность</a> · <a href="#start">Запуск</a> ·
-  <a href="#demo">Сценарий</a> · <a href="#architecture">Архитектура</a> ·
-  <a href="#api">API</a> · <a href="#team">Команда</a> · <a href="deploy/README.md">Публикация</a>
+  Платформа для методиста: загрузите результаты тестов и учебный план — система покажет проблемные темы,<br>
+  честно сравнит учебники и предложит объяснимое распределение часов без изменения общей суммы.
 </p>
 
-> [!IMPORTANT]
-> **Совместная сборка готова к командному review в [PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14).** Backend, Analytics/Teachers, P0/Period, Comments и настоящий React работают вместе. Проверенный код `b641fd6`, frontend Дамира `2d554f0`: **451 pytest**, **19 frontend tests**, transport **10/10**, TypeScript/build/contracts и **19 Docker checks** прошли. [Полный отчёт](docs/FINAL_E2E_BUGFIX_REPORT.md) · [QA evidence](docs/release-accepted.json).
->
-> **Оба прежних блокера исправлены Дамиром и перепроверены:** кнопки period разрешают изменение больше ±2 в рамках min/max; незавершённый HTTP body завершается таймаутом и Retry. Настоящий сценарий **два CSV → аналитика → сравнение → оба planner → save → report → CSV** прошёл с restart/restore SQLite. P0-лимит ±2 сохранён.
->
-> **Публичный production пока NO-GO:** требуются review команды, deployment и проверка настоящей HTTPS-ссылки/мобильных устройств/постоянного диска. **Deployment выполняет Дамир.** Бекзат отвечает за backend, SQLite, API и серверную интеграцию. [Handoff и env](docs/DAMIR_DEPLOYMENT_HANDOFF.md). AI выключен; main не изменён.
+<p align="center">
+  <a href="https://data-driven-curriculum.onrender.com"><b>Открыть демо</b></a> ·
+  <a href="#features">Возможности</a> ·
+  <a href="#start">Запуск</a> ·
+  <a href="#architecture">Архитектура</a> ·
+  <a href="#quality">Проверки</a> ·
+  <a href="#team">Команда</a> ·
+  <a href="#docs">Документация</a>
+</p>
 
-<a id="status"></a>
+<p align="center">
+  <img src="docs/assets/screenshots/home.jpg" alt="Главная страница Data-Driven Curriculum" width="100%">
+</p>
 
-## Готовность компонентов
+> [!NOTE]
+> **Демо:** [data-driven-curriculum.onrender.com](https://data-driven-curriculum.onrender.com) — только просмотр, синтетический набор. На бесплатном тарифе первый запуск после простоя занимает около 30 секунд. Импорт, сохранение и комментарии работают в [локальном запуске](#start).
 
-| Компонент | Что работает | Статус |
-| :--- | :--- | :--- |
-| Импорт CSV | Два файла, preview, построчные ошибки, лимиты, защита от дублей | Готов локально |
-| Аналитика Тони | Обзор, темы, тепловая карта, фильтры, парные pre/post | Подключена |
-| Сравнение учебников | Прирост, версии тестов, ограничения сопоставимости | Подключено |
-| Планировщик Айданы | Сумма часов, min/max, locked, ±2 в P0, ручные правки | Подключён |
-| Backend Бекзата | Атомарное сохранение, SQLite, JSON/CSV, backup/restore | Подключён |
-| Публичный режим | Просмотр и расчёт; импорт/restore/save запрещены сервером | Подготовлен |
-| React Дамира | PR #9 2d554f0, серверные Teachers и period; исходники автора сохранены | Подключён в этой ветке |
-| Комментарии | Цели, SQLite, атомарная запись, квоты и антиспам | UI и сохранность после restore проверены |
-| AI backend | Общая политика Тони, проверенные server settings/metrics, deadline и квоты | 15 новых regression tests; live AI не принят, по умолчанию выключен |
-| Нагрузка учителей | Серверный API Тони, демо 4/120/30/24; [API и проверка](docs/TONI_P1.md) | Подключена в интерфейсе |
-| План на период | Серверный period_v1 Айданы, ручные правки, отчёт | Подключён в интерфейсе |
-| HTTPS-публикация | Один Docker-сервис, постоянный диск, ручной deploy | **Не выполнена** |
+<a id="features"></a>
 
-Сравнение групп показывает наблюдаемые различия и не доказывает причинное влияние учебника. [Методология Тони](docs/TONI_METHODOLOGY.md) · [Teachers API](docs/TONI_P1.md).
+## Возможности
 
-Текущие браузерные проверки и responsive-ограничения — в [отчёте 11 ноября](docs/FINAL_E2E_BUGFIX_REPORT.md). Шесть ширин проверены для сохранённого отчёта; полный мобильный сценарий и физические Android/iPhone ещё требуют проверки Дамира. [Историческая матрица](docs/MOBILE_ACCEPTANCE.md).
+Пять шагов методиста: **Данные → Обзор → Сравнение → План часов → Отчёт**. Каждый шаг — отдельный экран; расчёты выполняет сервер, интерфейс только показывает и объясняет результат.
 
-<details>
-<summary><b>Посмотреть настоящий сохранённый отчёт</b></summary>
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/assets/screenshots/overview.png" alt="Обзор: тепловая карта тем по классам">
+      <h4>Обзор — где ученики испытывают трудности</h4>
+      Тепловая карта «тема × класс» с порогом 60%, проблемные темы, фильтры по классам и учебникам. Клик по теме открывает детали.
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/assets/screenshots/comparison.png" alt="Сравнение учебников A и B">
+      <h4>Сравнение учебников</h4>
+      Парные «до/после» на одних и тех же учениках, прирост в п.п., проверка сопоставимости групп. Различие описывается, а не выдаётся за доказательство влияния учебника.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/assets/screenshots/planner-period.png" alt="План часов на весь период">
+      <h4>План часов</h4>
+      Два режима: перераспределение ±2 ч или план на весь период. Минимумы, максимумы и блокировки соблюдаются, сумма не меняется, у каждого изменения есть объяснение. Ручные правки методиста отмечаются.
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/assets/screenshots/report.png" alt="Сохранённый отчёт по плану часов">
+      <h4>Отчёт</h4>
+      Сохранённый снимок плана: настройки, исходный набор, рекомендация и итог по каждой теме. Ссылка, JSON, CSV, печать и справка для педсовета.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/assets/screenshots/teachers.png" alt="Нагрузка учителей">
+      <h4>Нагрузка учителей</h4>
+      Ученики и часы на учителя по выбранным классам и учебникам. Организационный показатель — без рейтингов и оценки работы учителя.
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/assets/screenshots/overview-dark.png" alt="Обзор в тёмной теме">
+      <h4>Тёмная тема и быстрая навигация</h4>
+      Переключатель темы, поиск по темам, классам и отчётам (<kbd>Ctrl</kbd> + <kbd>K</kbd>), экскурсия по сайту за минуту.
+    </td>
+  </tr>
+</table>
 
-![Настоящий period-отчёт после восстановления SQLite из backup](qa/evidence/accepted-2d554f0/period-after-restore.jpg)
+### На телефоне
 
-Проверка 11 ноября 2026: синтетические CSV, 24 часа, две ручные правки, `period_v1`. Snapshot, CSV и комментарий пережили restart и восстановление в новый файл SQLite. [Экран 360 px](qa/evidence/critical-20261111/report-360.jpg) · [Актуальные результаты](docs/release-accepted.json).
-
-</details>
+<p align="center">
+  <img src="docs/assets/screenshots/mobile-home.jpg" alt="Главная на телефоне" width="30%">
+  &nbsp;
+  <img src="docs/assets/screenshots/mobile-overview.png" alt="Тепловая карта на телефоне" width="30%">
+  &nbsp;
+  <img src="docs/assets/screenshots/mobile-report.png" alt="Отчёт на телефоне" width="30%">
+</p>
 
 <a id="start"></a>
 
-## Быстрый запуск сайта
+## Быстрый запуск
 
-Нужны Git и Docker Desktop. Для приватного показа с импортом и сохранением:
+Нужны Git и Docker Desktop. Одна команда поднимает React и API в одном контейнере, данные хранятся в отдельном volume:
 
 ```bash
-git clone --branch integration/final-e2e-stabilization https://github.com/bekzatwr/data-driven-curriculum.git
+git clone https://github.com/bekzatwr/data-driven-curriculum.git
 cd data-driven-curriculum
 docker compose -f deploy/compose.yaml -f deploy/compose.local.yaml up --build --detach --wait
 ```
 
-Открыть **http://127.0.0.1:8080**. Один контейнер отдаёт React и `/api`; данные остаются в отдельном volume. Только синтетические CSV из `examples/toni-demo`. Остановка той же командой Compose с `down`, без `-v`.
+Откройте **http://127.0.0.1:8080** и нажмите «Открыть демо» или загрузите свои CSV ([results.csv](examples/toni-demo/results.csv), [curriculum.csv](examples/toni-demo/curriculum.csv), [шаблоны](contracts/)). Остановка — та же команда с `down` (без `-v`, чтобы не удалить данные).
 
-Для разработки API: `python scripts/start.py --dev`; React: `cd web`, `npm ci`, `npm run dev`. Адреса ниже относятся к API dev-серверу на порту 8000; в общем контейнере используйте порт 8080.
+<details>
+<summary><b>Режим разработки (API и React отдельно)</b></summary>
+
+```bash
+python scripts/start.py --dev          # API на http://127.0.0.1:8000, Swagger: /docs
+cd web && npm ci && npm run dev        # React на http://localhost:5173 (proxy на API)
+```
 
 | Адрес | Назначение |
 | :--- | :--- |
-| [localhost:8000/docs](http://127.0.0.1:8000/docs) | Swagger: интерактивная проверка настоящего API |
-| [localhost:8000/api/health](http://127.0.0.1:8000/api/health) | Состояние сервера и SQLite |
-| [localhost:8000/api/capabilities](http://127.0.0.1:8000/api/capabilities) | Режим, доступные функции и лимиты |
-| [localhost:8000/openapi.json](http://127.0.0.1:8000/openapi.json) | Актуальный контракт API |
-
-<details>
-<summary><b>Docker: публичная политика доступа на локальном компьютере</b></summary>
-
-```bash
-docker compose up --build --detach --wait
-```
-
-Адрес: `http://127.0.0.1:8000/docs`. Синтетический набор готовится при запуске. `POST /api/datasets/demo` только возвращает его; импорт и сохранение получают **403 READ_ONLY_DEMO**.
-
-Пример сохранённого отчёта готовит владелец:
-
-```bash
-docker compose exec -T backend python deploy/seed_demo_report.py
-```
-
-Команда возвращает `report_url` и `csv_url`; повторный запуск переиспользует тот же отчёт. Остановка: `docker compose down`. Volume сохраняется; не добавляйте `-v`.
+| [127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) | Swagger — интерактивная проверка API |
+| [127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health) | Состояние сервера и SQLite |
+| [127.0.0.1:8000/api/capabilities](http://127.0.0.1:8000/api/capabilities) | Режим и доступные функции |
 
 </details>
 
-<a id="demo"></a>
-
-## Проверяемый сценарий
-
-<table><tr>
-<td align="center"><b>120</b><br>синтетических учеников</td>
-<td align="center"><b>4</b><br>класса</td>
-<td align="center"><b>6</b><br>тем</td>
-<td align="center"><b>1 440</b><br>строк pre/post</td>
-</tr></table>
-
-На **локальном стенде с записью** (`python scripts/start.py`, `READ_ONLY_DEMO=false`):
-
-1. Загрузить [results.csv](examples/toni-demo/results.csv) и [curriculum.csv](examples/toni-demo/curriculum.csv), передать [metadata.json](examples/toni-demo/metadata.json). Сначала `dry_run=true`, затем `dry_run=false`.
-2. Получить `dataset_id`, открыть обзор и проблемные темы. Проверить ошибки на отдельном некорректном CSV.
-3. Сравнить учебники A и B по теме `equations`: наблюдаемая разница приростов **8 п.п.**
-4. Рассчитать план для `7A`: сумма **24 часа**. Проверить ручные правки и ограничения.
-5. Сохранить план, открыть JSON по `plan_id`, скачать CSV.
-6. Перезапустить сервер и открыть тот же отчёт; восстановить backup в отдельную БД.
-
-| Возможность | Публичный демостенд | Локальный стенд команды |
+| Возможность | Публичное демо | Локальный запуск |
 | :--- | :---: | :---: |
-| Аналитика, сравнение, preview плана | Да, синтетический набор | Да |
-| Импорт и восстановление набора | Нет — 403 | Да |
-| Сохранение плана | Нет — 403 | Да |
-| JSON/CSV заранее сохранённого демоотчёта | Да | Да |
-| Новые комментарии | Нет — 403 | Да, с квотами |
-| Вызовы AI | Нет — 403 | Только после настройки владельцем; сейчас выключены |
-
-Публичная защита остаётся включённой во время показа. Полный сценарий с записью проводится отдельно локально. Реальные данные школьников не используются. Сравнение групп описывает наблюдаемые различия и не доказывает причинное влияние учебника.
+| Обзор, темы, сравнение, расчёт плана | ✅ синтетический набор | ✅ |
+| Импорт своих CSV, восстановление набора | — | ✅ |
+| Сохранение плана, отчёт, JSON/CSV | готовый демоотчёт | ✅ |
+| Комментарии | чтение | ✅ с квотами |
+| ИИ-пояснения | выключены | по ключу владельца, только демо |
 
 <a id="architecture"></a>
 
@@ -137,89 +139,97 @@ docker compose exec -T backend python deploy/seed_demo_report.py
 
 ```mermaid
 flowchart LR
-    Device["Телефон / планшет / компьютер"] --> TLS["HTTPS · Render после разрешённой публикации"]
-    TLS --> App["Один Docker: React build + FastAPI"]
-    App --> Analytics["Аналитика · Тони"]
-    App --> Planner["Планировщик · Айдана"]
-    App --> DB[("SQLite + WAL · persistent disk")]
-    DB --> Backup["Согласованный backup вне сервиса"]
+    U["Телефон · планшет · компьютер"] --> W["React 19 + TypeScript<br/>Vite build"]
+    W -->|"/api, один origin"| A["FastAPI"]
+    A --> T["Аналитика · Тони<br/>темы, сравнение, учителя"]
+    A --> P["Планировщик · Айдана<br/>rules_v1 · period_v1"]
+    A --> C["Комментарии, отчёты,<br/>импорт CSV · Бекзат"]
+    A --> D[("SQLite + WAL<br/>постоянный диск")]
+    D --> B["backup / restore"]
 ```
 
-Один origin, относительные запросы `/api`, один Uvicorn worker и один экземпляр сервиса. SQLite хранится в `/app/data` вместе с WAL. Node используется только для сборки React. PostgreSQL для текущего MVP не требуется.
+- **Один Docker-сервис:** React собирается в статику и отдаётся тем же FastAPI; относительные запросы `/api`, без CORS.
+- **Сервер — источник правды:** все проценты, приросты, планы и проверки ограничений считает backend; браузер не пересчитывает метрики.
+- **Атомарное сохранение:** снимок плана, CSV и комментарии переживают перезапуск и восстановление из backup.
+- **Публичный режим** (`READ_ONLY_DEMO=true`): запись запрещена сервером — `403 READ_ONLY_DEMO`.
 
-**Рекомендуемый хостинг:** Render `0.5c-512mb` + persistent disk 1 ГБ — ориентировочно **$7,25/месяц** до дополнительных начислений. [Тарифы](https://render.com/pricing) · [Постоянные диски](https://render.com/docs/disks). Render Free не подходит для сохраняемой SQLite. Ресурсы не созданы; оплата и deploy требуют отдельного разрешения владельца.
-
-<a id="api"></a>
-
-## API для подключения интерфейса
+<details>
+<summary><b>Основные эндпоинты API</b></summary>
 
 | Метод | Endpoint | Результат |
 | :--- | :--- | :--- |
 | GET | `/api/capabilities` | Возможности текущего режима |
-| POST | `/api/datasets/import?dry_run=true` | Проверка двух CSV |
-| POST | `/api/datasets/import?dry_run=false` | Сохранение набора |
-| POST | `/api/datasets/demo` | Доверенный синтетический набор |
-| GET | `/api/datasets/{id}/filters` | Классы, учебники, темы, версии |
+| POST | `/api/datasets/import?dry_run=true\|false` | Проверка или сохранение двух CSV |
+| POST | `/api/datasets/demo` | Синтетический набор |
 | GET | `/api/datasets/{id}/overview` | Обзор и тепловая карта |
 | GET | `/api/datasets/{id}/topics/{topic_id}` | Аналитика темы |
 | GET | `/api/datasets/{id}/comparison` | Сравнение двух учебников |
-| POST | `/api/datasets/{id}/plans/preview` | Расчёт часов |
-| POST | `/api/datasets/{id}/plans` | Атомарное сохранение, только локально |
-| GET | `/api/plans/{plan_id}` | Сохранённый JSON snapshot |
-| GET | `/api/plans/{plan_id}/export.csv` | CSV с UTF-8 BOM |
-| GET / POST | `/api/datasets/{id}/comments` | Обсуждение; POST только в приватном режиме |
-| GET | `/api/ai/status` | Подключён ли AI |
-| POST | `/api/datasets/{id}/ai/explain` | Только агрегаты сервера, AI по умолчанию выключен |
+| GET | `/api/datasets/{id}/teachers` | Нагрузка учителей |
+| POST | `/api/datasets/{id}/plans/preview` | Расчёт плана часов |
+| POST | `/api/datasets/{id}/plans` | Сохранение снимка плана |
+| GET | `/api/plans/{plan_id}` · `/export.csv` | Отчёт в JSON и CSV |
+| GET / POST | `/api/datasets/{id}/comments` | Обсуждение |
+| POST | `/api/datasets/{id}/ai/explain` | ИИ-пояснение по серверным агрегатам |
 
-**[Примеры JSON и FormData](docs/FRONTEND_API.md) · [OpenAPI](contracts/openapi.json) · [CSV-шаблоны](contracts/)**
+Примеры запросов — [docs/FRONTEND_API.md](docs/FRONTEND_API.md) · контракт — [contracts/openapi.json](contracts/openapi.json). Лимиты: 10 МиБ на CSV, 10 000 результатов, 100 тем.
 
-Лимиты: **10 МиБ** суммарно для CSV, **10 000** результатов, **100** тем. Multipart-запрос ограничен до разбора тела; ID экспорта не используются как пути к файлам на диске.
+</details>
 
-## Проверки и границы готовности
+<a id="quality"></a>
 
-[Актуальный отчёт](docs/BEKZAT_CLOUD_READINESS.md) содержит результаты pytest, контрактов и Docker-репетиции, включая публичный запрет записи и restart/restore.
+## Проверки
+
+Все проверки ниже выполнены на объединённой сборке из всех веток команды, CI на GitHub — 4 workflow.
+
+| Проверка | Результат |
+| :--- | :--- |
+| Backend, аналитика, планировщик, QA — `pytest` | **466 passed** |
+| Frontend — `npm test`, TypeScript, сборка | **19/19**, без ошибок |
+| Транспорт frontend — таймауты, обрыв тела ответа, отмена | **10/10** |
+| Сверка планировщика TypeScript ↔ Python | **200** случаев |
+| Сверка нагрузки учителей интерфейс ↔ сервер | 56 значений, расхождение 0 |
+| Контракты API и офлайн-аудит ИИ | без расхождений |
+| Docker: restart, backup/restore, сохранность SQLite | в CI ([отчёт](docs/FINAL_E2E_BUGFIX_REPORT.md)) |
+
+<details>
+<summary><b>Как запустить проверки</b></summary>
 
 ```bash
-python scripts/start.py --dev --install-only
-# Активировать созданную .venv, затем:
 python -m pytest -q
-python scripts/export_contracts.py
-python -m scripts.export_analytics_contracts
-git diff --exit-code -- contracts
-python scripts/verify_deployment.py
-python scripts/check_frontend_handoff.py
+python scripts/export_contracts.py && python -m scripts.export_analytics_contracts && git diff --exit-code -- contracts
+python scripts/check_period_parity.py web
+cd web && npm ci && npm run typecheck && npm test && npm run build
+node qa/check_frontend_transport.mjs
 ```
 
-`check_frontend_handoff.py` проверяет комплектность, а не качество. В PR #4 есть build/typecheck, но пока отсутствуют npm scripts `test` и `lint`. Docker-репетиция теперь собирает **настоящий React** и проверяет dataset/plan/comments после restart, пересоздания и restore. Браузерный протокол и реальные результаты — в отчёте Бекзата.
+</details>
+
+**Принципы:** только синтетические данные · сравнение групп описывает наблюдаемые различия и не доказывает влияние учебника · план часов — предложение методисту, а не прогноз роста баллов · ИИ-пояснения по умолчанию выключены и работают только на встроенном демо ([живая проверка](docs/AI_LIVE_CHECK.md)).
 
 <a id="team"></a>
 
 ## Команда
 
-| Участник | Ответственность | Рабочая ветка |
-| :--- | :--- | :--- |
-| **Дамир** | Весь frontend, React, мобильный интерфейс | `frontend/damir` |
-| **Бекзат** | Backend, SQLite, API, интеграция, инфраструктура | `backend/bekzat` |
-| **Тони** | Аналитика, фильтры, сравнение учебников | `analytics/toni` |
-| **Айдана** | Планировщик, ограничения и отчёт | `planner/aidana` |
+| Участник | Зона ответственности |
+| :--- | :--- |
+| **Дамир** | Весь frontend: React, дизайн, мобильная версия; публикация сайта |
+| **Бекзат** | Backend, SQLite, API, импорт CSV, комментарии, серверная интеграция |
+| **Тони** | Аналитика и методология: обзор, сравнение учебников, нагрузка учителей, политика ИИ |
+| **Айдана** | Планировщик часов (P0 и план на период), правила, QA планировщика |
 
-Каждый работает в своей ветке. Общая серверная сборка — [PR #3](https://github.com/bekzatwr/data-driven-curriculum/pull/3). Подготовка P1 Бекзата — [PR #6](https://github.com/bekzatwr/data-driven-curriculum/pull/6), ветка `feature/bekzat-p1-infrastructure`; предшествующая подготовка deployment — [draft PR #5](https://github.com/bekzatwr/data-driven-curriculum/pull/5). Merge в `main` — после успешного CI и review команды.
+<a id="docs"></a>
 
 ## Документация
 
-| Документ | Для чего |
+| Документ | О чём |
 | :--- | :--- |
-| [Финальная интеграция: E2E, исправления и блокеры](docs/FINAL_E2E_BUGFIX_REPORT.md) | Актуальный проверенный состав и handoff |
-| [Cloud readiness: Render, Supabase, 12 шагов публикации](docs/BEKZAT_CLOUD_READINESS.md) | Текущая инфраструктура и NO-GO публичного запуска |
-| [Отчёт Бекзата: сделано / блокеры / тесты / Git](docs/BEKZAT_P1_STATUS.md) | Честная готовность P0 + P1 |
-| [P1 API и изменения контракта](docs/BEKZAT_P1_API.md) | Дамиру и reviewers |
-| [Публикация, env, backup/restore](deploy/README.md) | Пошаговая инструкция владельцу Render |
-| [Готовность публичного стенда](docs/PUBLIC_DEPLOYMENT_READINESS.md) | Фактические проверки и блокеры |
-| [Мобильная приёмка и handoff](docs/MOBILE_ACCEPTANCE.md) | Дамиру: экраны, ошибки, Retry и E2E |
-| [Рабочие API и JSON](docs/FRONTEND_API.md) | Подключение React |
-| [Review серверной интеграции](docs/SERVER_INTEGRATION_REVIEW.md) | PR #1 + #2, конфликты и атомарность |
-| [Методология аналитики](docs/TONI.md) | Расчёты и ограничения интерпретации |
-| [Планировщик](docs/AIDANA.md) | Правила и контракт Айданы |
-| [Backend](docs/BACKEND.md) | Форматы данных и реализация API |
+| [Финальная интеграция и E2E](docs/FINAL_E2E_BUGFIX_REPORT.md) | Состав сборки, исправления, браузерные проверки |
+| [Публикация, env, backup/restore](deploy/README.md) | Пошаговый deployment |
+| [Handoff deployment](docs/DAMIR_DEPLOYMENT_HANDOFF.md) | Переменные окружения и чек-лист публикации |
+| [Frontend: статус и проверки](docs/DAMIR_FINAL_FRONTEND_STATUS.md) | Экраны, исправления, тесты интерфейса |
+| [Методология аналитики](docs/TONI_METHODOLOGY.md) · [Teachers API](docs/TONI_P1.md) | Расчёты и ограничения интерпретации |
+| [Планировщик](docs/AIDANA.md) · [QA планировщика](docs/AIDANA_FINAL_QA.md) | Правила P0 и period, приёмка |
+| [Backend](docs/BACKEND.md) · [API и JSON](docs/FRONTEND_API.md) | Форматы данных и эндпоинты |
+| [Живая проверка ИИ](docs/AI_LIVE_CHECK.md) | Качество ИИ-пояснений и план доработок |
 
-<p align="center"><sub>Хакатон · дедлайн 11 ноября 2026, 23:59 UTC+5 · только синтетические данные</sub></p>
+<p align="center"><sub>Хакатон · ноябрь 2026 · только синтетические данные · время UTC+5</sub></p>
