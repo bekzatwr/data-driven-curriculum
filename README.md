@@ -20,9 +20,9 @@
 </p>
 
 > [!IMPORTANT]
-> **Серверная интеграция — на review в [PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14).** Backend, Teachers Тони, оба режима Planner Айданы, Comments и настоящий React Дамира работают вместе. Проверенный код `f1eee47`: **451 pytest**, **8 frontend tests**, TypeScript/build, API contracts и **19 Docker checks** прошли. [Отчёт и ограничения](docs/FINAL_E2E_BUGFIX_REPORT.md) · [Актуальный аудит PR](docs/final-critical-pr-audit.json).
+> **Серверная интеграция — на review в [PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14).** Backend, Teachers Тони, оба режима Planner Айданы, Comments и настоящий React Дамира работают вместе. Повторно проверенный код `4354893`: **451 pytest**, **8 frontend tests**, TypeScript/build, API contracts и **19 Docker checks** прошли. [Отчёт и ограничения](docs/FINAL_E2E_BUGFIX_REPORT.md) · [Актуальный аудит PR](docs/release-acceptance-pr-audit.json).
 >
-> **Основной сценарий пройден через React:** два CSV → аналитика → сравнение → P0/period → сохранение → отчёт → CSV, включая restart и restore. Отчёт проверен на шести ширинах. **Публичный запуск пока NO-GO:** остаются period stepper ±2 и frontend timeout при зависшем теле ответа, review команды и внешняя HTTPS-проверка. AI выключен до повторной проверки качества.
+> **Основной сценарий пройден через React:** два CSV → аналитика → сравнение → P0/period → сохранение → отчёт → CSV, включая restart и restore. Оба дефекта повторно подтверждены на PR #9 `faf85a4`: новых исправлений пока нет, transport **9 passed / 1 failed**. **Публичный запуск пока NO-GO:** остаются period stepper ±2 и frontend timeout при зависшем теле ответа, review команды и внешняя HTTPS-проверка. AI выключен до повторной проверки качества.
 >
 > **Deployment выполняет Дамир.** Бекзат отвечает за backend, SQLite, API и серверную интеграцию. [Handoff и env](docs/DAMIR_DEPLOYMENT_HANDOFF.md). Render — необязательный пример; main не изменён, production deploy этой версии не выполнялся.
 
@@ -38,7 +38,7 @@
 | Планировщик Айданы | Сумма часов, min/max, locked, ±2 часа, ручные правки | Подключён |
 | Backend Бекзата | Атомарное сохранение, SQLite, JSON/CSV, backup/restore | Подключён |
 | Публичный режим | Просмотр и расчёт; импорт/restore/save запрещены сервером | Подготовлен |
-| React Дамира | PR #9 de7c585, серверные Teachers и period; исходники автора сохранены | Подключён в этой ветке |
+| React Дамира | PR #9 faf85a4, серверные Teachers и period; исходники автора сохранены | Подключён в этой ветке |
 | Комментарии | Цели, SQLite, атомарная запись, квоты и антиспам | UI и сохранность после restore проверены |
 | AI backend | Общая политика Тони, проверенные server settings/metrics, deadline и квоты | 15 новых regression tests; live AI не принят, по умолчанию выключен |
 | Нагрузка учителей | Серверный API Тони, демо 4/120/30/24; [API и проверка](docs/TONI_P1.md) | Подключена в интерфейсе |

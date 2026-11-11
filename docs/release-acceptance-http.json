@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "browser_e2e": false,
+  "synthetic_data_only": true,
+  "source_commit": "4354893b299e3bc690925d0b546d9a8d84d27e01",
+  "source_dirty": false,
+  "dataset_id": "5fb63a08-16c4-4542-86c7-a18f4524fa8d",
+  "rules_plan_id": "4d81d381-8aab-4a6f-864c-02b08e9d39eb",
+  "period_plan_id": "f47133ba-f8cd-4685-b281-ee460132ddcf",
+  "students": 120,
+  "comparison_gain_pp": 8,
+  "teachers": 4,
+  "hours": 24,
+  "checks": [
+    "CSV dry-run/import/dedup",
+    "overview/topics/comparison/Teachers",
+    "rules_v1 and period_v1 preview/manual/save/JSON/CSV",
+    "comments and AI offline",
+    "400/404/422/500/503",
+    "real SQLite rollback/integrity/FKs",
+    "stopped server connection failure and retry after restart",
+    "SPA HTML for saved plan"
+  ],
+  "ai_provider_calls": 0
+}

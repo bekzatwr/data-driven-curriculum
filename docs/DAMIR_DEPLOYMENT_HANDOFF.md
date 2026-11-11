@@ -2,7 +2,11 @@
 
 **За весь deployment отвечает Дамир:** выбор платформы, её конфигурация, сборка frontend, HTTPS, публикация, эксплуатация, backups и rollback. **Бекзат отвечает за backend, SQLite, API и серверную интеграцию.** Новое распределение заменяет прежнее назначение Бекзата ответственным за облако.
 
-Актуальная изолированная интеграция: `integration/final-e2e-stabilization`, [Draft PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14), проверенный код **`f1eee4799946a071d35f55bb7b7f9604e9988721`**. Последующий commit содержит документацию/evidence. Frontend `web/` совпадает с PR #9 `faf85a4` (код de7c585, новый commit только docs); Teachers Тони `b25cfaf`, period Айданы `62ad936`. [Результаты и блокеры](FINAL_E2E_BUGFIX_REPORT.md). Пройдены 451 pytest, HTTP/SQLite/Docker и основной React CSV→report сценарий, restart, restore и шесть ширин отчёта. Открыты frontend body-timeout и period stepper ±2; полного мобильного acceptance и внешнего HTTPS нет. Это handoff для review, не разрешение на deployment. AI оставлять выключенным до review Тони и разрешённого live-check. Конфигурации сохранены; платформа остаётся выбором Дамира.
+Актуальная изолированная интеграция: `integration/final-e2e-stabilization`, [Draft PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14). Повторно проверенный код **`4354893b299e3bc690925d0b546d9a8d84d27e01`**, frontend **`faf85a480337f57e927809a1fdc14e1f9eec2a88`**, дерево web идентично. Новых fixes Дамира нет. QA-only commit этого отчёта не меняет код; его SHA и новый CI указаны в PR.
+
+**Текущая сборка NO-GO для production:** воспроизведены period stepper ±2 и response-body timeout. Основной React CSV→P0 save→report→export, Period через прямой ввод, Teachers/Comments/AI disabled, reload/restart/restore проходят. Повторный прогон: 451 pytest, 8 frontend tests, TypeScript/build/contracts, HTTP 8 групп, Docker 19; transport **9 passed / 1 failed**. [Точные шаги и запросы](FINAL_E2E_BUGFIX_REPORT.md), [машиночитаемый QA](release-acceptance.json). Айдана COMMENTED на прежний SHA; approve Тони в #14 нет.
+
+Дамиру передаётся backend для подготовки deployment и исправления блокеров. После push fixes нужен новый тестовый совместный SHA, повторный E2E и командный review. AI остаётся выключенным. Реальные телефоны и внешний HTTPS в этой проверке не тестировались; шесть ширин из предыдущего отчёта не выдаются за повторный mobile acceptance. Конфигурации сохранены; platform и deployment остаются за Дамиром.
 
 ## 1. Запуск backend — выбрать подходящий вариант
 
@@ -77,7 +81,7 @@ Seed создаёт только встроенный synthetic dataset и на�
 | CSV / проверка импорта | `POST /api/datasets/import?dry_run=true` или `false`; multipart: results_file, curriculum_file, metadata |
 | Данные и фильтры | `GET /api/datasets/{id}/filters`, `/quality`, `/curriculum`, `/results` |
 | Аналитика / сравнение | `GET /api/datasets/{id}/overview`, `/topics/{topic_id}`, `/comparison` |
-| Teachers | `GET /api/datasets/{id}/teachers`; [фактический HTTP response](final-critical-teachers.response.json) |
+| Teachers | `GET /api/datasets/{id}/teachers`; [фактический HTTP response](release-acceptance-teachers.response.json) |
 | План | `POST /api/datasets/{id}/plans/preview`, `POST /api/datasets/{id}/plans` |
 | Сохранённый JSON / CSV | `GET /api/plans/{plan_id}`, `GET /api/plans/{plan_id}/export.csv` |
 | Comments | `GET/POST /api/datasets/{id}/comments` |

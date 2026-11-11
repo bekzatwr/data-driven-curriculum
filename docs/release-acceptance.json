@@ -1,0 +1,116 @@
+{
+  "date": "2026-11-11",
+  "timezone": "Asia/Qyzylorda",
+  "source_commit": "4354893b299e3bc690925d0b546d9a8d84d27e01",
+  "frontend_head": "faf85a480337f57e927809a1fdc14e1f9eec2a88",
+  "frontend_tree": "cd2cf4a219b144294b6670255f05993f4b076f2b",
+  "new_frontend_commits_since_previous_e2e": 0,
+  "pytest": {
+    "passed": 451,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 707.11,
+    "note": "451 collected tests. JUnit aggregate 553 includes nested unittest subtests; not 553 pytest tests."
+  },
+  "frontend_tests": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typecheck": "passed",
+  "build": "passed",
+  "lint": "no script configured",
+  "contracts": "backend and analytics regenerated without diff",
+  "http_groups": {
+    "passed": 8,
+    "failed": 0
+  },
+  "docker_groups": {
+    "passed": 19,
+    "failed": 0
+  },
+  "transport": {
+    "passed": 9,
+    "failed": 1
+  },
+  "baseline_ci": {
+    "sha": "4354893b299e3bc690925d0b546d9a8d84d27e01",
+    "jobs_successful": 8,
+    "jobs_total": 8,
+    "runs": [
+      42951306557,
+      42951306399,
+      42951306548,
+      42951306408
+    ]
+  },
+  "browser": {
+    "platform": "Windows; ChatGPT in-app browser",
+    "synthetic_only": true,
+    "dataset_id": "0cd4d8af-84e5-431f-9190-b809f3c9f5dd",
+    "plans": {
+      "p0": "1cf61ed2-6e70-49be-91f9-0ff5688c7773",
+      "period": "7036a6a6-5bfa-46e2-bc8c-9d2d62562d88"
+    },
+    "p0_hours": [
+      7,
+      6,
+      5,
+      3,
+      2,
+      1
+    ],
+    "period_hours": [
+      6,
+      8,
+      4,
+      3,
+      2,
+      1
+    ],
+    "csv_import_via_file_chooser": true,
+    "overview_topics_comparison": true,
+    "p0_manual_save_report_export": true,
+    "period_buttons_allow_plus_3": false,
+    "period_direct_input_save_report_export": true,
+    "teachers": {
+      "students": 120,
+      "teachers": 4,
+      "students_per_teacher": 30,
+      "hours_per_teacher": 24
+    },
+    "comments_created_and_reopened_after_restore": true,
+    "ai_controls_absent": true,
+    "csv_downloads_byte_equal_to_api": true,
+    "deep_link_reload": true,
+    "server_unavailable_and_retry_after_restart": true,
+    "both_snapshots_csv_comments_teachers_unchanged_after_restart_and_restore": true,
+    "snapshot_count_after_four_rejected_saves": 2,
+    "sqlite_integrity": "ok",
+    "sqlite_foreign_key_errors": [],
+    "restored_into_new_database": true,
+    "owned_qa_processes_stopped": true,
+    "physical_devices_tested": false,
+    "dedicated_chrome_or_safari_tested": false,
+    "responsive_matrix_repeated": false,
+    "body_timeout_tested_in_browser": false
+  },
+  "reviews": {
+    "Aidana17022007": "COMMENTED on aaa78e1; not APPROVED",
+    "toni_on_pr14": "none"
+  },
+  "real_ai_provider_calls": 0,
+  "external_https": "not deployed / not tested",
+  "verdict": {
+    "backend": "GO for review with AI disabled",
+    "p0_browser_journey": "PASS",
+    "final_release_acceptance": "NO-GO: period stepper and response-body timeout",
+    "deployment_preparation_handoff": "GO with known blockers",
+    "production": "NO-GO"
+  },
+  "harness_notes": [
+    "Docker daemon initially stopped; started installed Docker Desktop, then 19 checks passed.",
+    "Analytics export initially lacked repo root in PYTHONPATH; rerun with root passed without contract diff.",
+    "Browser attachment recovered once; locator/closed narrow-screen sidebar issues resolved using observed UI, not application edits."
+  ]
+}

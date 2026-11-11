@@ -1,0 +1,67 @@
+{
+  "browser_e2e": false,
+  "synthetic_loopback_only": true,
+  "passed": 9,
+  "failed": 1,
+  "observations": [
+    {
+      "name": "HTTP 400 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 404 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 422 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 429 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 500 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 502 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTTP 503 JSON",
+      "passed": true
+    },
+    {
+      "name": "HTML proxy error maps to server unavailable",
+      "passed": true
+    },
+    {
+      "name": "timeout before headers",
+      "passed": true,
+      "elapsed_ms": 20159
+    },
+    {
+      "name": "timeout while reading body",
+      "passed": false,
+      "outcome": "pending-after-deadline",
+      "owner": "Damir",
+      "source": "web/src/api/client.ts:115-153"
+    }
+  ],
+  "source_commit": "4354893b299e3bc690925d0b546d9a8d84d27e01",
+  "frontend_head": "faf85a480337f57e927809a1fdc14e1f9eec2a88",
+  "reproduction": {
+    "command": "node qa/check_frontend_transport.mjs",
+    "request": "GET /api/health HTTP/1.1; loopback test server",
+    "response_status": 200,
+    "content_type": "application/json",
+    "body_fragment": "{\"status\":",
+    "body_completed": false,
+    "configured_timeout_ms": 20000,
+    "probe_deadline_ms": 21200,
+    "actual": "pending-after-deadline",
+    "expected": "ApiError status 408",
+    "scope": "Actual frontend transport bundled unchanged in Node; not browser body-stall QA"
+  }
+}

@@ -1,153 +1,152 @@
-# Final backend integration & critical QA — 11 ноября 2026
+# Final release acceptance — 11 ноября 2026
 
-**Backend готов к передаче Дамиру для review. Полный релиз пока NO-GO:** остаются два frontend-дефекта и проверка качества включённого AI. Deployment выполняет Дамир; эта работа не публикует сайт и не разрешает merge.
+**Текущая опубликованная сборка: NO-GO для публичного релиза.** Основной P0 проходит через настоящий React, сервер и SQLite; оба frontend-блокера воспроизведены повторно. Дамир ещё не опубликовал их исправления. Эта проверка передаёт ему точные дефекты и проверенный backend, а не разрешение на deployment.
 
-Ветка: `integration/final-e2e-stabilization`; [Draft PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14), base `integration/p0-server`. Проверенный commit кода: **`f1eee4799946a071d35f55bb7b7f9604e9988721`**. Последующий commit содержит только этот отчёт, README, handoff и evidence; его полный SHA указан в PR. `main`, ветки участников, frontend и их deployment-конфигурации не менялись. Только синтетические данные, локальные процессы и Docker volumes; provider calls = 0.
+## 1. Что именно проверено
 
-## 1. Что уже было готово
-
-| Компонент / PR | Проверенный опубликованный head | Результат аудита |
+| PR | Опубликованный SHA | Результат |
 | --- | --- | --- |
-| #14, до этого исправления | `aaa78e1bc0ba5606d2239aa60839458f5f10c3b8` | Teachers, period, Comments, AI transport, atomic plan/Comments/import уже включены |
-| #12, Тони | `b25cfaf7608cc6b8361c408c8d7db784eb3a74b7` | Всё дерево analytics совпадает; повторной интеграции нет |
-| #10, Айдана | `62ad936ed19eab9e3beade22fd93dd3253849b33` | rules_v1 и period_v1 уже включены; алгоритмы не изменены |
-| #9, Дамир | `faf85a480337f57e927809a1fdc14e1f9eec2a88` | Новый commit добавляет только docs/AI_LIVE_CHECK.md и статус. Дерево web совпадает с включённым de7c585 |
+| #14, интеграция | `4354893b299e3bc690925d0b546d9a8d84d27e01` | Чистая сборка повторно проверена локально; восемь CI jobs успешны |
+| #9, Дамир | `faf85a480337f57e927809a1fdc14e1f9eec2a88` | Новых commits после предыдущего E2E нет; оба дефекта остаются |
+| #10, Айдана | `62ad936ed19eab9e3beade22fd93dd3253849b33` | Period уже включён, повторной интеграции нет |
+| #12, Тони | `b25cfaf7608cc6b8361c408c8d7db784eb3a74b7` | Analytics и Teachers уже включены |
 
-[Свежий аудит PR/reviews](final-critical-pr-audit.json). Все четыре PR открыты и не merged. Review Айданы на `aaa78e1` имеет состояние **COMMENTED**, а не APPROVED: она приняла серверный Planner и сохранность данных, но зафиксировала ошибку period stepper. Это не approve всей интеграции. Предыдущее approve #1 относилось к floating-point/atomic plan save. Требуется review нового AI/context diff и общей сборки.
+`web/` в #14 и #9 идентичны: Git tree `cd2cf4a219b144294b6670255f05993f4b076f2b`. После предыдущего E2E число новых frontend commits — **0**. Код приложения не изменялся; новый commit этой проверки содержит только документацию и QA evidence. Его точный SHA и CI публикуются в [PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14). Создавать ещё одну интеграцию без новых исправлений не требуется.
 
-`web/` и `analytics/` не изменены. Отличие planner от #10 — уже существующее описание HTTP 403 для read-only save в OpenAPI; вычисления не менялись. `100 * (score / max_score)`, полный балл 0.69/0.69, строгие диапазоны, атомарные snapshots, min/max, locked, сумма, P0 ±2 и manual validation сохранены.
+Review Айданы на `aaa78e1`: **COMMENTED**, не APPROVED. Review Тони в #14 отсутствует. Это проверено повторно, а не выведено из зелёного CI. PR #14 остаётся Draft до исправлений и повторной приёмки; backend можно review отдельно. [Аудит PR/reviews](release-acceptance-pr-audit.json).
 
-Ранее в этой же интеграции исправлена атомарность CSV/demo/package import (`50080a4`): `response_factory` валидирует и сериализует ответ до выхода из write transaction. Девять regression tests, включая commit failure, остаются зелёными. Это прежнее исправление, не новая работа этого commit. [Исторический отчёт](https://github.com/bekzatwr/data-driven-curriculum/blob/aaa78e1bc0ba5606d2239aa60839458f5f10c3b8/docs/FINAL_E2E_BUGFIX_REPORT.md).
+В этой проверке сохранены существующие atomic plan/Comments/import, нормализация `100 * (score / max_score)`, shared AI policy и privacy projection. Новых исправлений алгоритмов или frontend нет. [Предыдущий отчёт об исправлениях backend](https://github.com/bekzatwr/data-driven-curriculum/blob/4354893b299e3bc690925d0b546d9a8d84d27e01/docs/FINAL_E2E_BUGFIX_REPORT.md).
 
-## 2. Дополнительная интеграция и критические исправления
+## 2. Результаты повторного прогона
 
-**Первопричина AI-дефекта:** `collab/ai.py` содержал самостоятельный устаревший prompt/task map. `collab/context.py` сохранял числа, но удалял `settings.mode`, thresholds, topic status, algorithm_version и automatic_eligible. Это подтверждается [живой проверкой Дамира](https://github.com/bekzatwr/data-driven-curriculum/blob/faf85a480337f57e927809a1fdc14e1f9eec2a88/docs/AI_LIVE_CHECK.md): period описывался как перенос, модель вычисляла неверные проценты часов и принимала уменьшение часов за снижение результатов.
+| Проверка | Passed | Failed | Skipped / границы |
+| --- | ---: | ---: | --- |
+| Полный pytest | **451** | **0** | **0**, 707,11 с; один Starlette/httpx deprecation warning |
+| Frontend `npm test` | **8** | **0** | **0** |
+| TypeScript / production build | PASS / PASS | 0 | Lint script отсутствует |
+| Backend + analytics API contracts | PASS | 0 | Повторная генерация без diff |
+| Реальный HTTP E2E | **8 групп** | **0** | [Evidence](release-acceptance-http.json); это не браузерный тест |
+| Docker backend + fullstack, persistence, restore, read-only | **19 групп** | **0** | [Evidence](release-acceptance-docker.json) |
+| Frontend transport probe | **9** | **1** | Зависание незавершённого body; [evidence](release-acceptance-transport.json) |
+| Основной P0 через React | PASS | — | Сценарий ниже; общая release acceptance остаётся NO-GO |
+| CI проверенного `4354893` | **8 jobs** | **0** | Все четыре workflows completed/success |
+| External HTTPS / реальные телефоны / live AI | Не выполнялись | — | Не считаются pytest skipped |
 
-Исправлено в серверной зоне:
+Pytest включает backend, Analytics/Teachers, P0/Period, atomic saves, AI policy, Comments/anti-spam и QA acceptance. Пересекающиеся subsets не складываются. JUnit summary 553 учитывает вложенные unittest subtests; это **не 553 отдельных pytest-теста**. [Машиночитаемый итог](release-acceptance.json).
 
-- `collab/ai.py` импортирует formatter и TASKS из `analytics.ai_guidance`, а system prompt начинается с полной общей политики Тони. Два серверных уточнения запрещают новые проценты изменения часов, путаницу часов с п.п., вывод о снижении успеваемости из уменьшения часов и догадки по скрытым текстам.
-- `collab/context.py` передаёт только рассчитанные сервером значения: разрешённые числовые settings, enum mode/status/algorithm_version, automatic_eligible и исходные metrics сохранённого плана. Рекомендация, ручной итог и manually_modified не смешиваются. Доли 0..1 и проценты 0..100 не пересчитываются/не округляются в контексте; нули, null и отрицательный gain сохраняются.
-- Проверенные статические warnings/reasons проходят строгий allowlist. Динамические строки могут содержать названия/идентификаторы, поэтому не отправляются; `omitted_warning_count`/`omitted_reason_count` явно обозначают скрытые ограничения. Причины отдельных тем не реконструируются. Названия, IDs, комментарии и свободные вопросы не передаются.
-- Общий formatter отвергает NaN/Infinity и экранирует границы `<data>`/`<question>` до transport. Клиент по-прежнему присылает только selectors; свои показатели или свободный текст не принимаются. Uploaded datasets запрещены для AI, даже если CSV синтетический.
+CI проверенного кода: [Backend/container/deployment](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42951306548), [Frontend/collab](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42951306399), [Analytics Windows/Ubuntu](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42951306408), [Planner](https://github.com/bekzatwr/data-driven-curriculum/actions/runs/42951306557). CI нового QA-only commit проверяется отдельно после push; результат и ссылки будут в PR. **CI не запускает transport probe и не закрывает его failed result.**
 
-**Файлы кода/QA:** `collab/ai.py`, `collab/context.py`, новый `backend/tests/test_ai_policy_integration.py`, семантическое обновление прежней проверки prompt в `backend/tests/test_collab.py`, расширение Teachers-проверок и сохранение фактического ответа в `qa/check_http_e2e.py`.
+При первом запуске Docker daemon был выключен; установленный Docker Desktop запущен, после чего полный rehearsal прошёл. Первая отдельная команда analytics export не имела корня проекта в PYTHONPATH; после исправления окружения экспорт прошёл без изменения contracts. Это ошибки запуска QA, не исправления приложения и не скрытые успешные прогоны.
 
-**15 новых regression tests** проверяют фактический payload к подменённому transport: общую политику, settings/status/единицы, сопоставимый и недостаточный comparison, P0/period manual snapshot, privacy allowlist, null/zero/negative gain, три non-finite значения, prompt delimiters и AI_ENABLED=false при установленном фиктивном ключе. Первичный прогон воспроизвёл потери контекста и неверный formatter; обнаруженная ошибка P0-фикстуры исправлена сохранением суммы часов, production algorithm не менялся.
+## 3. Настоящий браузерный сценарий
 
-**Граница гарантии:** тесты подтверждают отбор данных и переданный prompt, а не послушание внешней модели. Автоматического валидатора всех утверждений LLM здесь нет. Реальные ответы после исправления не запрашивались. Для включённого AI нужен review Тони и повторный разрешённый live-check. До него `AI_ENABLED=false`, `AI_ACCOUNT_VERIFIED=false`; публичный read-only дополнительно запрещает AI POST. AI для Teachers/Comments остаётся `AI_KIND_NOT_READY`, не реализуется заново.
+Среда: Windows, **ChatGPT in-app browser**, production React build, Uvicorn и отдельная SQLite. Проверен `4354893` с неизменённым frontend `faf85a4`. Только синтетические CSV, AI выключен; физические Android/iPhone, отдельные Chrome/Safari и внешний HTTPS не тестировались. Матрица шести ширин из предыдущего отчёта повторно не запускалась.
 
-## 3. Teachers API: фактический контракт
+1. Через file chooser выбраны `results.csv` и `curriculum.csv`, созданные `scripts/export_demo.py`. Preview: 120 учеников, 4 класса, 6 тем, 1 440 результатов, 720 пар. Import выполнен через UI; dataset `0cd4d8af-84e5-431f-9190-b809f3c9f5dd`.
+2. Overview: 71,8%; «Дроби»: 48%, 100% ниже порога 60%, парные 35→48%, прирост +13 п.п. Comparison «Уравнения»: A 52→68%, B 53→61%, разница приростов +8 п.п., стартовый разрыв 1 п.п., по 60 парных учеников.
+3. P0: через кнопки сохранены **7/6/5/3/2/1**, сумма 24, locked Geometry=3. При временной сумме 23 Save выключен. Report `1cf61ed2-6e70-49be-91f9-0ff5688c7773`, `rules_v1`, manually_modified=true; открыт через UI и прямую ссылку, Reload прошёл, CSV скачан браузером.
+4. Period: кнопки блокируются на Equations=7. После фиксации дефекта прямым вводом 8 + Enter сохранены **6/8/4/3/2/1**, сумма 24, `period_v1`, manually_modified=true. Report `7036a6a6-5bfa-46e2-bc8c-9d2d62562d88` и его CSV открыты. Это подтверждение работающего прямого ввода и backend, **не исправления кнопок**.
+5. Teachers UI: 4 учителя / 120 учеников / 30 учеников на каждого / 24 часа. Comments: создана синтетическая запись по теме и повторно прочитана после restore. AI controls отсутствуют; `/api/ai/status` возвращает configured=false, explain — 503 `AI_NOT_CONFIGURED`.
+6. Оба скачанных CSV побайтно совпали с работающим API. При остановленном сервере UI показал «Нет связи с сервером» и «Повторить». После запуска с той же SQLite Retry снова открыл period report.
+7. Online backup восстановлен в **новую SQLite**; локальный QA-процесс переключён на неё. Оба JSON/CSV, Comments и Teachers совпали с baseline, snapshots=2, integrity=ok, foreign_key_check=[]; оба отчёта и комментарий снова открыты через React. Собственные QA-процессы и Docker containers/volumes завершены.
 
-Работает `GET /api/datasets/{id}/teachers`, включая `class_ids`, `textbook_ids`, `test_version`. [Полный неизменённый ответ работающего Uvicorn](final-critical-teachers.response.json) получен после импорта двух синтетических CSV: dataset `8b2752b7-e60a-4bc8-9646-49b4e57505c0`. Поэтому честные поля ответа — `source_type="upload"`, `is_demo=false`; это не реальные школьные данные.
+![Period-отчёт после восстановления SQLite](../qa/evidence/release-20261111/period-after-restore.jpg)
 
-В ответе: `total.teachers=4`, `total.students=120`, `total.classes=4`, `total.students_per_teacher=30.0`, `hours_per_class=24`, `total.hours_per_teacher=24.0`, `missing_teacher_rows=0`. Все 120 учеников полностью атрибутированы. Каждый teacher содержит один class_id, 30 учеников, 24 upcoming_hours, 180 student-topic pairs и 30 paired students; пары не выдаются за число учеников.
+[Ошибка связи и Retry](../qa/evidence/release-20261111/server-unavailable.jpg). Browser session имела одно восстановление подключения инструмента и корректировку locators/навигации через закрытое меню узкого окна; приложение для этого не менялось.
 
-Фрагмент **реального `teachers[0]`**, остальные поля доступны в полном файле:
+## 4. Блокер FE-01 — Period stepper ограничен ±2
+
+**Владелец: Дамир. Статус: воспроизведён.** `web/src/pages/PlannerPage.tsx:540–541` вычисляет границы через current±maxChange для обоих режимов.
+
+Шаги:
+
+1. Импортировать synthetic demo CSV, открыть «План часов», 7A → «План на весь период» → «Ограничения тем».
+2. Серверная рекомендация: 8/6/4/3/2/1. У «Уравнений»: current=5, min=3, max=8.
+3. Уменьшить «Дроби» 8→7, увеличить «Уравнения» 6→7. Сумма 24; Save разрешён, но «+» у «Уравнений» disabled.
+4. Уменьшить «Дроби» ещё до 6: сумма 23, свободен 1 час. «+» у «Уравнений» **всё равно disabled**. Ожидается 8 и итоговая сумма 24.
+5. Прямой ввод 8 + Enter работает; сохранённый snapshot содержит Equations +3. Лимит ±2 в P0 должен сохраниться.
+
+![Period: current=5, max=8, кнопка disabled на 7](../qa/evidence/release-20261111/period-stepper.jpg)
+
+Фактически повторённый HTTP-запрос:
+
+```http
+POST /api/datasets/0cd4d8af-84e5-431f-9190-b809f3c9f5dd/plans/preview
+Content-Type: application/json
+
+{"class_id":"7A","settings":{"mode":"period"}}
+```
+
+HTTP **200**, algorithm_version=`period_v1`, total_hours=24, proposed hours=8/6/4/3/2/1. Browser save завершился **201** (server log); `GET /api/plans/7036a6a6-5bfa-46e2-bc8c-9d2d62562d88` возвращает 6/8/4/3/2/1. [Неизменённые фактические HTTP responses и request JSON отдельной API-проверки](release-acceptance-api-traces.json); этот файл не выдаётся за перехват browser request body.
+
+Эквивалентный минимальный save payload для regression после исправления кнопок:
 
 ```json
 {
-  "teacher_id": "T1",
-  "school_id": "DEMO-SCHOOL",
-  "class_ids": ["7A"],
-  "students": 30,
-  "upcoming_hours": 24,
-  "n_post": 180,
-  "n_pairs": 180,
-  "n_paired_students": 30,
-  "mean_post_pct": 72.33333333333333,
-  "mean_pre_paired_pct": 60.166666666666664,
-  "mean_post_paired_pct": 72.33333333333333,
-  "mean_gain_pp": 12.166666666666666,
-  "pair_coverage": 1.0,
-  "warnings": []
+  "class_id": "7A",
+  "settings": {"mode": "period"},
+  "hours_by_topic": {"fractions": 6, "equations": 8, "proportions": 4, "geometry": 3, "statistics": 2, "revision": 1}
 }
 ```
 
-`warnings=[]` относится к полному demo teacher, а не к любым данным. Тесты Тони на missing teacher, неполную атрибуцию, недостаточное покрытие тем/пар, смешанные версии, фильтры и неизвестную группу входят в полный успешный pytest. Общие предупреждения об описательном характере результатов присутствуют в API и UI. Нагрузка относится к выбранному предмету/периоду; это не рейтинг преподавателей и не недельная ставка.
+Выполнены отдельные HTTP save-запросы: этот же +3 в P0 без mode, Period Equations=9 с суммой 24, Period с суммой 25, изменение locked Geometry — все **422 `INVALID_PLAN`**, snapshots остаются 2. Server constraints не ослаблены.
 
-## 4. Настоящий React E2E
+Приёмка fix: выставить 6/8/4/3/2/1 **кнопками**, сохранить → 201 / period_v1, запретить 9 при max=8, сохранить locked=3 и бюджет=24. В P0 разрешать только current±2. Проверить ArrowUp/Down и отдельный случай period min=9/max=10 при current=6. Исправить пояснение «лимит ±2» в period settings. Frontend и его tests меняет Дамир.
 
-На Windows через встроенный браузер выполнен настоящий UI-сценарий с React production build + Uvicorn + SQLite. Это новая проверка текущего кода, а не перенос результатов HTTP или review Айданы. [Наблюдения и ограничения](final-critical-browser.json).
+## 5. Блокер FE-02 — deadline заканчивается до чтения body
 
-1. Через файловый chooser выбран ошибочный CSV: показана ошибка столбцов, импорт недоступен. Затем выбраны два правильных синтетических CSV; preview показывает 120 учеников / 1 440 результатов, выполнен import.
-2. Overview: 71,8% отображаемого среднего; тема «Дроби»: 48%, 100% ниже порога, парный gain +13 п.п. Comparison «Уравнения»: A 52→68%, B 53→61%, difference +8 п.п., baseline gap 1 п.п.
-3. P0: вручную сохранены часы **7/6/5/3/2/1**, сумма 24; нарушенная сумма отключает Save, Geometry locked. Отчёт `0aadd0ab-2613-48c7-b516-794af9c47cd3`, `rules_v1`, manually_modified=true.
-4. Period: через прямой ввод + Enter сохранены **6/8/4/3/2/1**, сумма 24, Equations +3. Отчёт `4fa39bf0-0465-4fae-9ebb-4132e5d89974`, `period_v1`, manually_modified=true. Известный дефект stepper отдельно воспроизведён, см. ниже.
-5. Оба отчёта открыты, CSV скачаны браузерной кнопкой и побайтно сверены с API. Teachers UI показывает 4/120/30/24. Comment создан в UI, затем прочитан после restore. AI выключен, кнопка объяснения отсутствует, внешний transport не вызывался.
-6. Reload прямого `/plans/{id}` работает. После настоящего stop API — сообщение «Нет связи с сервером» и Retry. После start + Retry Teachers снова загружается. Оба JSON/CSV, Comments и Teachers неизменны, snapshots ровно 2.
-7. Online backup восстановлен в **новый** файл SQLite, DATABASE_PATH переключён только у локального QA-процесса. Integrity=ok, FK errors отсутствуют; оба отчёта открыты через браузер после restore, комментарий сохранён. QA-процессы завершены.
+**Владелец: Дамир. Статус: воспроизведён.** `web/src/api/client.ts:115–153`: finally очищает таймер и внешний AbortSignal listener после fetch headers; `response.text()` вызывается уже вне deadline.
 
-![Сохранённый period-отчёт после восстановления SQLite](../qa/evidence/critical-20261111/report-after-restore.jpg)
+В корне интеграции выполнить `node qa/check_frontend_transport.mjs` после установки frontend dependencies. Harness собирает **неизменённый настоящий client.ts**, запускает синтетический loopback HTTP server и вызывает `api.health()`.
 
-**Responsive scope:** сохранённый period-отчёт проверен визуально и по DOM на ширинах 360/390/430/768/1366/1920. Переполнения всей страницы не обнаружено, кнопки читаемы, длинная таблица находится в `overflow-x:auto` контейнере. [360 px](../qa/evidence/critical-20261111/report-360.jpg), [390](../qa/evidence/critical-20261111/report-390.jpg), [430](../qa/evidence/critical-20261111/report-430.jpg), [768](../qa/evidence/critical-20261111/report-768.jpg), [1366](../qa/evidence/critical-20261111/report-1366.jpg), [1920](../qa/evidence/critical-20261111/report-1920.jpg). Полный мобильный CSV/file-picker сценарий, отдельный Chrome, Android Chrome, Safari iOS и физические устройства **не тестировались**. HTTPS извне не проверялся — deployment не выполнялся.
+```http
+GET /api/health HTTP/1.1
 
-Один вспомогательный HTTP-запрос при подготовке backup превысил стандартный timeout 5 с. Последующие независимые health/plan/status probes ответили 200 за 0,68–0,73 с. Lifecycle-проверка прошла с 20 с, как существующий HTTP E2E harness; product timeout не менялся. Устойчивая причина этой единичной задержки не установлена.
+HTTP/1.1 200 OK
+Content-Type: application/json
 
-## 5. Тесты и открытые дефекты
+{"status":
+```
 
-| Проверка | Passed | Failed | Skipped / граница |
-| --- | ---: | ---: | --- |
-| Полный pytest: backend/tests + tests + qa | **451** | **0** | **0**, 222,79 с; Starlette/httpx deprecation warning |
-| unittest subtests | 102 | 0 | Считаются отдельно, не прибавляются к 451 |
-| Новые AI regression tests | 15 | 0 | Уже входят в 451 |
-| AI + Comments + frontend AI contract + policy subset | 107 | 0 | Уже входит в 451; 19 subtests отдельно |
-| Analytics / Teachers / original Planner / period | Все включены в 451 | 0 | Алгоритмы участников не изменены |
-| npm test | 8 | 0 | 0 |
-| TypeScript / frontend build | 2 команды | 0 | Lint script отсутствует, не заявлен PASS |
-| Backend + analytics contracts | Генерация без diff | 0 | API schemas не ослаблены |
-| Native HTTP + SQLite E2E | 8 групп | 0 | [Evidence](final-critical-http.json); проверяет 400/404/422/500/503 и rollback |
-| Docker fullstack / persistence / restore / read-only | 19 групп | 0 | [Evidence](final-critical-docker.json), проверенный чистый код f1eee47 |
-| Настоящий browser core journey | Пройден | — | Полная release acceptance остаётся NO-GO |
-| Frontend network transport probe | 9 | **1** | [Evidence](final-critical-frontend-transport.json), не скрыт зелёным npm test |
-| Real AI / external HTTPS / physical devices | Не выполнялись | — | Не являются pytest skipped |
+Сервер отправляет эту часть body и **не завершает ответ**. Ожидается `ApiError` со status=408 после default 20 000 мс. Фактически к контрольному сроку **21 200 мс** Promise остаётся pending; probe завершается с exit code 1: **9 passed / 1 failed**. Timeout до получения headers сработал за 20 159 мс. [Evidence](release-acceptance-transport.json).
 
-[Машиночитаемый summary](final-critical-tests.json). Общий pytest включает atomic plan/save (28 tests), atomic import (9), Comments/anti-spam, Teachers, P0/period/manual/constraints и 7 QA acceptance; подсчёты subset не складываются. CI проверяется для **нового head PR #14** после push; ссылки и фактические conclusion — в описании PR, старый зелёный CI не выдаётся за проверку нового commit.
+Это Node-level network regression, не browser body-stall test. Реальная браузерная проверка connection refused → Retry пройдена отдельно и **не закрывает** этот баг. Требуется deadline/cancellation до завершения body, обработка AbortError/408 и regression с частичным JSON; отмена при смене фильтра должна оставаться тихой. Дополнительно принять normal response, HTTP 4xx/5xx/HTML proxy и Retry. Новых исправлений frontend в этой ветке нет.
 
-### Открыто — Дамир: period stepper ±2
+## 6. Handoff Дамиру
 
-На 7A выбрать «План на весь период». Из рекомендации 8/6/4/3/2/1 уменьшить Fractions до 7 и увеличить Equations до 7. При сумме 24 кнопка Equations «+» отключена, хотя max=8. Ожидается возможность 8 в period; P0 должен сохранить current±2. Прямой ввод 8 + Enter работает, серверный план 6/8/4/3/2/1 сохранён. `web/src/pages/PlannerPage.tsx:540–541`; уточнить также подпись «лимит ±2» в period settings. [Снимок](../qa/evidence/critical-20261111/period-stepper.jpg). Frontend не исправлялся без владельца.
+Сборка для воспроизведения: **`4354893b299e3bc690925d0b546d9a8d84d27e01`**; QA-only commit отчёта сохраняет код приложения и указан в PR #14. **Текущую сборку нельзя передавать как окончательно принятую для production deployment.** Можно передать backend/env/Docker для подготовки и исправления двух блокеров.
 
-### Открыто — Дамир: deadline не охватывает response body
+1. Опубликовать исправления в PR #9 и сообщить полный SHA. Зафиксировать его, проверить diff, добавить в отдельную тестовую интеграцию с #14 без изменения main/веток участников.
+2. Повторить оба regressions, P0/Period browser E2E, общий pytest/frontend/contracts/Docker/CI на новом совместном SHA. Текущий зелёный CI не является доказательством будущего commit.
+3. Получить явные review/approve Айданы и Тони на новую интеграцию; COMMENTED не считать approve. AI оставить выключенным; live AI требует отдельной разрешённой проверки качества.
+4. После командного согласования выбрать reviewed SHA и выполнить deployment самим Дамиром. Затем проверить настоящий HTTPS с другого устройства, API, CSV export, deep-link Reload, read-only, persistence после рестарта и off-service backup/restore.
 
-`node qa/check_frontend_transport.mjs`: неизменённый клиент получает HTTP 200 + часть JSON, сервер не завершает body. Через 21,2 с при deadline 20 с Promise всё ещё pending. `web/src/api/client.ts:115–153`: таймер/abort listener снимаются после fetch headers, до response.text(). Ожидается единый deadline и cancellation до конца body, понятная ошибка и Retry. Тест снова дал **9 passed / 1 failed**, это Node transport probe, не браузерный timeout-тест. Нормальный отказ соединения и Retry в настоящем UI прошли отдельно. Исправление и regression в своём frontend делает Дамир.
+Локальная сборка: `docker build --build-arg APP_TARGET=fullstack -t ddc:<checked-sha> .`. Backend: `python deploy/run_server.py`; health `/api/health`; React и API могут работать на одном origin. [Полный Docker/env/backup handoff](DAMIR_DEPLOYMENT_HANDOFF.md).
 
-## 6. Handoff и оставшаяся работа
-
-**Рабочие API:** `/api/health`, `/api/capabilities`, `/openapi.json`; `POST /api/datasets/import?dry_run=true|false`; `GET /api/datasets/{id}/overview`, `/topics/{topic_id}`, `/comparison`, `/teachers`; `POST /api/datasets/{id}/plans/preview`, `/plans`; `GET /api/plans/{id}`, `/api/plans/{id}/export.csv`; `GET/POST /api/datasets/{id}/comments`; `GET /api/ai/status`. AI explain route существует, но штатно возвращает 503 при AI_ENABLED=false; public read-only POST возвращает 403.
-
-P0 payload `{"class_id":"7A"}`; period `{"class_id":"7A","settings":{"mode":"period"}}`. Manual save добавляет `hours_by_topic` для всех тем. Использовать фактические IDs текущего dataset/response, не IDs из одноразового QA. [Полные API-контракты](FRONTEND_API.md), [реальный Teachers response](final-critical-teachers.response.json).
-
-Backend: `python deploy/run_server.py`. Fullstack: `docker build --build-arg APP_TARGET=fullstack -t ddc:<reviewed-sha> .`. Для приватного локального демо: `docker compose -f deploy/compose.yaml -f deploy/compose.local.yaml up --build --detach --wait`. Один backend instance и постоянный каталог SQLite; не эфемерный writable layer.
-
-| Переменная | Требование |
+| Настройка | Значение / требование |
 | --- | --- |
-| APP_TARGET | Build arg `fullstack` |
-| PORT | Порт выбранной Дамиром платформы; health `/api/health` |
-| DATABASE_PATH / DATA_MOUNT_PATH | `/app/data/curriculum.sqlite3` / `/app/data`, весь каталог вместе с WAL/SHM |
-| REQUIRE_PERSISTENT_STORAGE / REQUIRE_P0 | true / true для fullstack |
-| WEB_DIST_DIR | `/app/web` в fullstack image |
-| PUBLIC_DEMO / READ_ONLY_DEMO | true / true для открытого демо |
-| AI_ENABLED / AI_ACCOUNT_VERIFIED | false / false, ключи не нужны |
-| P1_COMMENTS_ENABLED | true, но public POST запрещён |
-| CORS_ORIGINS / VITE_API_BASE_URL | Пусто при одном origin; иначе согласованные точные frontend/API origins; VITE задаётся при build |
+| APP_TARGET | build arg `fullstack` |
+| PORT | порт платформы; контейнер проверен с 8765 |
+| DATABASE_PATH / DATA_MOUNT_PATH | `/app/data/curriculum.sqlite3` / `/app/data`, весь каталог на постоянном диске |
+| REQUIRE_PERSISTENT_STORAGE / REQUIRE_P0 | `true` / `true` для единого fullstack |
+| WEB_DIST_DIR | `/app/web` уже задаёт fullstack image |
+| PUBLIC_DEMO / READ_ONLY_DEMO | `true` / `true` для открытого demo |
+| AI_ENABLED / AI_ACCOUNT_VERIFIED | `false` / `false`; ключи не требуются |
+| P1_COMMENTS_ENABLED | `true`; публичный POST запрещён read-only |
+| CORS_ORIGINS / VITE_API_BASE_URL | пусто при одном origin; точные origins при разделении, VITE задаётся при build |
 
-Online backup: `python -m backend.app.db.backup --output /app/data/backups/<new-name>.sqlite3`; копию хранить вне сервиса. Restore — новый файл/volume, integrity/FKs и сравнение сохранённых JSON/CSV до переключения. [Полный handoff](DAMIR_DEPLOYMENT_HANDOFF.md). Docker/Render examples сохранены; platform, paid actions, HTTPS и deployment остаются за Дамиром. Render example не включает автоматический deploy текущей незавершённой ветки.
+SQLite: один экземпляр backend, не ephemeral filesystem. Online backup через `python -m backend.app.db.backup --output <new-path>`, копия вне сервиса; restore в новый файл с integrity/FK и сравнением JSON/CSV. [Реальный Teachers JSON текущего HTTP E2E](release-acceptance-teachers.response.json). Приватное локальное демо допускает import/save; открытый demo их запрещает. Render/Supabase ресурсы не создавались.
 
-| Ответственный | Осталось |
-| --- | --- |
-| Дамир | Исправить period stepper и body deadline; повторить изменённые UI-сценарии/полный mobile E2E; выбрать reviewed SHA, выполнить разрешённый deployment, проверить реальный HTTPS, read-only, restart и backup на площадке |
-| Тони | Review общей AI policy + серверного context allowlist; разрешённая повторная live-проверка четырёх видов объяснений. Analytics/Teachers алгоритмы не требуют исправлений по этому прогону |
-| Айдана | Review финального интеграционного SHA; Planner algorithm/backend fix не требуется, +3/manual/atomic/persistence подтверждены |
-| Бекзат | Поддержка серверных контрактов, транзакций, SQLite и устранение конкретных замечаний review. Новый P1/P2 функционал не добавляется |
+## 7. Итог
 
-## 7. Вердикт
-
-| Зона | GO / NO-GO | Основание |
+| Зона | Вердикт | Причина / осталось |
 | --- | --- | --- |
-| **Backend** | **GO для review и передачи Дамиру, AI disabled** | 451 tests, contracts, HTTP и Docker/persistence прошли; алгоритмы участников сохранены |
-| **Full E2E** | **NO-GO для полной release acceptance** | Основной путь реально пройден через React; два frontend edge-case дефекта ещё открыты; мобильные устройства не проверены |
-| **P1 целиком** | **NO-GO** | Teachers/Comments/period server и UI happy path работают; period stepper и качество включённого AI ещё не приняты |
-| **Deployment handoff** | **GO** | Проверенный backend, Docker, API, env и backup переданы; это не разрешение на production deployment |
-| **Публичный запуск** | **NO-GO** | Нет approve всей сборки, исправлений двух UI-дефектов и проверки настоящего внешнего HTTPS/persistence |
+| Backend с AI disabled | **GO для review/handoff** | pytest, API, atomicity, Docker/persistence проходят |
+| Основной P0 browser E2E | **PASS** | CSV → Analytics → Comparison → P0 save → Report → Export, reload/restart/restore |
+| Period UI acceptance | **NO-GO** | stepper +3 недоступен; direct input/server работают |
+| Network acceptance | **NO-GO** | незавершённый body остаётся pending после deadline |
+| PR #14 final review readiness | **Не готов к финальной приёмке, остаётся Draft** | ждём опубликованные fixes, новый E2E и review команды |
+| Подготовка deployment Дамиру | **GO с явно переданными блокерами** | Docker/env/backup готовы; это не разрешение публиковать |
+| Public production | **NO-GO** | два frontend-блокера, нет approve всей сборки и настоящего внешнего HTTPS acceptance |
 
-Никакого merge, force push, production deployment, платных ресурсов или реальных данных учеников в этой работе нет.
+Новых функций, frontend fixes, merge, force push, paid resources, production deploy и реальных данных учеников в этой работе нет.
