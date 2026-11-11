@@ -91,8 +91,19 @@ def main():
             assert comparison.status_code == 200 and comparison.json()['difference_gain_pp'] == 8
             teachers = client.get(path + '/teachers')
             assert teachers.status_code == 200
-            assert len(teachers.json()['teachers']) == 4
-            assert all(t['students'] == 30 and t['upcoming_hours'] == 24 for t in teachers.json()['teachers'])
+            teacher_data = teachers.json()
+            assert len(teacher_data['teachers']) == teacher_data['total']['teachers'] == 4
+            assert teacher_data['total']['students'] == 120
+            assert teacher_data['total']['students_per_teacher'] == 30
+            assert teacher_data['total']['classes'] == 4
+            assert teacher_data['hours_per_class'] == teacher_data['total']['hours_per_teacher'] == 24
+            for teacher in teacher_data['teachers']:
+                assert teacher['students'] == teacher['n_paired_students'] == 30
+                assert teacher['upcoming_hours'] == 24 and len(teacher['class_ids']) == 1
+                assert teacher['n_post'] == teacher['n_pairs'] == 180
+                assert teacher['pair_coverage'] == 1 and teacher['warnings'] == []
+                assert abs(teacher['mean_post_paired_pct'] - teacher['mean_pre_paired_pct']
+                           - teacher['mean_gain_pp']) < 1e-12
             p0 = client.post(path + '/plans/preview', json={'class_id': '7A'})
             assert p0.status_code == 200 and p0.json()['algorithm_version'] == 'rules_v1'
             p0_items = p0.json()['items']
@@ -173,6 +184,10 @@ def main():
             if len(sys.argv) > 2:
                 output = Path(sys.argv[2]); output.parent.mkdir(parents=True, exist_ok=True)
                 output.write_text(json.dumps(observation, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+                # The handoff example is an actual unmodified HTTP response, not
+                # a hand-written approximation of the Teachers JSON contract.
+                output.with_name(output.stem + '-teachers.response.json').write_text(
+                    json.dumps(teacher_data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
             print(json.dumps(observation, ensure_ascii=False, indent=2))
             print('PASS: real HTTP, SQLite, restart and actual frontend HTML; browser interaction NOT covered.')
         finally:

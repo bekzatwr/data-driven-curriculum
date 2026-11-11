@@ -28,13 +28,62 @@ METRICS = frozenset({
     "mean_pre_paired_pct", "mean_post_paired_pct", "mean_gain_pp", "problem_topic",
     "single_version", "n_classes", "n_teachers", "difference_gain_pp", "baseline_gap_pp",
     "total_hours", "current_hours", "min_hours", "max_hours", "importance", "is_locked",
-    "proposed_hours", "recommended_hours", "delta", "manually_modified",
+    "proposed_hours", "recommended_hours", "delta", "manually_modified", "automatic_eligible",
+})
+
+SETTING_NUMBERS = frozenset({"threshold_pct", "mastered_pct", "min_students", "problem_share",
+                             "max_baseline_gap_pp", "target_pct", "donor_pct", "max_change"})
+ENUMS = {
+    "status": frozenset({"requires_attention", "needs_practice", "mastered", "insufficient_data",
+                          "no_data", "mixed_versions"}),
+    "comparison_status": frozenset({"comparable", "not_comparable", "insufficient_data"}),
+    "algorithm_version": frozenset({"rules_v1", "period_v1"}),
+    "mode": frozenset({"rules_v1", "period"}),
+}
+# Only literal messages audited in analytics/planner are safe to forward.
+# Dynamic warnings/reasons may interpolate names or identifiers. Keep their
+# presence explicit; never forward arbitrary strings or reconstruct the cause.
+SAFE_MESSAGES = frozenset({
+    "Часть итоговых результатов не имеет совместимой пары pre/post; прирост рассчитан только по парам.",
+    "В теме несколько версий или шкал теста; объединённые средние недоступны. Выберите общий срез.",
+    "Мало данных: автоматическая рекомендация по теме не формируется.",
+    "Средний балл описывает доступные темы каждого ученика; покрытие всех тем неполное.",
+    "Общий средний балл недоступен: выберите единый срез в темах с несколькими версиями или шкалами.",
+    "У групп нет единой выбранной версии теста и шкалы max_score.",
+    "Сравнение описывает эти группы; оно не доказывает причинное влияние учебника. "
+    "Различия могут зависеть от преподавания, состава групп и условий обучения.",
+    "Предложение не прогнозирует рост баллов; решение принимает методист.",
+    "Для тем без сопоставимых итоговых результатов использована только важность.",
+    "Нет допустимой пары донора и получателя: проверьте результаты, выборку, версии тестов, границы и блокировки.",
 })
 
 
+def enums(data):
+    return {key: value for key, value in data.items()
+            if key in ENUMS and isinstance(value, str) and value in ENUMS[key]}
+
+
+def interpretation(data):
+    """Allowlisted semantics accompanying already computed numeric metrics."""
+    result = enums(data)
+    if "settings" in data:
+        settings = data["settings"]
+        result["settings"] = {**enums(settings), **{
+            key: value for key, value in settings.items()
+            if key in SETTING_NUMBERS and type(value) in (int, float)}}
+    for field, count_key in (("warnings", "omitted_warning_count"), ("reasons", "omitted_reason_count")):
+        if field in data:
+            values = data[field]
+            result[field] = [value for value in values if isinstance(value, str) and value in SAFE_MESSAGES]
+            omitted = len(values) - len(result[field])
+            if omitted:
+                result[count_key] = omitted
+    return result
+
+
 def numbers(data):
-    return {key: value for key, value in data.items() if key in METRICS
-            and (value is None or type(value) in (int, float, bool))}
+    return {**{key: value for key, value in data.items() if key in METRICS
+               and (value is None or type(value) in (int, float, bool))}, **interpretation(data)}
 
 
 def build_context(request, dataset_id, kind, context, question):
@@ -56,6 +105,7 @@ def build_context(request, dataset_id, kind, context, question):
     allowed = {"class_ids", "textbook_ids", "test_version"}
     if kind == "overview":
         data = analytics_api.overview(dataset_id, request, **filters)
+        result.update(interpretation(data))
         result.update(metrics=numbers(data["metrics"]), topics=[
             {"topic_index": index, **numbers(item)} for index, item in enumerate(data["topics"], 1)])
     elif kind == "topic":
@@ -63,6 +113,7 @@ def build_context(request, dataset_id, kind, context, question):
         if not selected.topic_id:
             raise ApiError(422, "AI_SELECTOR_REQUIRED", "Укажите topic_id.")
         data = analytics_api.topic_detail(dataset_id, selected.topic_id, request, **filters)
+        result.update(interpretation(data))
         result.update(metrics=numbers(data["metrics"]), by_class=[
             {"class_index": index, **numbers(item["metrics"])} for index, item in enumerate(data["by_class"], 1)])
     elif kind == "comparison":
@@ -72,7 +123,7 @@ def build_context(request, dataset_id, kind, context, question):
         data = analytics_api.comparison(dataset_id, request, selected.topic_id, selected.textbook_a,
                                         selected.textbook_b, selected.class_ids, selected.test_version)
         result.update(numbers(data))
-        result.update(comparison_status=data["comparison_status"], group_a=numbers(data["group_a"]),
+        result.update(group_a=numbers(data["group_a"]),
                       group_b=numbers(data["group_b"]))
     elif kind == "plan":
         allowed = {"plan_id"}
@@ -82,7 +133,10 @@ def build_context(request, dataset_id, kind, context, question):
             validate_target(db, dataset_id, "plan", selected.plan_id)
         data = request.app.state.plan_snapshots.get(selected.plan_id)
         result.update(numbers(data))
-        result["items"] = [{"topic_index": index, **numbers(item)} for index, item in enumerate(data["items"], 1)]
+        metrics = {item["topic_id"]: item for item in data["metrics"]}
+        result["items"] = [{"topic_index": index, **numbers(item),
+                            "metrics": numbers(metrics.get(item["topic_id"], {}))}
+                           for index, item in enumerate(data["items"], 1)]
     if set(context) - allowed:
         raise ApiError(422, "AI_CONTEXT_SELECTORS_ONLY", "Селектор не применим к выбранному kind.")
     return result
