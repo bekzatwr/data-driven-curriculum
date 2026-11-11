@@ -2,11 +2,11 @@
 
 **За весь deployment отвечает Дамир:** выбор платформы, её конфигурация, сборка frontend, HTTPS, публикация, эксплуатация, backups и rollback. **Бекзат отвечает за backend, SQLite, API и серверную интеграцию.** Новое распределение заменяет прежнее назначение Бекзата ответственным за облако.
 
-Актуальная изолированная интеграция: `integration/final-e2e-stabilization`, [Draft PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14). Повторно проверенный код **`4354893b299e3bc690925d0b546d9a8d84d27e01`**, frontend **`faf85a480337f57e927809a1fdc14e1f9eec2a88`**, дерево web идентично. Новых fixes Дамира нет. QA-only commit этого отчёта не меняет код; его SHA и новый CI указаны в PR.
+Актуальная интеграция: `integration/final-e2e-stabilization`, [PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14). Проверенный совместный код **`b641fd6aced15546648dd0e9e1c367f70d663c94`**, frontend **`2d554f0c3ecc67fa054e6c83a435eb82d5bdf766`**, дерево web идентично авторскому. Последующий commit меняет только QA/README/отчёт; точный SHA для handoff и CI указаны в PR #14.
 
-**Текущая сборка NO-GO для production:** воспроизведены period stepper ±2 и response-body timeout. Основной React CSV→P0 save→report→export, Period через прямой ввод, Teachers/Comments/AI disabled, reload/restart/restore проходят. Повторный прогон: 451 pytest, 8 frontend tests, TypeScript/build/contracts, HTTP 8 групп, Docker 19; transport **9 passed / 1 failed**. [Точные шаги и запросы](FINAL_E2E_BUGFIX_REPORT.md), [машиночитаемый QA](release-acceptance.json). Айдана COMMENTED на прежний SHA; approve Тони в #14 нет.
+**Оба frontend-блокера закрыты:** period stepper и ArrowUp/Down разрешают +3 в пределах min/max, P0 сохраняет ±2; timeout охватывает чтение response body. Настоящий React CSV→analytics→comparison→P0/period save→report→CSV, Teachers/Comments/AI disabled, Retry, Reload, restart и restore прошли. **451 pytest, 19 frontend tests, transport 10/10, HTTP 8 групп, Docker 19**, TypeScript/build/contracts — PASS. [Отчёт и границы проверки](FINAL_E2E_BUGFIX_REPORT.md), [машиночитаемый итог](release-accepted.json).
 
-Дамиру передаётся backend для подготовки deployment и исправления блокеров. После push fixes нужен новый тестовый совместный SHA, повторный E2E и командный review. AI остаётся выключенным. Реальные телефоны и внешний HTTPS в этой проверке не тестировались; шесть ширин из предыдущего отчёта не выдаются за повторный mobile acceptance. Конфигурации сохранены; platform и deployment остаются за Дамиром.
+**GO для передачи проверенного backend и локального E2E на командный review. Публичный production пока NO-GO:** нужен approve Айданы/Тони, deployment Дамира и реальная внешняя HTTPS/persistence-проверка. На момент отчёта Айдана COMMENTED на старый SHA; review Тони в #14 отсутствует. AI остаётся выключенным. Физические устройства, отдельные Chrome/Safari и мобильная матрица в этом прогоне не принимались.
 
 ## 1. Запуск backend — выбрать подходящий вариант
 
@@ -81,13 +81,13 @@ Seed создаёт только встроенный synthetic dataset и на�
 | CSV / проверка импорта | `POST /api/datasets/import?dry_run=true` или `false`; multipart: results_file, curriculum_file, metadata |
 | Данные и фильтры | `GET /api/datasets/{id}/filters`, `/quality`, `/curriculum`, `/results` |
 | Аналитика / сравнение | `GET /api/datasets/{id}/overview`, `/topics/{topic_id}`, `/comparison` |
-| Teachers | `GET /api/datasets/{id}/teachers`; [фактический HTTP response](release-acceptance-teachers.response.json) |
+| Teachers | `GET /api/datasets/{id}/teachers`; [фактический HTTP response](release-accepted-teachers.response.json) |
 | План | `POST /api/datasets/{id}/plans/preview`, `POST /api/datasets/{id}/plans` |
 | Сохранённый JSON / CSV | `GET /api/plans/{plan_id}`, `GET /api/plans/{plan_id}/export.csv` |
 | Comments | `GET/POST /api/datasets/{id}/comments` |
 | AI status | `GET /api/ai/status`: configured=false; AI-вызовы выключены |
 
-В public read-only разрешены чтение, demo lookup и preview. Import, import dry-run, save, comments POST, AI POST и dataset restore возвращают 403. Teachers API подключён: `GET /api/datasets/{id}/teachers`, фильтры `class_ids`, `textbook_ids`, `test_version`. Настоящий frontend `de7c585` использует этот endpoint. Period опубликован и подключён: `settings.mode="period"`, snapshot `algorithm_version="period_v1"`; без mode используется `rules_v1`. JSON/CSV обоих режимов проверены после restart и восстановления. Примеры: `contracts/integrated-analytics-teachers.response.json`, `contracts/period-plan-preview.response.json`, `contracts/period-plan-saved.response.json`.
+В public read-only разрешены чтение, demo lookup и preview. Import, import dry-run, save, comments POST, AI POST и dataset restore возвращают 403. Teachers API подключён: `GET /api/datasets/{id}/teachers`, фильтры `class_ids`, `textbook_ids`, `test_version`. Проверенный frontend `2d554f0` использует этот endpoint. Period опубликован и подключён: `settings.mode="period"`, snapshot `algorithm_version="period_v1"`; без mode используется `rules_v1`. JSON/CSV обоих режимов проверены после restart и восстановления. Примеры: `contracts/integrated-analytics-teachers.response.json`, `contracts/period-plan-preview.response.json`, `contracts/period-plan-saved.response.json`.
 
 ## 5. Что нужно Дамиру для публикации
 

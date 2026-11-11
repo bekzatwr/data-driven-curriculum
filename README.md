@@ -20,11 +20,11 @@
 </p>
 
 > [!IMPORTANT]
-> **Серверная интеграция — на review в [PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14).** Backend, Teachers Тони, оба режима Planner Айданы, Comments и настоящий React Дамира работают вместе. Повторно проверенный код `4354893`: **451 pytest**, **8 frontend tests**, TypeScript/build, API contracts и **19 Docker checks** прошли. [Отчёт и ограничения](docs/FINAL_E2E_BUGFIX_REPORT.md) · [Актуальный аудит PR](docs/release-acceptance-pr-audit.json).
+> **Совместная сборка готова к командному review в [PR #14](https://github.com/bekzatwr/data-driven-curriculum/pull/14).** Backend, Analytics/Teachers, P0/Period, Comments и настоящий React работают вместе. Проверенный код `b641fd6`, frontend Дамира `2d554f0`: **451 pytest**, **19 frontend tests**, transport **10/10**, TypeScript/build/contracts и **19 Docker checks** прошли. [Полный отчёт](docs/FINAL_E2E_BUGFIX_REPORT.md) · [QA evidence](docs/release-accepted.json).
 >
-> **Основной сценарий пройден через React:** два CSV → аналитика → сравнение → P0/period → сохранение → отчёт → CSV, включая restart и restore. Оба дефекта повторно подтверждены на PR #9 `faf85a4`: новых исправлений пока нет, transport **9 passed / 1 failed**. **Публичный запуск пока NO-GO:** остаются period stepper ±2 и frontend timeout при зависшем теле ответа, review команды и внешняя HTTPS-проверка. AI выключен до повторной проверки качества.
+> **Оба прежних блокера исправлены Дамиром и перепроверены:** кнопки period разрешают изменение больше ±2 в рамках min/max; незавершённый HTTP body завершается таймаутом и Retry. Настоящий сценарий **два CSV → аналитика → сравнение → оба planner → save → report → CSV** прошёл с restart/restore SQLite. P0-лимит ±2 сохранён.
 >
-> **Deployment выполняет Дамир.** Бекзат отвечает за backend, SQLite, API и серверную интеграцию. [Handoff и env](docs/DAMIR_DEPLOYMENT_HANDOFF.md). Render — необязательный пример; main не изменён, production deploy этой версии не выполнялся.
+> **Публичный production пока NO-GO:** требуются review команды, deployment и проверка настоящей HTTPS-ссылки/мобильных устройств/постоянного диска. **Deployment выполняет Дамир.** Бекзат отвечает за backend, SQLite, API и серверную интеграцию. [Handoff и env](docs/DAMIR_DEPLOYMENT_HANDOFF.md). AI выключен; main не изменён.
 
 <a id="status"></a>
 
@@ -35,10 +35,10 @@
 | Импорт CSV | Два файла, preview, построчные ошибки, лимиты, защита от дублей | Готов локально |
 | Аналитика Тони | Обзор, темы, тепловая карта, фильтры, парные pre/post | Подключена |
 | Сравнение учебников | Прирост, версии тестов, ограничения сопоставимости | Подключено |
-| Планировщик Айданы | Сумма часов, min/max, locked, ±2 часа, ручные правки | Подключён |
+| Планировщик Айданы | Сумма часов, min/max, locked, ±2 в P0, ручные правки | Подключён |
 | Backend Бекзата | Атомарное сохранение, SQLite, JSON/CSV, backup/restore | Подключён |
 | Публичный режим | Просмотр и расчёт; импорт/restore/save запрещены сервером | Подготовлен |
-| React Дамира | PR #9 faf85a4, серверные Teachers и period; исходники автора сохранены | Подключён в этой ветке |
+| React Дамира | PR #9 2d554f0, серверные Teachers и period; исходники автора сохранены | Подключён в этой ветке |
 | Комментарии | Цели, SQLite, атомарная запись, квоты и антиспам | UI и сохранность после restore проверены |
 | AI backend | Общая политика Тони, проверенные server settings/metrics, deadline и квоты | 15 новых regression tests; live AI не принят, по умолчанию выключен |
 | Нагрузка учителей | Серверный API Тони, демо 4/120/30/24; [API и проверка](docs/TONI_P1.md) | Подключена в интерфейсе |
@@ -52,9 +52,9 @@
 <details>
 <summary><b>Посмотреть настоящий сохранённый отчёт</b></summary>
 
-![Настоящий period-отчёт после восстановления SQLite из backup](qa/evidence/critical-20261111/report-after-restore.jpg)
+![Настоящий period-отчёт после восстановления SQLite из backup](qa/evidence/accepted-2d554f0/period-after-restore.jpg)
 
-Проверка 11 ноября 2026: синтетические CSV, 24 часа, две ручные правки, `period_v1`. Snapshot, CSV и комментарий пережили restart и восстановление в новый файл SQLite. [Экран 360 px](qa/evidence/critical-20261111/report-360.jpg) · [Результаты](docs/final-critical-browser.json).
+Проверка 11 ноября 2026: синтетические CSV, 24 часа, две ручные правки, `period_v1`. Snapshot, CSV и комментарий пережили restart и восстановление в новый файл SQLite. [Экран 360 px](qa/evidence/critical-20261111/report-360.jpg) · [Актуальные результаты](docs/release-accepted.json).
 
 </details>
 

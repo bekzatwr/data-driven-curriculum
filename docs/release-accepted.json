@@ -1,0 +1,137 @@
+{
+  "checked_at_utc": "2026-11-11T07:49:15.353359+00:00",
+  "tested_code_commit": "b641fd6aced15546648dd0e9e1c367f70d663c94",
+  "frontend_commit": "2d554f0c3ecc67fa054e6c83a435eb82d5bdf766",
+  "frontend_tree": "c5f5ae9e44d4f7d927d10e86f712905b7af2f040",
+  "integration_branch": "integration/final-e2e-stabilization",
+  "integration_pr": 14,
+  "new_frontend_commits_since_faf85a4": 1,
+  "frontend_modified_by_integrator": false,
+  "backend_modified_in_this_round": false,
+  "pytest": {
+    "passed": 451,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 362.51,
+    "warnings": 1
+  },
+  "frontend_tests": {
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typecheck": "PASS",
+  "build": "PASS",
+  "api_contracts": "PASS (regeneration without diff)",
+  "lint": "NOT CONFIGURED",
+  "http_e2e_groups": 8,
+  "docker_check_groups": 19,
+  "transport": {
+    "passed": 10,
+    "failed": 0
+  },
+  "browser": {
+    "engine": "ChatGPT in-app browser on Windows",
+    "physical_device": false,
+    "server": "Uvicorn + actual production React + isolated SQLite; loopback only",
+    "dataset_id": "d474fce6-a914-45f9-b605-168060b31f1c",
+    "p0_plan_id": "4ecb3fba-fc42-4309-83da-adf0e581f5f2",
+    "period_plan_id": "b7f06181-8905-431c-9ba0-b4e29525d82e",
+    "p0_hours": [
+      7,
+      6,
+      5,
+      3,
+      2,
+      1
+    ],
+    "period_hours": [
+      6,
+      8,
+      4,
+      3,
+      2,
+      1
+    ],
+    "total_hours": 24,
+    "snapshots": 2,
+    "csv_files_byte_equal_to_api": true,
+    "csv_upload_and_import": "PASS (native picker via Enter; mouse automation had CDP errors)",
+    "overview_topics_comparison": "PASS",
+    "p0_save_report_export": "PASS",
+    "period_stepper": "PASS: button activation 6→7→8 and ArrowDown/Up; max=8; P0 max remains 7",
+    "invalid_period_9": "Save disabled; maximum 8 and total 25/24 shown",
+    "teachers": "PASS: 4 teachers, 120 students, 30 students and 24 hours each",
+    "comments": "created in overview topic discussion and read again after restore",
+    "body_timeout": {
+      "result": "PASS",
+      "fault_injection": "only one GET returns 200 + incomplete JSON; other routes delegate to real app",
+      "observations": [
+        {
+          "method": "GET",
+          "path": "/api/plans/b7f06181-8905-431c-9ba0-b4e29525d82e",
+          "status": 200,
+          "body_fragment": "{\"plan_id\":",
+          "body_completed": false,
+          "client_disconnected_after_ms": 19917
+        }
+      ],
+      "ui": "timeout message and Retry; Retry opens unchanged real saved report"
+    },
+    "connection_refusal_retry": "PASS",
+    "reload": "PASS",
+    "restart": "PASS",
+    "restore_new_sqlite": "PASS",
+    "integrity_check": "ok",
+    "foreign_key_check": [],
+    "post_restore_browser_reports": [
+      "rules_v1",
+      "period_v1"
+    ],
+    "console_error_entries_at_final_capture": 0,
+    "responsive_matrix": "NOT REPEATED; previous report is historical evidence only"
+  },
+  "invalid_save_http": {
+    "rejected": 4,
+    "status": 422,
+    "snapshot_count_before": 2,
+    "snapshot_count_after": 2,
+    "cases": [
+      "P0 +3",
+      "period out of max",
+      "wrong total",
+      "locked topic modification"
+    ]
+  },
+  "ai": {
+    "enabled": false,
+    "provider_calls": 0,
+    "status_configured": false,
+    "explain_status": 503,
+    "explain_code": "AI_NOT_CONFIGURED"
+  },
+  "review_before_publish": {
+    "Aidana17022007": "COMMENTED on aaa78e1; not APPROVED",
+    "bltangenss": "no review on PR14"
+  },
+  "ci": "Exact published head checked after push; links and result are maintained in PR14 (not inherited from earlier SHA)",
+  "limits": [
+    "No standalone Chrome/Safari or physical Android/iPhone test",
+    "No external HTTPS",
+    "Live AI not accepted"
+  ],
+  "verdict": {
+    "backend": "GO for review with AI disabled",
+    "browser_local_e2e": "GO in tested browser",
+    "p1": "GO Teachers/Comments/Period; NO-GO live AI",
+    "deployment_handoff": "GO for Damir preparation; deployment requires team agreement",
+    "public_production": "NO-GO until review, deployment and external acceptance"
+  },
+  "environment_interruptions": [
+    "Initial pytest ended at 39% and Docker rehearsal before completion when local processes/runtime stopped. Those runs are not passed. Fresh complete runs are reported above.",
+    "Browser tool recovered after runtime reset; file input pointer automation failed DOM.describeNode, so chooser/button activation used supported keyboard controls. No frontend change or substitute HTTP import."
+  ],
+  "synthetic_data_only": true,
+  "main_merge": false,
+  "production_deploy": false
+}
